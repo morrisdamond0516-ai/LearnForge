@@ -2,20 +2,30 @@ import { useListLearnSessions, useResearchTopic, getListLearnSessionsQueryKey } 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BookType, Sparkles, Loader2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 
 export default function Learn() {
   const { data: sessions, isLoading } = useListLearnSessions();
   const researchTopic = useResearchTopic();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
-  const [topic, setTopic] = useState("");
+  const search = useSearch();
+
+  const [topic, setTopic] = useState(() => {
+    const params = new URLSearchParams(search);
+    return params.get("topic") ?? "";
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const t = params.get("topic");
+    if (t) setTopic(t);
+  }, [search]);
 
   const handleResearch = () => {
     if (!topic.trim()) return;

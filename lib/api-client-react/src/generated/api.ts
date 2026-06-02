@@ -31,6 +31,8 @@ import type {
   Document,
   DocumentInput,
   ErrorEnvelope,
+  ExplainInput,
+  ExplainQuestion200,
   HealthStatus,
   LearnInput,
   LearnSession,
@@ -2102,4 +2104,75 @@ export function useGetSubjectProgress<TData = Awaited<ReturnType<typeof getSubje
 
 
 
+
+export const getExplainQuestionUrl = () => {
+
+
+
+
+  return `/api/explain`
+}
+
+/**
+ * @summary AI step-by-step breakdown for a wrong quiz answer
+ */
+export const explainQuestion = async (explainInput: ExplainInput, options?: RequestInit): Promise<ExplainQuestion200> => {
+
+  return customFetch<ExplainQuestion200>(getExplainQuestionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      explainInput,)
+  }
+);}
+
+
+
+
+export const getExplainQuestionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof explainQuestion>>, TError,{data: BodyType<ExplainInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof explainQuestion>>, TError,{data: BodyType<ExplainInput>}, TContext> => {
+
+const mutationKey = ['explainQuestion'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof explainQuestion>>, {data: BodyType<ExplainInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  explainQuestion(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ExplainQuestionMutationResult = NonNullable<Awaited<ReturnType<typeof explainQuestion>>>
+    export type ExplainQuestionMutationBody = BodyType<ExplainInput>
+    export type ExplainQuestionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary AI step-by-step breakdown for a wrong quiz answer
+ */
+export const useExplainQuestion = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof explainQuestion>>, TError,{data: BodyType<ExplainInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof explainQuestion>>,
+        TError,
+        {data: BodyType<ExplainInput>},
+        TContext
+      > => {
+      return useMutation(getExplainQuestionMutationOptions(options));
+    }
 

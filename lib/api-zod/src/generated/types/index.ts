@@ -19,6 +19,8 @@ export * from './dashboardSummary';
 export * from './document';
 export * from './documentInput';
 export * from './errorEnvelope';
+export * from './explainInput';
+export * from './explainQuestion200';
 export * from './healthStatus';
 export * from './learnInput';
 export * from './learnSection';

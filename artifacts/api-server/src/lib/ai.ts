@@ -352,6 +352,72 @@ Include 4-6 recommendations, 3-5 skillGaps, and 3-5 nextSteps.`;
   };
 }
 
+export async function generateExplanation(params: {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  selectedIndex: number;
+  subject?: string | null;
+}): Promise<{ steps: string[]; example: string; tip: string }> {
+  const { prompt, options, correctIndex, selectedIndex, subject } = params;
+  const label = (i: number) => String.fromCharCode(65 + i);
+  const optionLines = options
+    .map((o, i) => `${label(i)}) ${o}`)
+    .join("\n");
+
+  const system =
+    "You are a patient, expert tutor helping a student understand why they got a question wrong. " +
+    "Give a clear, friendly, step-by-step breakdown of the correct answer with a worked example. " +
+    "Do not use emojis. Return ONLY valid JSON, no prose, no markdown fences.";
+
+  const user = `The student answered a multiple-choice question incorrectly.
+
+Subject: ${subject ?? "General"}
+Question: ${prompt}
+Options:
+${optionLines}
+Correct answer: ${label(correctIndex)}) ${options[correctIndex]}
+Student chose: ${label(selectedIndex)}) ${options[selectedIndex]}
+
+Return JSON:
+{
+  "steps": [
+    "Step 1: ...",
+    "Step 2: ..."
+  ],
+  "example": "A fully worked similar example with concrete numbers or details the student can follow",
+  "tip": "A short memorable rule, trick, or pattern to remember this concept"
+}
+
+Steps should number 3–5. Speak directly to the student. For math, show the arithmetic explicitly.`;
+
+  const response = await openai.chat.completions.create({
+    model: MODEL,
+    max_completion_tokens: 2048,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content ?? "";
+  const parsed = extractJson(content) as {
+    steps?: unknown;
+    example?: unknown;
+    tip?: unknown;
+  };
+
+  const strArray = (v: unknown): string[] =>
+    (Array.isArray(v) ? v : []).filter((s): s is string => typeof s === "string");
+
+  return {
+    steps: strArray(parsed.steps),
+    example: typeof parsed.example === "string" ? parsed.example : "",
+    tip: typeof parsed.tip === "string" ? parsed.tip : "",
+  };
+}
+
 export function assessLevel(score: number): string {
   if (score >= 80) return "Advanced";
   if (score >= 50) return "Intermediate";

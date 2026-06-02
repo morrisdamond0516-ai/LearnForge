@@ -491,3 +491,21 @@ export const GetSubjectProgressResponseItem = zod.object({
 export const GetSubjectProgressResponse = zod.array(GetSubjectProgressResponseItem)
 
 
+/**
+ * @summary AI step-by-step breakdown for a wrong quiz answer
+ */
+export const ExplainQuestionBody = zod.object({
+  "prompt": zod.string(),
+  "options": zod.array(zod.string()),
+  "correctIndex": zod.number(),
+  "selectedIndex": zod.number(),
+  "subject": zod.string().nullish()
+})
+
+export const ExplainQuestionResponse = zod.object({
+  "steps": zod.array(zod.string()),
+  "example": zod.string(),
+  "tip": zod.string()
+})
+
+

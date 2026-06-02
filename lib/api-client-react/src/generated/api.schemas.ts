@@ -5,6 +5,15 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface ExplainInput {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  selectedIndex: number;
+  /** @nullable */
+  subject?: string | null;
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -369,4 +378,10 @@ export const ListQuizzesMode = {
   practice: 'practice',
   exam: 'exam',
 } as const;
+
+export type ExplainQuestion200 = {
+  steps: string[];
+  example: string;
+  tip: string;
+};
 

@@ -650,8 +650,60 @@ paths:
                 items:
                   $ref: "#/components/schemas/SubjectProgress"
 
+  /explain:
+    post:
+      operationId: explainQuestion
+      tags: [explain]
+      summary: AI step-by-step breakdown for a wrong quiz answer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExplainInput"
+      responses:
+        "200":
+          description: Step-by-step breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [steps, example, tip]
+                properties:
+                  steps:
+                    type: array
+                    items:
+                      type: string
+                  example:
+                    type: string
+                  tip:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
 components:
   schemas:
+    ExplainInput:
+      type: object
+      required: [prompt, options, correctIndex, selectedIndex]
+      properties:
+        prompt:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        selectedIndex:
+          type: integer
+        subject:
+          type: ["string", "null"]
+
     HealthStatus:
       type: object
       properties:
