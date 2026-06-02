@@ -1,4 +1,5 @@
 import { useListSubjects, useCreateSubject, getListSubjectsQueryKey } from "@workspace/api-client-react";
+import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,20 +94,22 @@ export default function Subjects() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {subjects?.map((subject) => (
-            <Card key={subject.id} className="hover-elevate transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <BookOpen className="h-5 w-5" />
+            <Link key={subject.id} href={`/quizzes?subject=${subject.id}`} className="block">
+              <Card className="hover-elevate transition-all duration-300 cursor-pointer h-full">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    {subject.isCustom && (
+                      <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">Custom</span>
+                    )}
                   </div>
-                  {subject.isCustom && (
-                    <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">Custom</span>
-                  )}
-                </div>
-                <CardTitle className="mt-4">{subject.name}</CardTitle>
-                <CardDescription className="line-clamp-2">{subject.description || "No description provided."}</CardDescription>
-              </CardHeader>
-            </Card>
+                  <CardTitle className="mt-4">{subject.name}</CardTitle>
+                  <CardDescription className="line-clamp-2">{subject.description || "No description provided."}</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
           ))}
           {subjects?.length === 0 && (
             <div className="col-span-full py-12 text-center text-muted-foreground">

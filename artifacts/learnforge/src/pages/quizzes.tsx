@@ -2,7 +2,7 @@ import { useListQuizzes, useGenerateQuiz, getListQuizzesQueryKey, useListSubject
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GraduationCap, Plus, Loader2, Sparkles, Clock, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,6 +32,16 @@ export default function Quizzes() {
   const [mode, setMode] = useState<QuizGenerateInputMode>("practice");
   const [sourceType, setSourceType] = useState<"subject"|"document"|"topic">("topic");
   const [subjectId, setSubjectId] = useState<string>("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const subjectParam = params.get("subject");
+    if (subjectParam) {
+      setSourceType("subject");
+      setSubjectId(subjectParam);
+      setIsOpen(true);
+    }
+  }, []);
   const [documentId, setDocumentId] = useState<string>("");
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState<QuizGenerateInputDifficulty>("medium");
