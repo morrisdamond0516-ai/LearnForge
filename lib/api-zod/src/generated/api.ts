@@ -372,6 +372,86 @@ export const GetLearnSessionResponse = zod.object({
 
 
 /**
+ * Uses AI to analyze a career goal (optionally informed by an uploaded
+transcript and stated preferences/filters) and returns recommended
+schools and programs, skill gaps to close, and suggested next steps.
+
+ * @summary Research and recommend schools/programs for a career goal
+ */
+export const recommendSchoolsBodyCareerGoalMax = 300;
+
+export const recommendSchoolsBodyCurrentEducationMax = 2000;
+
+
+
+export const RecommendSchoolsBody = zod.object({
+  "careerGoal": zod.string().min(1).max(recommendSchoolsBodyCareerGoalMax),
+  "currentEducation": zod.string().max(recommendSchoolsBodyCurrentEducationMax).optional(),
+  "documentId": zod.number().optional(),
+  "preferences": zod.object({
+  "degreeLevel": zod.string().optional(),
+  "studyMode": zod.string().optional(),
+  "location": zod.string().optional(),
+  "budget": zod.string().optional(),
+  "timeline": zod.string().optional()
+}).optional()
+})
+
+
+/**
+ * @summary List saved career plans
+ */
+export const ListCareerPlansResponseItem = zod.object({
+  "id": zod.number(),
+  "careerGoal": zod.string(),
+  "title": zod.string(),
+  "summary": zod.string().nullish(),
+  "recommendationCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+export const ListCareerPlansResponse = zod.array(ListCareerPlansResponseItem)
+
+
+/**
+ * @summary Get a saved career plan
+ */
+export const GetCareerPlanParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCareerPlanResponse = zod.object({
+  "id": zod.number(),
+  "careerGoal": zod.string(),
+  "currentEducation": zod.string().nullish(),
+  "documentId": zod.number().nullish(),
+  "documentName": zod.string().nullish(),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "preferences": zod.object({
+  "degreeLevel": zod.string().optional(),
+  "studyMode": zod.string().optional(),
+  "location": zod.string().optional(),
+  "budget": zod.string().optional(),
+  "timeline": zod.string().optional()
+}).optional(),
+  "recommendations": zod.array(zod.object({
+  "schoolName": zod.string(),
+  "programName": zod.string(),
+  "degreeLevel": zod.string(),
+  "modality": zod.string(),
+  "location": zod.string().optional(),
+  "estimatedCost": zod.string().optional(),
+  "duration": zod.string().optional(),
+  "whyFit": zod.string(),
+  "highlights": zod.array(zod.string())
+})),
+  "skillGaps": zod.array(zod.string()),
+  "nextSteps": zod.array(zod.string()),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Aggregated learning statistics
  */
 export const GetDashboardSummaryResponse = zod.object({

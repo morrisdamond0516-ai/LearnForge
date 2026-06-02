@@ -24,6 +24,9 @@ import type {
   Attempt,
   AttemptInput,
   AttemptSummary,
+  CareerInput,
+  CareerPlan,
+  CareerPlanSummary,
   DashboardSummary,
   Document,
   DocumentInput,
@@ -1628,6 +1631,235 @@ export function useGetLearnSession<TData = Awaited<ReturnType<typeof getLearnSes
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetLearnSessionQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getRecommendSchoolsUrl = () => {
+
+
+
+
+  return `/api/career/recommend`
+}
+
+/**
+ * Uses AI to analyze a career goal (optionally informed by an uploaded
+transcript and stated preferences/filters) and returns recommended
+schools and programs, skill gaps to close, and suggested next steps.
+
+ * @summary Research and recommend schools/programs for a career goal
+ */
+export const recommendSchools = async (careerInput: CareerInput, options?: RequestInit): Promise<CareerPlan> => {
+
+  return customFetch<CareerPlan>(getRecommendSchoolsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      careerInput,)
+  }
+);}
+
+
+
+
+export const getRecommendSchoolsMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recommendSchools>>, TError,{data: BodyType<CareerInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recommendSchools>>, TError,{data: BodyType<CareerInput>}, TContext> => {
+
+const mutationKey = ['recommendSchools'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recommendSchools>>, {data: BodyType<CareerInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  recommendSchools(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecommendSchoolsMutationResult = NonNullable<Awaited<ReturnType<typeof recommendSchools>>>
+    export type RecommendSchoolsMutationBody = BodyType<CareerInput>
+    export type RecommendSchoolsMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Research and recommend schools/programs for a career goal
+ */
+export const useRecommendSchools = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recommendSchools>>, TError,{data: BodyType<CareerInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recommendSchools>>,
+        TError,
+        {data: BodyType<CareerInput>},
+        TContext
+      > => {
+      return useMutation(getRecommendSchoolsMutationOptions(options));
+    }
+
+export const getListCareerPlansUrl = () => {
+
+
+
+
+  return `/api/career/plans`
+}
+
+/**
+ * @summary List saved career plans
+ */
+export const listCareerPlans = async ( options?: RequestInit): Promise<CareerPlanSummary[]> => {
+
+  return customFetch<CareerPlanSummary[]>(getListCareerPlansUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCareerPlansQueryKey = () => {
+    return [
+    `/api/career/plans`
+    ] as const;
+    }
+
+
+export const getListCareerPlansQueryOptions = <TData = Awaited<ReturnType<typeof listCareerPlans>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCareerPlans>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCareerPlansQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCareerPlans>>> = ({ signal }) => listCareerPlans({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCareerPlans>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCareerPlansQueryResult = NonNullable<Awaited<ReturnType<typeof listCareerPlans>>>
+export type ListCareerPlansQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List saved career plans
+ */
+
+export function useListCareerPlans<TData = Awaited<ReturnType<typeof listCareerPlans>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCareerPlans>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCareerPlansQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetCareerPlanUrl = (id: number,) => {
+
+
+
+
+  return `/api/career/plans/${id}`
+}
+
+/**
+ * @summary Get a saved career plan
+ */
+export const getCareerPlan = async (id: number, options?: RequestInit): Promise<CareerPlan> => {
+
+  return customFetch<CareerPlan>(getGetCareerPlanUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCareerPlanQueryKey = (id: number,) => {
+    return [
+    `/api/career/plans/${id}`
+    ] as const;
+    }
+
+
+export const getGetCareerPlanQueryOptions = <TData = Awaited<ReturnType<typeof getCareerPlan>>, TError = ErrorType<ErrorEnvelope>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerPlan>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCareerPlanQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCareerPlan>>> = ({ signal }) => getCareerPlan(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCareerPlan>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCareerPlanQueryResult = NonNullable<Awaited<ReturnType<typeof getCareerPlan>>>
+export type GetCareerPlanQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a saved career plan
+ */
+
+export function useGetCareerPlan<TData = Awaited<ReturnType<typeof getCareerPlan>>, TError = ErrorType<ErrorEnvelope>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCareerPlan>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCareerPlanQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -22,3 +22,4 @@ export * from "./documents";
 export * from "./quizzes";
 export * from "./attempts";
 export * from "./learnSessions";
+export * from "./careerPlans";

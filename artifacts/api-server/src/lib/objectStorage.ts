@@ -106,6 +106,11 @@ export class ObjectStorageService {
     return new Response(webStream, { headers });
   }
 
+  async downloadObjectBuffer(file: File): Promise<Buffer> {
+    const [contents] = await file.download();
+    return contents;
+  }
+
   async getObjectEntityUploadURL(): Promise<string> {
     const privateObjectDir = this.getPrivateObjectDir();
     if (!privateObjectDir) {

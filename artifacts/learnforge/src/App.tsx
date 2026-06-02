@@ -11,6 +11,8 @@ import Quizzes from "@/pages/quizzes";
 import QuizTake from "@/pages/quiz-take";
 import Learn from "@/pages/learn";
 import LearnSession from "@/pages/learn-session";
+import Pathways from "@/pages/pathways";
+import Pathway from "@/pages/pathway";
 import Documents from "@/pages/documents";
 import Attempt from "@/pages/attempt";
 
@@ -26,6 +28,8 @@ function Router() {
         <Route path="/quizzes/:id" component={QuizTake} />
         <Route path="/learn" component={Learn} />
         <Route path="/learn/:id" component={LearnSession} />
+        <Route path="/pathways" component={Pathways} />
+        <Route path="/pathways/:id" component={Pathway} />
         <Route path="/documents" component={Documents} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />

@@ -212,6 +212,146 @@ Include 4-6 sections, 4-6 keyPoints, and 3-4 nextSteps.`;
   };
 }
 
+export type CareerPreferences = {
+  degreeLevel?: string;
+  studyMode?: string;
+  location?: string;
+  budget?: string;
+  timeline?: string;
+};
+
+export type SchoolRecommendation = {
+  schoolName: string;
+  programName: string;
+  degreeLevel: string;
+  modality: string;
+  location: string;
+  estimatedCost: string;
+  duration: string;
+  whyFit: string;
+  highlights: string[];
+};
+
+export type CareerArgs = {
+  careerGoal: string;
+  currentEducation?: string;
+  transcriptText?: string;
+  preferences?: CareerPreferences;
+};
+
+export type GeneratedCareerPlan = {
+  title: string;
+  summary: string;
+  recommendations: SchoolRecommendation[];
+  skillGaps: string[];
+  nextSteps: string[];
+};
+
+export async function generateCareerRecommendations(
+  args: CareerArgs,
+): Promise<GeneratedCareerPlan> {
+  const { careerGoal, currentEducation, transcriptText, preferences } = args;
+  const prefs = preferences ?? {};
+
+  const prefLines: string[] = [];
+  if (prefs.degreeLevel)
+    prefLines.push(`Desired degree level: ${prefs.degreeLevel}.`);
+  if (prefs.studyMode)
+    prefLines.push(`Preferred study mode: ${prefs.studyMode}.`);
+  if (prefs.location)
+    prefLines.push(`Preferred location: ${prefs.location}.`);
+  if (prefs.budget) prefLines.push(`Budget preference: ${prefs.budget}.`);
+  if (prefs.timeline) prefLines.push(`Timeline: ${prefs.timeline}.`);
+
+  const system =
+    "You are an experienced academic and career advisor. You help learners find the right schools and programs to reach their career goals. " +
+    "Be realistic, specific, and encouraging. Recommend a diverse, well-known set of real, plausible schools/programs that fit the stated constraints. " +
+    "Do not use emojis. Return ONLY valid JSON, no prose, no markdown fences.";
+
+  const user = `The learner's career goal is: "${careerGoal}".
+${currentEducation ? `Their current education / background: ${currentEducation}.` : ""}
+${transcriptText ? `Here is information from their uploaded transcript or background document (use it to judge their starting point):\n${transcriptText.slice(0, 4000)}` : ""}
+${prefLines.length > 0 ? `Preferences and filters:\n${prefLines.join("\n")}` : ""}
+
+Recommend schools and programs that would help this person reach their goal, honoring the preferences above when given.
+
+Return JSON with this exact shape:
+{
+  "title": "a short title for this career plan",
+  "summary": "a 2-3 sentence overview of the recommended path and how these options fit the learner",
+  "recommendations": [
+    {
+      "schoolName": "name of the institution",
+      "programName": "name of the specific program or degree",
+      "degreeLevel": "e.g. Certificate, Associate, Bachelor's, Master's, Doctorate",
+      "modality": "Online, In-person, or Hybrid",
+      "location": "city/region or 'Online'",
+      "estimatedCost": "a realistic cost range or note",
+      "duration": "typical time to complete",
+      "whyFit": "1-2 sentences on why this fits the learner's goal and preferences",
+      "highlights": ["notable strength", "notable strength"]
+    }
+  ],
+  "skillGaps": ["a skill or prerequisite the learner should build for this career"],
+  "nextSteps": ["a concrete next action toward enrolling or preparing"]
+}
+Include 4-6 recommendations, 3-5 skillGaps, and 3-5 nextSteps.`;
+
+  const response = await openai.chat.completions.create({
+    model: MODEL,
+    max_completion_tokens: 8192,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content ?? "";
+  const parsed = extractJson(content) as {
+    title?: string;
+    summary?: string;
+    recommendations?: Array<Record<string, unknown>>;
+    skillGaps?: string[];
+    nextSteps?: string[];
+  };
+
+  const str = (v: unknown): string => (typeof v === "string" ? v : "");
+  const recommendations: SchoolRecommendation[] = (
+    Array.isArray(parsed.recommendations) ? parsed.recommendations : []
+  )
+    .filter((r) => r && typeof r === "object")
+    .map((r) => ({
+      schoolName: str(r["schoolName"]).trim() || "School",
+      programName: str(r["programName"]).trim() || "Program",
+      degreeLevel: str(r["degreeLevel"]).trim() || "Program",
+      modality: str(r["modality"]).trim() || "Not specified",
+      location: str(r["location"]).trim(),
+      estimatedCost: str(r["estimatedCost"]).trim(),
+      duration: str(r["duration"]).trim(),
+      whyFit: str(r["whyFit"]).trim(),
+      highlights: (Array.isArray(r["highlights"]) ? r["highlights"] : [])
+        .filter((h): h is string => typeof h === "string")
+        .map((h) => h),
+    }));
+
+  const strArray = (v: unknown): string[] =>
+    (Array.isArray(v) ? v : [])
+      .filter((k): k is string => typeof k === "string")
+      .map((k) => k);
+
+  return {
+    title:
+      typeof parsed.title === "string" && parsed.title.trim().length > 0
+        ? parsed.title.trim()
+        : `Career plan: ${careerGoal}`,
+    summary: typeof parsed.summary === "string" ? parsed.summary : "",
+    recommendations,
+    skillGaps: strArray(parsed.skillGaps),
+    nextSteps: strArray(parsed.nextSteps),
+  };
+}
+
 export function assessLevel(score: number): string {
   if (score >= 80) return "Advanced";
   if (score >= 50) return "Intermediate";

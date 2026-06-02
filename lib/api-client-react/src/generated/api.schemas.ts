@@ -258,6 +258,66 @@ export interface LearnInput {
   focus?: string;
 }
 
+export interface SchoolRecommendation {
+  schoolName: string;
+  programName: string;
+  degreeLevel: string;
+  modality: string;
+  location?: string;
+  estimatedCost?: string;
+  duration?: string;
+  whyFit: string;
+  highlights: string[];
+}
+
+export interface CareerPreferences {
+  degreeLevel?: string;
+  studyMode?: string;
+  location?: string;
+  budget?: string;
+  timeline?: string;
+}
+
+export interface CareerInput {
+  /**
+     * @minLength 1
+     * @maxLength 300
+     */
+  careerGoal: string;
+  /** @maxLength 2000 */
+  currentEducation?: string;
+  documentId?: number;
+  preferences?: CareerPreferences;
+}
+
+export interface CareerPlan {
+  id: number;
+  careerGoal: string;
+  /** @nullable */
+  currentEducation?: string | null;
+  /** @nullable */
+  documentId?: number | null;
+  /** @nullable */
+  documentName?: string | null;
+  title: string;
+  summary: string;
+  preferences?: CareerPreferences;
+  recommendations: SchoolRecommendation[];
+  skillGaps: string[];
+  nextSteps: string[];
+  createdAt: string;
+}
+
+export interface CareerPlanSummary {
+  id: number;
+  careerGoal: string;
+  title: string;
+  /** @nullable */
+  summary?: string | null;
+  recommendationCount?: number;
+  createdAt: string;
+}
+
 export interface DashboardSummary {
   totalQuizzes: number;
   totalAttempts: number;

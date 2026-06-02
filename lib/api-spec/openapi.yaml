@@ -530,6 +530,85 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
 
+  /career/recommend:
+    post:
+      operationId: recommendSchools
+      tags: [career]
+      summary: Research and recommend schools/programs for a career goal
+      description: |
+        Uses AI to analyze a career goal (optionally informed by an uploaded
+        transcript and stated preferences/filters) and returns recommended
+        schools and programs, skill gaps to close, and suggested next steps.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CareerInput"
+      responses:
+        "201":
+          description: Generated career plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerPlan"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Linked resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Recommendation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /career/plans:
+    get:
+      operationId: listCareerPlans
+      tags: [career]
+      summary: List saved career plans
+      responses:
+        "200":
+          description: List of career plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CareerPlanSummary"
+  /career/plans/{id}:
+    get:
+      operationId: getCareerPlan
+      tags: [career]
+      summary: Get a saved career plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Career plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerPlan"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
   /dashboard/summary:
     get:
       operationId: getDashboardSummary
@@ -935,6 +1014,111 @@ components:
           type: integer
         focus:
           type: string
+
+    SchoolRecommendation:
+      type: object
+      required: [schoolName, programName, degreeLevel, modality, whyFit, highlights]
+      properties:
+        schoolName:
+          type: string
+        programName:
+          type: string
+        degreeLevel:
+          type: string
+        modality:
+          type: string
+        location:
+          type: string
+        estimatedCost:
+          type: string
+        duration:
+          type: string
+        whyFit:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+    CareerPreferences:
+      type: object
+      properties:
+        degreeLevel:
+          type: string
+        studyMode:
+          type: string
+        location:
+          type: string
+        budget:
+          type: string
+        timeline:
+          type: string
+    CareerInput:
+      type: object
+      required: [careerGoal]
+      properties:
+        careerGoal:
+          type: string
+          minLength: 1
+          maxLength: 300
+        currentEducation:
+          type: string
+          maxLength: 2000
+        documentId:
+          type: integer
+        preferences:
+          $ref: "#/components/schemas/CareerPreferences"
+    CareerPlan:
+      type: object
+      required: [id, careerGoal, title, summary, recommendations, skillGaps, nextSteps, createdAt]
+      properties:
+        id:
+          type: integer
+        careerGoal:
+          type: string
+        currentEducation:
+          type: ["string", "null"]
+        documentId:
+          type: ["integer", "null"]
+        documentName:
+          type: ["string", "null"]
+        title:
+          type: string
+        summary:
+          type: string
+        preferences:
+          $ref: "#/components/schemas/CareerPreferences"
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SchoolRecommendation"
+        skillGaps:
+          type: array
+          items:
+            type: string
+        nextSteps:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+    CareerPlanSummary:
+      type: object
+      required: [id, careerGoal, title, createdAt]
+      properties:
+        id:
+          type: integer
+        careerGoal:
+          type: string
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        recommendationCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
 
     DashboardSummary:
       type: object
