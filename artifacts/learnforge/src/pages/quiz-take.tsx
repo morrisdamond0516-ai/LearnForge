@@ -41,6 +41,22 @@ export default function QuizTake() {
         setCurrentQuestionIdx(prev => prev + 1);
         setAdvancing(false);
       }, 600);
+    } else {
+      const allAnswered = Object.keys(newAnswers).length === quiz.questions.length;
+      if (allAnswered) {
+        setTimeout(() => {
+          const answersArray = quiz.questions.map(q => newAnswers[q.id] ?? -1);
+          submitAttempt.mutate({ id: quizId, data: { answers: answersArray } }, {
+            onSuccess: (attempt) => {
+              queryClient.invalidateQueries({ queryKey: getListAttemptsQueryKey() });
+              setLocation(`/attempts/${attempt.id}`);
+            },
+            onError: () => {
+              toast({ title: "Failed to submit quiz", variant: "destructive" });
+            }
+          });
+        }, 700);
+      }
     }
   };
 
@@ -112,28 +128,27 @@ export default function QuizTake() {
           })}
         </CardContent>
         <CardFooter className="pt-6 flex justify-between border-t border-border mt-4">
-          <Button variant="outline" onClick={handlePrevious} disabled={currentQuestionIdx === 0}>
+          <Button variant="outline" onClick={handlePrevious} disabled={currentQuestionIdx === 0 || submitAttempt.isPending}>
             Previous
           </Button>
-          
-          {!isLastQuestion ? (
+
+          {submitAttempt.isPending ? (
+            <Button disabled className="bg-primary text-primary-foreground">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </Button>
+          ) : !isLastQuestion ? (
             <Button onClick={handleNext} disabled={!isAnswered}>
               Next Question
             </Button>
           ) : (
-            (() => {
-              const allAnswered = Object.keys(answers).length === quiz.questions.length;
-              return (
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!allAnswered || submitAttempt.isPending}
-                  className={cn("bg-primary text-primary-foreground", allAnswered && "animate-pulse")}
-                >
-                  {submitAttempt.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Submit Quiz
-                </Button>
-              );
-            })()
+            <Button
+              onClick={handleSubmit}
+              disabled={Object.keys(answers).length !== quiz.questions.length}
+              className="bg-primary text-primary-foreground"
+            >
+              Submit Quiz
+            </Button>
           )}
         </CardFooter>
       </Card>
