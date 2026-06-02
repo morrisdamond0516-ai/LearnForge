@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "LearnForge"
+version = "1.0.0"
+id = "artifacts/learnforge"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24942
+
+[services.development]
+run = "pnpm --filter @workspace/learnforge run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/learnforge", "run", "build" ]
+publicDir = "artifacts/learnforge/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24942"
+BASE_PATH = "/"

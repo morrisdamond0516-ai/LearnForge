@@ -10,6 +10,20 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: Storage
+    description: Object storage upload and serving endpoints.
+  - name: subjects
+    description: Learning subjects and topics
+  - name: documents
+    description: Uploaded study material documents
+  - name: quizzes
+    description: Quiz, test and exam generation and retrieval
+  - name: attempts
+    description: Quiz attempts and scoring
+  - name: learn
+    description: AI-powered research and study guides
+  - name: dashboard
+    description: Aggregated progress and activity
 paths:
   /healthz:
     get:
@@ -24,6 +38,539 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      description: |
+        Returns a presigned GCS URL for direct upload. The client sends JSON
+        metadata here, then uploads the file directly to the returned URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Missing or invalid required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to generate upload URL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/public-objects/{filePath}:
+    get:
+      tags: [Storage]
+      operationId: getPublicObject
+      summary: Serve a public asset from PUBLIC_OBJECT_SEARCH_PATHS
+      parameters:
+        - name: filePath
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Relative file path within the public search paths.
+      responses:
+        '200':
+          description: Object content streamed with correct Content-Type.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to serve public object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve an object entity from PRIVATE_OBJECT_DIR
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Object path within the private object dir (e.g. `uploads/some-uuid`).
+      responses:
+        '200':
+          description: Object content streamed with correct Content-Type.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Object not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Failed to serve object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /subjects:
+    get:
+      operationId: listSubjects
+      tags: [subjects]
+      summary: List all subjects
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+    post:
+      operationId: createSubject
+      tags: [subjects]
+      summary: Create a custom subject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectInput"
+      responses:
+        "201":
+          description: Created subject
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /subjects/{id}:
+    get:
+      operationId: getSubject
+      tags: [subjects]
+      summary: Get a subject by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subject
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List uploaded documents
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Register an uploaded document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentInput"
+      responses:
+        "201":
+          description: Created document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get a document by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /quizzes:
+    get:
+      operationId: listQuizzes
+      tags: [quizzes]
+      summary: List quizzes
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [placement, practice, exam]
+        - name: subjectId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of quizzes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QuizSummary"
+  /quizzes/generate:
+    post:
+      operationId: generateQuiz
+      tags: [quizzes]
+      summary: Generate a quiz, test, or exam with AI
+      description: |
+        Generates a quiz from a chosen subject (placement), an uploaded document,
+        or a free-form topic. Returns the full quiz including questions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizGenerateInput"
+      responses:
+        "201":
+          description: Generated quiz
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /quizzes/{id}:
+    get:
+      operationId: getQuiz
+      tags: [quizzes]
+      summary: Get a quiz with its questions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quiz with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: deleteQuiz
+      tags: [quizzes]
+      summary: Delete a quiz
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /quizzes/{id}/attempts:
+    post:
+      operationId: submitAttempt
+      tags: [attempts]
+      summary: Submit answers for a quiz and get a scored result
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttemptInput"
+      responses:
+        "201":
+          description: Scored attempt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attempt"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /attempts:
+    get:
+      operationId: listAttempts
+      tags: [attempts]
+      summary: List recent attempts
+      responses:
+        "200":
+          description: List of attempts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttemptSummary"
+  /attempts/{id}:
+    get:
+      operationId: getAttempt
+      tags: [attempts]
+      summary: Get a full attempt with per-question results
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Attempt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attempt"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /learn/research:
+    post:
+      operationId: researchTopic
+      tags: [learn]
+      summary: Generate an AI study guide for a topic
+      description: |
+        Produces a structured study guide (summary, sections, key points and
+        suggested next steps) for a chosen subject or free-form topic.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LearnInput"
+      responses:
+        "201":
+          description: Generated study guide
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearnSession"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /learn/sessions:
+    get:
+      operationId: listLearnSessions
+      tags: [learn]
+      summary: List saved study guides
+      responses:
+        "200":
+          description: List of study guides
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearnSessionSummary"
+  /learn/sessions/{id}:
+    get:
+      operationId: getLearnSession
+      tags: [learn]
+      summary: Get a saved study guide
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Study guide
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearnSession"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Aggregated learning statistics
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /dashboard/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Recent activity feed
+      responses:
+        "200":
+          description: Recent activity items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+  /dashboard/subject-progress:
+    get:
+      operationId: getSubjectProgress
+      tags: [dashboard]
+      summary: Per-subject progress and placement level
+      responses:
+        "200":
+          description: Subject progress list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubjectProgress"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +581,406 @@ components:
       required:
         - status
 
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+          format: uri
+        objectPath:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/UploadUrlRequest'
+
+    Subject:
+      type: object
+      required: [id, name, slug, category, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        category:
+          type: string
+        icon:
+          type: ["string", "null"]
+        isCustom:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    SubjectInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        category:
+          type: string
+
+    Document:
+      type: object
+      required: [id, name, objectPath, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        objectPath:
+          type: string
+        contentType:
+          type: ["string", "null"]
+        size:
+          type: ["integer", "null"]
+        subjectId:
+          type: ["integer", "null"]
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    DocumentInput:
+      type: object
+      required: [name, objectPath]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        objectPath:
+          type: string
+          minLength: 1
+        contentType:
+          type: string
+        size:
+          type: integer
+        subjectId:
+          type: integer
+
+    Question:
+      type: object
+      required: [id, prompt, options, correctIndex, order]
+      properties:
+        id:
+          type: integer
+        prompt:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        explanation:
+          type: ["string", "null"]
+        order:
+          type: integer
+    Quiz:
+      type: object
+      required: [id, title, mode, difficulty, questionCount, createdAt, questions]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        mode:
+          type: string
+          enum: [placement, practice, exam]
+        subjectId:
+          type: ["integer", "null"]
+        subjectName:
+          type: ["string", "null"]
+        documentId:
+          type: ["integer", "null"]
+        topic:
+          type: ["string", "null"]
+        difficulty:
+          type: string
+        questionCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+    QuizSummary:
+      type: object
+      required: [id, title, mode, difficulty, questionCount, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        mode:
+          type: string
+          enum: [placement, practice, exam]
+        subjectId:
+          type: ["integer", "null"]
+        subjectName:
+          type: ["string", "null"]
+        topic:
+          type: ["string", "null"]
+        difficulty:
+          type: string
+        questionCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    QuizGenerateInput:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [placement, practice, exam]
+        subjectId:
+          type: integer
+        documentId:
+          type: integer
+        topic:
+          type: string
+        title:
+          type: string
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, mixed]
+        questionCount:
+          type: integer
+          minimum: 3
+          maximum: 25
+
+    AttemptInput:
+      type: object
+      required: [answers]
+      properties:
+        answers:
+          type: array
+          items:
+            type: integer
+    QuestionResult:
+      type: object
+      required: [questionId, prompt, options, selectedIndex, correctIndex, correct]
+      properties:
+        questionId:
+          type: integer
+        prompt:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        selectedIndex:
+          type: integer
+        correctIndex:
+          type: integer
+        correct:
+          type: boolean
+        explanation:
+          type: ["string", "null"]
+    Attempt:
+      type: object
+      required: [id, quizId, score, correctCount, totalQuestions, level, completedAt, results]
+      properties:
+        id:
+          type: integer
+        quizId:
+          type: integer
+        quizTitle:
+          type: ["string", "null"]
+        mode:
+          type: ["string", "null"]
+        subjectId:
+          type: ["integer", "null"]
+        subjectName:
+          type: ["string", "null"]
+        score:
+          type: number
+        correctCount:
+          type: integer
+        totalQuestions:
+          type: integer
+        level:
+          type: string
+        feedback:
+          type: ["string", "null"]
+        completedAt:
+          type: string
+          format: date-time
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionResult"
+    AttemptSummary:
+      type: object
+      required: [id, quizId, score, correctCount, totalQuestions, level, completedAt]
+      properties:
+        id:
+          type: integer
+        quizId:
+          type: integer
+        quizTitle:
+          type: ["string", "null"]
+        mode:
+          type: ["string", "null"]
+        subjectName:
+          type: ["string", "null"]
+        score:
+          type: number
+        correctCount:
+          type: integer
+        totalQuestions:
+          type: integer
+        level:
+          type: string
+        completedAt:
+          type: string
+          format: date-time
+
+    LearnSection:
+      type: object
+      required: [heading, content]
+      properties:
+        heading:
+          type: string
+        content:
+          type: string
+    LearnSession:
+      type: object
+      required: [id, topic, title, summary, sections, keyPoints, createdAt]
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: ["integer", "null"]
+        subjectName:
+          type: ["string", "null"]
+        topic:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/LearnSection"
+        keyPoints:
+          type: array
+          items:
+            type: string
+        nextSteps:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+    LearnSessionSummary:
+      type: object
+      required: [id, topic, title, createdAt]
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: ["integer", "null"]
+        subjectName:
+          type: ["string", "null"]
+        topic:
+          type: string
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+    LearnInput:
+      type: object
+      required: [topic]
+      properties:
+        topic:
+          type: string
+          minLength: 1
+        subjectId:
+          type: integer
+        focus:
+          type: string
+
+    DashboardSummary:
+      type: object
+      required: [totalQuizzes, totalAttempts, averageScore, documentsUploaded, subjectsStudied]
+      properties:
+        totalQuizzes:
+          type: integer
+        totalAttempts:
+          type: integer
+        averageScore:
+          type: number
+        documentsUploaded:
+          type: integer
+        subjectsStudied:
+          type: integer
+        studyGuides:
+          type: integer
+    ActivityItem:
+      type: object
+      required: [id, type, title, timestamp]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [attempt, quiz, document, learn]
+        title:
+          type: string
+        detail:
+          type: ["string", "null"]
+        timestamp:
+          type: string
+          format: date-time
+    SubjectProgress:
+      type: object
+      required: [subjectId, subjectName, attempts, averageScore, level]
+      properties:
+        subjectId:
+          type: integer
+        subjectName:
+          type: string
+        category:
+          type: ["string", "null"]
+        attempts:
+          type: integer
+        averageScore:
+          type: number
+        level:
+          type: string

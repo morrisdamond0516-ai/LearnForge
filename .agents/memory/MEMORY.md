@@ -1,0 +1,2 @@
+- [wouter Link anchors](wouter-link-anchors.md) — wouter v3 Link renders its own <a>; never nest <a> inside, put props on Link directly.
+- [Composite libs in monorepo](composite-libs.md) — libs in root tsconfig references must be composite:true or artifact typecheck fails.
