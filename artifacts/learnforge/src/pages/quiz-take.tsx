@@ -21,6 +21,7 @@ export default function QuizTake() {
 
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [advancing, setAdvancing] = useState(false);
 
   if (isLoading) return <div className="p-8 space-y-4 max-w-3xl mx-auto"><Skeleton className="h-8 w-1/3" /><Skeleton className="h-64 w-full" /></div>;
   if (error || !quiz) return <div className="p-8 text-center text-destructive">Failed to load quiz.</div>;
@@ -30,7 +31,17 @@ export default function QuizTake() {
   const isAnswered = answers[currentQuestion.id] !== undefined;
 
   const handleSelect = (optionIdx: number) => {
-    setAnswers(prev => ({ ...prev, [currentQuestion.id]: optionIdx }));
+    if (advancing || answers[currentQuestion.id] !== undefined) return;
+    const newAnswers = { ...answers, [currentQuestion.id]: optionIdx };
+    setAnswers(newAnswers);
+
+    if (!isLastQuestion) {
+      setAdvancing(true);
+      setTimeout(() => {
+        setCurrentQuestionIdx(prev => prev + 1);
+        setAdvancing(false);
+      }, 600);
+    }
   };
 
   const handleNext = () => {
@@ -110,10 +121,19 @@ export default function QuizTake() {
               Next Question
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={Object.keys(answers).length !== quiz.questions.length || submitAttempt.isPending} className="bg-primary text-primary-foreground">
-              {submitAttempt.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Quiz
-            </Button>
+            (() => {
+              const allAnswered = Object.keys(answers).length === quiz.questions.length;
+              return (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!allAnswered || submitAttempt.isPending}
+                  className={cn("bg-primary text-primary-foreground", allAnswered && "animate-pulse")}
+                >
+                  {submitAttempt.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Submit Quiz
+                </Button>
+              );
+            })()
           )}
         </CardFooter>
       </Card>

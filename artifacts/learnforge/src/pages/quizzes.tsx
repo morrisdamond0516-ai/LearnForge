@@ -7,7 +7,7 @@ import { GraduationCap, Plus, Loader2, Sparkles, Clock, ArrowRight } from "lucid
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -33,15 +33,16 @@ export default function Quizzes() {
   const [sourceType, setSourceType] = useState<"subject"|"document"|"topic">("topic");
   const [subjectId, setSubjectId] = useState<string>("");
 
+  const search = useSearch();
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(search);
     const subjectParam = params.get("subject");
     if (subjectParam) {
       setSourceType("subject");
       setSubjectId(subjectParam);
       setIsOpen(true);
     }
-  }, []);
+  }, [search]);
   const [documentId, setDocumentId] = useState<string>("");
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState<QuizGenerateInputDifficulty>("medium");
