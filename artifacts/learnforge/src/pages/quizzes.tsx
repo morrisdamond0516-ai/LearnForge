@@ -85,9 +85,15 @@ export default function Quizzes() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Generate New Assessment</DialogTitle>
+              <DialogTitle>
+                {sourceType === "subject" && subjectId && subjects?.find(s => s.id.toString() === subjectId)
+                  ? `Generate a ${subjects.find(s => s.id.toString() === subjectId)!.name} Quiz`
+                  : "Generate New Assessment"}
+              </DialogTitle>
               <DialogDescription>
-                AI will craft custom questions based on your selections.
+                {sourceType === "subject" && subjectId && subjects?.find(s => s.id.toString() === subjectId)
+                  ? `Choose your settings below, then click Generate with AI to create a ${subjects.find(s => s.id.toString() === subjectId)!.name} quiz.`
+                  : "AI will craft custom questions based on your selections."}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">

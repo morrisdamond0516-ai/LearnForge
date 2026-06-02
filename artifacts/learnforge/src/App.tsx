@@ -16,7 +16,15 @@ import Pathway from "@/pages/pathway";
 import Documents from "@/pages/documents";
 import Attempt from "@/pages/attempt";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 0,
+      gcTime: 0,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function Router() {
   return (
