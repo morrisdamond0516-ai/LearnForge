@@ -26,9 +26,27 @@ if (!basePath) {
   );
 }
 
+const noCacheInDev =
+  process.env.NODE_ENV !== "production"
+    ? [
+        {
+          name: "no-cache-in-dev",
+          configureServer(server: { middlewares: { use: (fn: (req: unknown, res: { setHeader: (k: string, v: string) => void }, next: () => void) => void) => void } }) {
+            server.middlewares.use((_req, res, next) => {
+              res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+              res.setHeader("Pragma", "no-cache");
+              res.setHeader("Expires", "0");
+              next();
+            });
+          },
+        },
+      ]
+    : [];
+
 export default defineConfig({
   base: basePath,
   plugins: [
+    ...noCacheInDev,
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
