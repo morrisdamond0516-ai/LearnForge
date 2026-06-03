@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -9,6 +9,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { name: "Subjects", href: "/subjects", icon: BookOpen },
     { name: "Quizzes", href: "/quizzes", icon: GraduationCap },
     { name: "Study Guides", href: "/learn", icon: Library },
+    { name: "Curriculum", href: "/curriculum", icon: BookMarked },
     { name: "Pathways", href: "/pathways", icon: Compass },
     { name: "Documents", href: "/documents", icon: FileText },
   ];

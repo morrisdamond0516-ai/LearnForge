@@ -27,6 +27,9 @@ import type {
   CareerInput,
   CareerPlan,
   CareerPlanSummary,
+  Curriculum,
+  CurriculumInput,
+  CurriculumSummary,
   DashboardSummary,
   Document,
   DocumentInput,
@@ -1260,6 +1263,233 @@ export const useRefreshQuiz = <TError = ErrorType<ErrorEnvelope>,
       > => {
       return useMutation(getRefreshQuizMutationOptions(options));
     }
+
+export const getGenerateCurriculumUrl = () => {
+
+
+
+
+  return `/api/curriculum/generate`
+}
+
+/**
+ * Uses AI to build a sequenced learning plan (modules of books, videos, worksheets, tools, and other resources) tailored to the learner's assessed level, optionally targeting specific weak areas.
+
+ * @summary Generate a tailored learning curriculum for a subject and level
+ */
+export const generateCurriculum = async (curriculumInput: CurriculumInput, options?: RequestInit): Promise<Curriculum> => {
+
+  return customFetch<Curriculum>(getGenerateCurriculumUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      curriculumInput,)
+  }
+);}
+
+
+
+
+export const getGenerateCurriculumMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateCurriculum>>, TError,{data: BodyType<CurriculumInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateCurriculum>>, TError,{data: BodyType<CurriculumInput>}, TContext> => {
+
+const mutationKey = ['generateCurriculum'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateCurriculum>>, {data: BodyType<CurriculumInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  generateCurriculum(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateCurriculumMutationResult = NonNullable<Awaited<ReturnType<typeof generateCurriculum>>>
+    export type GenerateCurriculumMutationBody = BodyType<CurriculumInput>
+    export type GenerateCurriculumMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Generate a tailored learning curriculum for a subject and level
+ */
+export const useGenerateCurriculum = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateCurriculum>>, TError,{data: BodyType<CurriculumInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateCurriculum>>,
+        TError,
+        {data: BodyType<CurriculumInput>},
+        TContext
+      > => {
+      return useMutation(getGenerateCurriculumMutationOptions(options));
+    }
+
+export const getListCurriculaUrl = () => {
+
+
+
+
+  return `/api/curriculum`
+}
+
+/**
+ * @summary List saved curricula
+ */
+export const listCurricula = async ( options?: RequestInit): Promise<CurriculumSummary[]> => {
+
+  return customFetch<CurriculumSummary[]>(getListCurriculaUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCurriculaQueryKey = () => {
+    return [
+    `/api/curriculum`
+    ] as const;
+    }
+
+
+export const getListCurriculaQueryOptions = <TData = Awaited<ReturnType<typeof listCurricula>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCurricula>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCurriculaQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCurricula>>> = ({ signal }) => listCurricula({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCurricula>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCurriculaQueryResult = NonNullable<Awaited<ReturnType<typeof listCurricula>>>
+export type ListCurriculaQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List saved curricula
+ */
+
+export function useListCurricula<TData = Awaited<ReturnType<typeof listCurricula>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCurricula>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCurriculaQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetCurriculumUrl = (id: number,) => {
+
+
+
+
+  return `/api/curriculum/${id}`
+}
+
+/**
+ * @summary Get a saved curriculum
+ */
+export const getCurriculum = async (id: number, options?: RequestInit): Promise<Curriculum> => {
+
+  return customFetch<Curriculum>(getGetCurriculumUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCurriculumQueryKey = (id: number,) => {
+    return [
+    `/api/curriculum/${id}`
+    ] as const;
+    }
+
+
+export const getGetCurriculumQueryOptions = <TData = Awaited<ReturnType<typeof getCurriculum>>, TError = ErrorType<ErrorEnvelope>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCurriculum>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCurriculumQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCurriculum>>> = ({ signal }) => getCurriculum(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCurriculum>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCurriculumQueryResult = NonNullable<Awaited<ReturnType<typeof getCurriculum>>>
+export type GetCurriculumQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Get a saved curriculum
+ */
+
+export function useGetCurriculum<TData = Awaited<ReturnType<typeof getCurriculum>>, TError = ErrorType<ErrorEnvelope>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCurriculum>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCurriculumQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getSubmitAttemptUrl = (id: number,) => {
 

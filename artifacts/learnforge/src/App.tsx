@@ -13,6 +13,8 @@ import Learn from "@/pages/learn";
 import LearnSession from "@/pages/learn-session";
 import Pathways from "@/pages/pathways";
 import Pathway from "@/pages/pathway";
+import Curriculum from "@/pages/curriculum";
+import CurriculumDetail from "@/pages/curriculum-detail";
 import Documents from "@/pages/documents";
 import Attempt from "@/pages/attempt";
 
@@ -38,6 +40,8 @@ function Router() {
         <Route path="/learn/:id" component={LearnSession} />
         <Route path="/pathways" component={Pathways} />
         <Route path="/pathways/:id" component={Pathway} />
+        <Route path="/curriculum" component={Curriculum} />
+        <Route path="/curriculum/:id" component={CurriculumDetail} />
         <Route path="/documents" component={Documents} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />

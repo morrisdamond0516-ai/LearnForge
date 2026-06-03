@@ -26,9 +26,9 @@ An AI-powered learning and test-prep web app: pick any subject, generate custom 
 ## Where things live
 
 - API contract (source of truth): `lib/api-spec/openapi.yaml` → codegen produces `@workspace/api-zod` and `@workspace/api-client-react`
-- DB schema (source of truth): `lib/db/src/schema/*.ts` (subjects, documents, quizzes, attempts, learnSessions, careerPlans), re-exported from `index.ts`
-- API routes: `artifacts/api-server/src/routes/*.ts` (subjects, documents, quizzes, attempts, learn, dashboard, storage, career)
-- AI logic: `artifacts/api-server/src/lib/ai.ts` (quiz generation, study-guide research, level assessment, career recommendations)
+- DB schema (source of truth): `lib/db/src/schema/*.ts` (subjects, documents, quizzes, attempts, learnSessions, careerPlans, curricula), re-exported from `index.ts`
+- API routes: `artifacts/api-server/src/routes/*.ts` (subjects, documents, quizzes, attempts, learn, dashboard, storage, career, curriculum)
+- AI logic: `artifacts/api-server/src/lib/ai.ts` (quiz generation, study-guide research, level assessment, career recommendations, curriculum generation)
 - Document text extraction: `artifacts/api-server/src/lib/documentText.ts` (downloads an uploaded object and pulls readable text — PDF via pdf-parse, text/* directly)
 - Frontend pages: `artifacts/learnforge/src/pages/*`; theme in `artifacts/learnforge/src/index.css`
 
@@ -48,6 +48,7 @@ An AI-powered learning and test-prep web app: pick any subject, generate custom 
 - Subjects: browse and create custom subjects
 - Quizzes: generate placement/practice/exam quizzes from a subject, document, or free-form topic; each time you take one, a fresh set of questions is generated (you can't just memorize answers); get scored results with explanations and an assessed level
 - Learn: AI study guides for any topic (summary, sections, key points, next steps)
+- Curriculum: after an assessment (or from the Curriculum page), generate a tailored learning plan for a subject + assessed level. The AI returns ordered modules, each grouping the best real learning materials (books, videos, worksheets, tools, courses) with author/provider and a "where to find it" note (no fabricated URLs). The "Build my curriculum" button on the quiz results page seeds generation with the subject, assessed level, and the prompts of missed questions as focus areas. Plans are saved and browsable. Mirrors the Career Pathways architecture (schema/route/openapi/codegen/list+detail pages).
 - Documents: upload PDFs/files to use as quiz source material
 - Career Pathways: upload a transcript/document + career goal + preferences (format/budget/location/timeline) → AI recommends real schools/programs, skill gaps, and next steps; plans are saved and browsable
 

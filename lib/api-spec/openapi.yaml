@@ -412,6 +412,84 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+  /curriculum/generate:
+    post:
+      operationId: generateCurriculum
+      tags: [curriculum]
+      summary: Generate a tailored learning curriculum for a subject and level
+      description: >
+        Uses AI to build a sequenced learning plan (modules of books, videos,
+        worksheets, tools, and other resources) tailored to the learner's
+        assessed level, optionally targeting specific weak areas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CurriculumInput"
+      responses:
+        "201":
+          description: Generated curriculum
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Curriculum"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Subject not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /curriculum:
+    get:
+      operationId: listCurricula
+      tags: [curriculum]
+      summary: List saved curricula
+      responses:
+        "200":
+          description: List of curricula
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CurriculumSummary"
+  /curriculum/{id}:
+    get:
+      operationId: getCurriculum
+      tags: [curriculum]
+      summary: Get a saved curriculum
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Curriculum
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Curriculum"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
   /quizzes/{id}/attempts:
     post:
       operationId: submitAttempt
@@ -1181,6 +1259,95 @@ components:
           type: array
           items:
             type: string
+        createdAt:
+          type: string
+          format: date-time
+    CurriculumMaterial:
+      type: object
+      required: [type, name, author, description, whereToFind]
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        author:
+          type: string
+        description:
+          type: string
+        whereToFind:
+          type: string
+    CurriculumModule:
+      type: object
+      required: [title, objective, materials]
+      properties:
+        title:
+          type: string
+        objective:
+          type: string
+        materials:
+          type: array
+          items:
+            $ref: "#/components/schemas/CurriculumMaterial"
+    CurriculumInput:
+      type: object
+      required: [subject]
+      properties:
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 200
+        subjectId:
+          type: integer
+        level:
+          type: string
+          maxLength: 50
+        focusAreas:
+          type: array
+          items:
+            type: string
+    Curriculum:
+      type: object
+      required: [id, subject, level, title, summary, modules, nextSteps, createdAt]
+      properties:
+        id:
+          type: integer
+        subjectId:
+          type: ["integer", "null"]
+        subject:
+          type: string
+        level:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        modules:
+          type: array
+          items:
+            $ref: "#/components/schemas/CurriculumModule"
+        nextSteps:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+    CurriculumSummary:
+      type: object
+      required: [id, subject, level, title, createdAt]
+      properties:
+        id:
+          type: integer
+        subject:
+          type: string
+        level:
+          type: string
+        title:
+          type: string
+        summary:
+          type: ["string", "null"]
+        moduleCount:
+          type: integer
         createdAt:
           type: string
           format: date-time

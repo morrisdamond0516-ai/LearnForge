@@ -284,6 +284,70 @@ export const RefreshQuizResponse = zod.object({
 
 
 /**
+ * Uses AI to build a sequenced learning plan (modules of books, videos, worksheets, tools, and other resources) tailored to the learner's assessed level, optionally targeting specific weak areas.
+
+ * @summary Generate a tailored learning curriculum for a subject and level
+ */
+export const generateCurriculumBodySubjectMax = 200;
+
+export const generateCurriculumBodyLevelMax = 50;
+
+
+
+export const GenerateCurriculumBody = zod.object({
+  "subject": zod.string().min(1).max(generateCurriculumBodySubjectMax),
+  "subjectId": zod.number().optional(),
+  "level": zod.string().max(generateCurriculumBodyLevelMax).optional(),
+  "focusAreas": zod.array(zod.string()).optional()
+})
+
+
+/**
+ * @summary List saved curricula
+ */
+export const ListCurriculaResponseItem = zod.object({
+  "id": zod.number(),
+  "subject": zod.string(),
+  "level": zod.string(),
+  "title": zod.string(),
+  "summary": zod.string().nullish(),
+  "moduleCount": zod.number().optional(),
+  "createdAt": zod.coerce.date()
+})
+export const ListCurriculaResponse = zod.array(ListCurriculaResponseItem)
+
+
+/**
+ * @summary Get a saved curriculum
+ */
+export const GetCurriculumParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCurriculumResponse = zod.object({
+  "id": zod.number(),
+  "subjectId": zod.number().nullish(),
+  "subject": zod.string(),
+  "level": zod.string(),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "modules": zod.array(zod.object({
+  "title": zod.string(),
+  "objective": zod.string(),
+  "materials": zod.array(zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "author": zod.string(),
+  "description": zod.string(),
+  "whereToFind": zod.string()
+}))
+})),
+  "nextSteps": zod.array(zod.string()),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Submit answers for a quiz and get a scored result
  */
 export const SubmitAttemptParams = zod.object({

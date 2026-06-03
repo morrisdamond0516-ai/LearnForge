@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useGetAttempt, useExplainQuestion, getGetAttemptQueryKey } from "@workspace/api-client-react";
+import { useGetAttempt, useExplainQuestion, useGenerateCurriculum, getGetAttemptQueryKey } from "@workspace/api-client-react";
 import type { ExplainQuestion200 } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft, CheckCircle2, XCircle, Brain,
   BookOpen, RotateCcw, Loader2, Lightbulb,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, BookMarked,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,9 @@ export default function Attempt() {
     query: { enabled: !!attemptId, queryKey: getGetAttemptQueryKey(attemptId) },
   });
   const explainMutation = useExplainQuestion();
+  const generateCurriculum = useGenerateCurriculum();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const [breakdowns, setBreakdowns] = useState<Record<number, ExplainQuestion200>>({});
   const [loadingBreakdown, setLoadingBreakdown] = useState<Record<number, boolean>>({});
@@ -43,6 +47,31 @@ export default function Attempt() {
     "text-red-500";
 
   const wrongResults = attempt.results.filter(r => !r.correct);
+
+  const handleBuildCurriculum = () => {
+    const subject = attempt.subjectName ?? attempt.quizTitle ?? "";
+    if (!subject.trim() || generateCurriculum.isPending) return;
+    generateCurriculum.mutate(
+      {
+        data: {
+          subject: subject.trim(),
+          ...(attempt.subjectId != null ? { subjectId: attempt.subjectId } : {}),
+          level: attempt.level,
+          ...(wrongResults.length > 0
+            ? { focusAreas: wrongResults.map(r => r.prompt) }
+            : {}),
+        },
+      },
+      {
+        onSuccess: (plan) => setLocation(`/curriculum/${plan.id}`),
+        onError: () =>
+          toast({
+            title: "Failed to build curriculum",
+            variant: "destructive",
+          }),
+      },
+    );
+  };
 
   const handleBreakdown = (result: typeof attempt.results[0]) => {
     if (loadingBreakdown[result.questionId]) return;
@@ -135,11 +164,18 @@ export default function Attempt() {
           <p className="text-muted-foreground mb-6">
             You answered every question correctly. Time to level up.
           </p>
-          {attempt.subjectId != null && (
-            <Link href={`/quizzes?subject=${attempt.subjectId}`}>
-              <Button>Try a harder challenge</Button>
-            </Link>
-          )}
+          <div className="flex flex-wrap gap-3 justify-center">
+            {attempt.subjectId != null && (
+              <Link href={`/quizzes?subject=${attempt.subjectId}`}>
+                <Button variant="outline">Try a harder challenge</Button>
+              </Link>
+            )}
+            <Button onClick={handleBuildCurriculum} disabled={generateCurriculum.isPending} className="gap-2">
+              {generateCurriculum.isPending
+                ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your plan...</>
+                : <><BookMarked className="h-4 w-4" /> Build my curriculum</>}
+            </Button>
+          </div>
         </Card>
       ) : (
         <Card className="border-amber-200 bg-amber-50/40 dark:border-amber-900/40 dark:bg-amber-950/10">
@@ -179,6 +215,16 @@ export default function Attempt() {
                   </Button>
                 </Link>
               )}
+              <Button
+                onClick={handleBuildCurriculum}
+                disabled={generateCurriculum.isPending}
+                size="sm"
+                className="gap-2"
+              >
+                {generateCurriculum.isPending
+                  ? <><Loader2 className="h-4 w-4 animate-spin" /> Building your plan...</>
+                  : <><BookMarked className="h-4 w-4" /> Build my curriculum</>}
+              </Button>
             </div>
             <Separator className="bg-amber-200/60 dark:bg-amber-900/40" />
             <div>

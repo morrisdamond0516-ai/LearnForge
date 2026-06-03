@@ -23,3 +23,4 @@ export * from "./quizzes";
 export * from "./attempts";
 export * from "./learnSessions";
 export * from "./careerPlans";
+export * from "./curricula";

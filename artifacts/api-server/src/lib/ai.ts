@@ -423,6 +423,138 @@ Steps should number 3–5. Speak directly to the student. For math, show the ari
   };
 }
 
+export type CurriculumMaterial = {
+  type: string;
+  name: string;
+  author: string;
+  description: string;
+  whereToFind: string;
+};
+
+export type CurriculumModule = {
+  title: string;
+  objective: string;
+  materials: CurriculumMaterial[];
+};
+
+export type CurriculumArgs = {
+  subject: string;
+  level: string;
+  focusAreas?: string[];
+};
+
+export type GeneratedCurriculum = {
+  title: string;
+  summary: string;
+  modules: CurriculumModule[];
+  nextSteps: string[];
+};
+
+export async function generateCurriculum(
+  args: CurriculumArgs,
+): Promise<GeneratedCurriculum> {
+  const { subject, level, focusAreas } = args;
+  const focus = (focusAreas ?? [])
+    .map((f) => f.trim().slice(0, 300))
+    .filter((f) => f.length > 0)
+    .slice(0, 12);
+
+  const system =
+    "You are an expert curriculum designer and tutor. You build practical, sequenced learning plans using the best real-world learning materials. " +
+    "Recommend specific, well-known, real resources across a mix of types (Book, Video, Course, Worksheet, Tool, Article, Practice). " +
+    "Prefer widely available, reputable resources and name the author/creator/provider and where to find it (e.g. publisher, platform, library, or website name). " +
+    "Do not invent fake titles or URLs; if unsure of an exact link, describe where to find it instead. " +
+    "Do not use emojis. Return ONLY valid JSON, no prose, no markdown fences.";
+
+  const user = `Design a learning curriculum for the subject "${subject}".
+The learner's current assessed level is: ${level}.
+Tailor the difficulty and starting point to a ${level} learner.
+${focus.length > 0 ? `Give extra attention to these areas the learner struggled with or wants to strengthen:\n${focus.map((f) => `- ${f}`).join("\n")}` : ""}
+
+Organize the plan as an ordered set of modules, from foundational to advanced. Each module groups the best materials to learn that part.
+
+Return JSON with this exact shape:
+{
+  "title": "a short, motivating title for this curriculum",
+  "summary": "a 2-3 sentence overview of the plan and how it fits a ${level} learner",
+  "modules": [
+    {
+      "title": "module title",
+      "objective": "what the learner will be able to do after this module",
+      "materials": [
+        {
+          "type": "Book | Video | Course | Worksheet | Tool | Article | Practice",
+          "name": "the exact title/name of the resource",
+          "author": "author, creator, channel, or provider",
+          "description": "1-2 sentences on what it is and why it helps here",
+          "whereToFind": "where to access it, e.g. publisher, platform (YouTube, Coursera, Khan Academy), website, or library"
+        }
+      ]
+    }
+  ],
+  "nextSteps": ["a concrete action the learner should take to start"]
+}
+Include 4-6 modules. Each module should have 2-4 materials with a mix of types across the whole plan. Include 3-5 nextSteps.`;
+
+  const response = await openai.chat.completions.create({
+    model: MODEL,
+    max_completion_tokens: 8192,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content ?? "";
+  const parsed = extractJson(content) as {
+    title?: string;
+    summary?: string;
+    modules?: Array<{
+      title?: unknown;
+      objective?: unknown;
+      materials?: Array<Record<string, unknown>>;
+    }>;
+    nextSteps?: unknown;
+  };
+
+  const str = (v: unknown): string => (typeof v === "string" ? v : "");
+
+  const modules: CurriculumModule[] = (
+    Array.isArray(parsed.modules) ? parsed.modules : []
+  )
+    .filter((m) => m && typeof m === "object")
+    .map((m) => ({
+      title: str(m.title).trim() || "Module",
+      objective: str(m.objective).trim(),
+      materials: (Array.isArray(m.materials) ? m.materials : [])
+        .filter((mat) => mat && typeof mat === "object")
+        .map((mat) => ({
+          type: str(mat["type"]).trim() || "Resource",
+          name: str(mat["name"]).trim() || "Resource",
+          author: str(mat["author"]).trim(),
+          description: str(mat["description"]).trim(),
+          whereToFind: str(mat["whereToFind"]).trim(),
+        }))
+        .filter((mat) => mat.name.length > 0),
+    }))
+    .filter((m) => m.materials.length > 0);
+
+  const nextSteps = (Array.isArray(parsed.nextSteps) ? parsed.nextSteps : [])
+    .filter((s): s is string => typeof s === "string")
+    .map((s) => s);
+
+  return {
+    title:
+      typeof parsed.title === "string" && parsed.title.trim().length > 0
+        ? parsed.title.trim()
+        : `${subject} learning plan`,
+    summary: typeof parsed.summary === "string" ? parsed.summary : "",
+    modules,
+    nextSteps,
+  };
+}
+
 export function assessLevel(score: number): string {
   if (score >= 80) return "Advanced";
   if (score >= 50) return "Intermediate";

@@ -317,6 +317,56 @@ export interface CareerPlan {
   createdAt: string;
 }
 
+export interface CurriculumMaterial {
+  type: string;
+  name: string;
+  author: string;
+  description: string;
+  whereToFind: string;
+}
+
+export interface CurriculumModule {
+  title: string;
+  objective: string;
+  materials: CurriculumMaterial[];
+}
+
+export interface CurriculumInput {
+  /**
+     * @minLength 1
+     * @maxLength 200
+     */
+  subject: string;
+  subjectId?: number;
+  /** @maxLength 50 */
+  level?: string;
+  focusAreas?: string[];
+}
+
+export interface Curriculum {
+  id: number;
+  /** @nullable */
+  subjectId?: number | null;
+  subject: string;
+  level: string;
+  title: string;
+  summary: string;
+  modules: CurriculumModule[];
+  nextSteps: string[];
+  createdAt: string;
+}
+
+export interface CurriculumSummary {
+  id: number;
+  subject: string;
+  level: string;
+  title: string;
+  /** @nullable */
+  summary?: string | null;
+  moduleCount?: number;
+  createdAt: string;
+}
+
 export interface CareerPlanSummary {
   id: number;
   careerGoal: string;

@@ -7,6 +7,7 @@ import quizzesRouter from "./quizzes";
 import attemptsRouter from "./attempts";
 import learnRouter from "./learn";
 import careerRouter from "./career";
+import curriculumRouter from "./curriculum";
 import dashboardRouter from "./dashboard";
 import explainRouter from "./explain";
 
@@ -20,6 +21,7 @@ router.use(quizzesRouter);
 router.use(attemptsRouter);
 router.use(learnRouter);
 router.use(careerRouter);
+router.use(curriculumRouter);
 router.use(dashboardRouter);
 router.use(explainRouter);
 
