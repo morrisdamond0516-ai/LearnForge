@@ -49,6 +49,7 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 export async function extractDocumentText(
   objectPath: string,
   contentType: string | null,
+  maxChars: number = MAX_CHARS,
 ): Promise<string | null> {
   let buffer: Buffer;
   try {
@@ -82,5 +83,5 @@ export async function extractDocumentText(
 
   const cleaned = text.replace(/\s+\n/g, "\n").replace(/[ \t]{2,}/g, " ").trim();
   if (cleaned.length === 0) return null;
-  return cleaned.slice(0, MAX_CHARS);
+  return cleaned.slice(0, maxChars);
 }

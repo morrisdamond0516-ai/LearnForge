@@ -20,6 +20,11 @@ import {
   getCareerExamInfo,
   MAX_QUIZ_QUESTIONS,
 } from "../lib/ai";
+import { extractDocumentText } from "../lib/documentText";
+
+// Quizzes can pull more source text than the career transcript path, so more of
+// the uploaded study material informs the questions.
+const QUIZ_SOURCE_MAX_CHARS = 12000;
 
 const router: IRouter = Router();
 
@@ -134,6 +139,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
   }
 
   let documentName: string | undefined;
+  let documentText: string | undefined;
   if (documentId != null) {
     const [doc] = await db
       .select()
@@ -149,6 +155,12 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
       return;
     }
     documentName = doc.name;
+    const extracted = await extractDocumentText(
+      doc.objectPath,
+      doc.contentType,
+      QUIZ_SOURCE_MAX_CHARS,
+    );
+    documentText = extracted ?? undefined;
   }
 
   const resolvedDifficulty = difficulty ?? (mode === "placement" ? "mixed" : "medium");
@@ -176,6 +188,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
       subjectName: subjectName ?? undefined,
       topic: topic ?? undefined,
       documentName,
+      documentText,
       career: careerName ?? undefined,
       difficulty: resolvedDifficulty,
       questionCount: resolvedCount,
@@ -256,12 +269,26 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
   const subjectName = await subjectNameFor(quiz.subjectId);
 
   let documentName: string | undefined;
+  let documentText: string | undefined;
   if (quiz.documentId != null) {
     const [doc] = await db
       .select()
       .from(documentsTable)
-      .where(eq(documentsTable.id, quiz.documentId));
+      .where(
+        and(
+          eq(documentsTable.id, quiz.documentId),
+          eq(documentsTable.userId, req.userId!),
+        ),
+      );
     documentName = doc?.name;
+    if (doc) {
+      const extracted = await extractDocumentText(
+        doc.objectPath,
+        doc.contentType,
+        QUIZ_SOURCE_MAX_CHARS,
+      );
+      documentText = extracted ?? undefined;
+    }
   }
 
   let generated;
@@ -271,6 +298,7 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
       subjectName: subjectName ?? undefined,
       topic: quiz.topic ?? undefined,
       documentName,
+      documentText,
       career: quiz.career ?? undefined,
       difficulty: quiz.difficulty,
       questionCount: quiz.questionCount || 8,
