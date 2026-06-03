@@ -9,6 +9,62 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
+type QuizData = NonNullable<ReturnType<typeof useRefreshQuiz>["data"]>;
+
+type SavedProgress = {
+  title: QuizData["title"];
+  questions: QuizData["questions"];
+  answers: Record<number, number>;
+  currentQuestionIdx: number;
+};
+
+const STORAGE_PREFIX = "learnforge:quiz-progress:";
+
+function loadProgress(quizId: number): SavedProgress | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + quizId);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as SavedProgress;
+    if (
+      !parsed ||
+      !Array.isArray(parsed.questions) ||
+      parsed.questions.length === 0 ||
+      parsed.questions.some(
+        (q) => q == null || typeof q.id !== "number" || !Array.isArray(q.options),
+      )
+    ) {
+      return null;
+    }
+    const answers =
+      parsed.answers && typeof parsed.answers === "object" ? parsed.answers : {};
+    const rawIdx =
+      typeof parsed.currentQuestionIdx === "number" ? parsed.currentQuestionIdx : 0;
+    const currentQuestionIdx = Math.min(
+      Math.max(0, rawIdx),
+      parsed.questions.length - 1,
+    );
+    return { ...parsed, answers, currentQuestionIdx };
+  } catch {
+    return null;
+  }
+}
+
+function saveProgress(quizId: number, data: SavedProgress): void {
+  try {
+    localStorage.setItem(STORAGE_PREFIX + quizId, JSON.stringify(data));
+  } catch {
+    // storage unavailable / quota — progress just won't persist
+  }
+}
+
+function clearProgress(quizId: number): void {
+  try {
+    localStorage.removeItem(STORAGE_PREFIX + quizId);
+  } catch {
+    // ignore
+  }
+}
+
 export default function QuizTake() {
   const { id } = useParams();
   const quizId = parseInt(id || "0");
@@ -18,6 +74,7 @@ export default function QuizTake() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
+  const [quiz, setQuiz] = useState<QuizData | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [advancing, setAdvancing] = useState(false);
@@ -27,10 +84,42 @@ export default function QuizTake() {
   useEffect(() => {
     if (!quizId || startedRef.current) return;
     startedRef.current = true;
-    refreshMutate({ id: quizId });
-  }, [quizId, refreshMutate]);
 
-  const quiz = refreshQuiz.data;
+    const saved = loadProgress(quizId);
+    if (saved) {
+      setQuiz({ title: saved.title, questions: saved.questions } as QuizData);
+      setAnswers(saved.answers ?? {});
+      setCurrentQuestionIdx(saved.currentQuestionIdx ?? 0);
+      toast({ title: "Resumed where you left off" });
+      return;
+    }
+
+    refreshMutate(
+      { id: quizId },
+      {
+        onSuccess: (data) => {
+          setQuiz(data);
+          saveProgress(quizId, {
+            title: data.title,
+            questions: data.questions,
+            answers: {},
+            currentQuestionIdx: 0,
+          });
+        },
+      },
+    );
+  }, [quizId, refreshMutate, toast]);
+
+  // Persist progress on every change so a reload/remount resumes in place.
+  useEffect(() => {
+    if (!quizId || !quiz) return;
+    saveProgress(quizId, {
+      title: quiz.title,
+      questions: quiz.questions,
+      answers,
+      currentQuestionIdx,
+    });
+  }, [quizId, quiz, answers, currentQuestionIdx]);
 
   if (!quizId || refreshQuiz.isError) {
     return (
@@ -52,9 +141,24 @@ export default function QuizTake() {
     );
   }
 
-  const currentQuestion = quiz.questions[currentQuestionIdx];
-  const isLastQuestion = currentQuestionIdx === quiz.questions.length - 1;
+  const safeIdx = Math.min(Math.max(0, currentQuestionIdx), quiz.questions.length - 1);
+  const currentQuestion = quiz.questions[safeIdx];
+  const isLastQuestion = safeIdx === quiz.questions.length - 1;
   const isAnswered = answers[currentQuestion.id] !== undefined;
+
+  const submit = (finalAnswers: Record<number, number>) => {
+    const answersArray = quiz.questions.map(q => finalAnswers[q.id] ?? -1);
+    submitAttempt.mutate({ id: quizId, data: { answers: answersArray } }, {
+      onSuccess: (attempt) => {
+        clearProgress(quizId);
+        queryClient.invalidateQueries({ queryKey: getListAttemptsQueryKey() });
+        setLocation(`/attempts/${attempt.id}`);
+      },
+      onError: () => {
+        toast({ title: "Failed to submit quiz", variant: "destructive" });
+      }
+    });
+  };
 
   const handleSelect = (optionIdx: number) => {
     if (advancing || answers[currentQuestion.id] !== undefined) return;
@@ -70,18 +174,7 @@ export default function QuizTake() {
     } else {
       const allAnswered = Object.keys(newAnswers).length === quiz.questions.length;
       if (allAnswered) {
-        setTimeout(() => {
-          const answersArray = quiz.questions.map(q => newAnswers[q.id] ?? -1);
-          submitAttempt.mutate({ id: quizId, data: { answers: answersArray } }, {
-            onSuccess: (attempt) => {
-              queryClient.invalidateQueries({ queryKey: getListAttemptsQueryKey() });
-              setLocation(`/attempts/${attempt.id}`);
-            },
-            onError: () => {
-              toast({ title: "Failed to submit quiz", variant: "destructive" });
-            }
-          });
-        }, 700);
+        setTimeout(() => submit(newAnswers), 700);
       }
     }
   };
@@ -99,27 +192,17 @@ export default function QuizTake() {
   };
 
   const handleSubmit = () => {
-    const answersArray = quiz.questions.map(q => answers[q.id] ?? -1);
-    submitAttempt.mutate({ id: quizId, data: { answers: answersArray } }, {
-      onSuccess: (attempt) => {
-        toast({ title: "Quiz submitted!" });
-        queryClient.invalidateQueries({ queryKey: getListAttemptsQueryKey() });
-        setLocation(`/attempts/${attempt.id}`);
-      },
-      onError: () => {
-        toast({ title: "Failed to submit quiz", variant: "destructive" });
-      }
-    });
+    submit(answers);
   };
 
-  const progress = ((currentQuestionIdx) / quiz.questions.length) * 100;
+  const progress = (safeIdx / quiz.questions.length) * 100;
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500 py-4">
       <div className="space-y-4">
         <div className="flex items-center justify-between text-sm font-medium">
           <span className="text-muted-foreground uppercase tracking-wider">{quiz.title}</span>
-          <span className="text-primary">Question {currentQuestionIdx + 1} of {quiz.questions.length}</span>
+          <span className="text-primary">Question {safeIdx + 1} of {quiz.questions.length}</span>
         </div>
         <Progress value={progress} className="h-2" />
       </div>
