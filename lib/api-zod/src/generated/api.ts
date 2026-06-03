@@ -198,12 +198,14 @@ export const ListQuizzesResponse = zod.array(ListQuizzesResponseItem)
 
 /**
  * Generates a quiz from a chosen subject (placement), an uploaded document,
-or a free-form topic. Returns the full quiz including questions.
+a free-form topic, or a career/certification (a realistic practice test that
+mirrors the real hiring or professional certification exam for that role, with
+an optional section focus passed via `topic`). Returns the full quiz including questions.
 
  * @summary Generate a quiz, test, or exam with AI
  */
 export const generateQuizBodyQuestionCountMin = 3;
-export const generateQuizBodyQuestionCountMax = 25;
+export const generateQuizBodyQuestionCountMax = 60;
 
 
 
@@ -215,7 +217,8 @@ export const GenerateQuizBody = zod.object({
   "career": zod.string().optional(),
   "title": zod.string().optional(),
   "difficulty": zod.enum(['easy', 'medium', 'hard', 'mixed']).optional(),
-  "questionCount": zod.number().min(generateQuizBodyQuestionCountMin).max(generateQuizBodyQuestionCountMax).optional()
+  "questionCount": zod.number().min(generateQuizBodyQuestionCountMin).max(generateQuizBodyQuestionCountMax).optional(),
+  "autoLength": zod.boolean().optional().describe('When true with a career, the test length matches the real exam (the AI determines the count, capped at 60).')
 })
 
 

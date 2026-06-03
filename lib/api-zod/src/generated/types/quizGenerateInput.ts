@@ -18,7 +18,9 @@ export interface QuizGenerateInput {
   difficulty?: QuizGenerateInputDifficulty;
   /**
      * @minimum 3
-     * @maximum 25
+     * @maximum 60
      */
   questionCount?: number;
+  /** When true with a career, the test length matches the real exam (the AI determines the count, capped at 60). */
+  autoLength?: boolean;
 }

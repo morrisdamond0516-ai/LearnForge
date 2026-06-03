@@ -983,7 +983,9 @@ export const getGenerateQuizUrl = () => {
 
 /**
  * Generates a quiz from a chosen subject (placement), an uploaded document,
-or a free-form topic. Returns the full quiz including questions.
+a free-form topic, or a career/certification (a realistic practice test that
+mirrors the real hiring or professional certification exam for that role, with
+an optional section focus passed via `topic`). Returns the full quiz including questions.
 
  * @summary Generate a quiz, test, or exam with AI
  */

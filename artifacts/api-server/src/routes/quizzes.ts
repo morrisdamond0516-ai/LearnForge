@@ -15,7 +15,11 @@ import {
   GetQuizResponse,
   DeleteQuizParams,
 } from "@workspace/api-zod";
-import { generateQuizContent } from "../lib/ai";
+import {
+  generateQuizContent,
+  getCareerExamInfo,
+  MAX_QUIZ_QUESTIONS,
+} from "../lib/ai";
 
 const router: IRouter = Router();
 
@@ -91,7 +95,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
     return;
   }
 
-  const { mode, subjectId, documentId, topic, career, title, difficulty, questionCount } =
+  const { mode, subjectId, documentId, topic, career, title, difficulty, questionCount, autoLength } =
     parsed.data;
 
   const careerName = career?.trim() || null;
@@ -148,7 +152,22 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
   }
 
   const resolvedDifficulty = difficulty ?? (mode === "placement" ? "mixed" : "medium");
-  const resolvedCount = questionCount ?? (mode === "exam" ? 15 : mode === "placement" ? 10 : 8);
+
+  let resolvedCount: number;
+  if (autoLength && careerName) {
+    try {
+      const info = await getCareerExamInfo(careerName, topic?.trim() || undefined);
+      resolvedCount = Math.min(MAX_QUIZ_QUESTIONS, Math.max(3, info.questionCount));
+    } catch (err) {
+      req.log.error({ err }, "Career exam length lookup failed");
+      resolvedCount = mode === "exam" ? 15 : 10;
+    }
+  } else {
+    resolvedCount = Math.min(
+      MAX_QUIZ_QUESTIONS,
+      questionCount ?? (mode === "exam" ? 15 : mode === "placement" ? 10 : 8),
+    );
+  }
 
   let generated;
   try {
@@ -178,7 +197,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
       topic: topic ?? null,
       career: careerName,
       difficulty: resolvedDifficulty,
-      questionCount: generated.questions.length,
+      questionCount: resolvedCount,
       questions: generated.questions,
     })
     .returning();
@@ -268,7 +287,7 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
     .update(quizzesTable)
     .set({
       questions: generated.questions,
-      questionCount: generated.questions.length,
+      questionCount: quiz.questionCount,
     })
     .where(eq(quizzesTable.id, quiz.id))
     .returning();

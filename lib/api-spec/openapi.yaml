@@ -1024,7 +1024,10 @@ components:
         questionCount:
           type: integer
           minimum: 3
-          maximum: 25
+          maximum: 60
+        autoLength:
+          type: boolean
+          description: When true with a career, the test length matches the real exam (the AI determines the count, capped at 60).
 
     AttemptInput:
       type: object

@@ -92,7 +92,7 @@ export default function Pathways() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="max-w-3xl">
-        <h1 className="text-3xl font-bold tracking-tight">Career Pathways</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Careers/Pathways</h1>
         <p className="text-muted-foreground mt-1 mb-8">
           Tell us your career goal and upload your transcript if you have one.
           Our AI will research schools and programs that fit your needs and

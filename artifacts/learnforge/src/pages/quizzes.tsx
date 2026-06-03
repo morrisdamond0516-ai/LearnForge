@@ -86,8 +86,12 @@ export default function Quizzes() {
     const input: any = {
       mode,
       difficulty,
-      questionCount: parseInt(questionCount) || 5
     };
+    if (questionCount === "auto") {
+      input.autoLength = true;
+    } else {
+      input.questionCount = parseInt(questionCount) || 5;
+    }
     if (sourceType === "subject" && subjectId) input.subjectId = parseInt(subjectId);
     if (sourceType === "document" && documentId) input.documentId = parseInt(documentId);
     if (sourceType === "topic" && topic.trim()) input.topic = topic.trim();
@@ -153,12 +157,17 @@ export default function Quizzes() {
                   <Select value={questionCount} onValueChange={setQuestionCount}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
+                      {sourceType === "career" && (
+                        <SelectItem value="auto">Auto (match real exam)</SelectItem>
+                      )}
                       <SelectItem value="3">3 (Quick)</SelectItem>
                       <SelectItem value="5">5 (Standard)</SelectItem>
                       <SelectItem value="10">10 (Deep)</SelectItem>
                       <SelectItem value="15">15 (Exam)</SelectItem>
                       <SelectItem value="20">20 (Full exam)</SelectItem>
                       <SelectItem value="25">25 (Comprehensive)</SelectItem>
+                      <SelectItem value="40">40 (Long exam)</SelectItem>
+                      <SelectItem value="60">60 (Maximum)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -166,7 +175,11 @@ export default function Quizzes() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Source Type</label>
-                <Select value={sourceType} onValueChange={(v: any) => setSourceType(v)}>
+                <Select value={sourceType} onValueChange={(v: any) => {
+                  setSourceType(v);
+                  if (v === "career") setQuestionCount("auto");
+                  else if (questionCount === "auto") setQuestionCount("5");
+                }}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="topic">Free-form Topic</SelectItem>
@@ -219,7 +232,7 @@ export default function Quizzes() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">
-                      The AI researches the real exam for this role and writes practice questions for the section you pick.
+                      The AI researches the real exam for this role and writes practice questions for the section you pick. Leave Questions on "Auto" to match the real exam's length (up to 60).
                     </p>
                   </div>
                 </>

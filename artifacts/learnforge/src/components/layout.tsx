@@ -40,7 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { name: "Quizzes", href: "/quizzes", icon: GraduationCap },
     { name: "Study Guides", href: "/learn", icon: Library },
     { name: "Curriculum", href: "/curriculum", icon: BookMarked },
-    { name: "Pathways", href: "/pathways", icon: Compass },
+    { name: "Careers/Pathways", href: "/pathways", icon: Compass },
     { name: "Documents", href: "/documents", icon: FileText },
   ];
 

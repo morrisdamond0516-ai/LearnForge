@@ -26,10 +26,15 @@ export type GeneratedQuiz = {
   questions: QuizQuestion[];
 };
 
-export async function generateQuizContent(
+const QUIZ_BATCH_SIZE = 15;
+export const MAX_QUIZ_QUESTIONS = 60;
+
+async function generateQuizBatch(
   args: GenerateQuizArgs,
+  batchCount: number,
+  batchHint: string,
 ): Promise<GeneratedQuiz> {
-  const { mode, subjectName, topic, documentName, career, difficulty, questionCount } =
+  const { mode, subjectName, topic, documentName, career, difficulty } =
     args;
 
   const variationKey = `${Date.now().toString(36)}-${Math.random()
@@ -71,7 +76,7 @@ Match the realistic style, framing, and difficulty of the actual exam so this se
 
   const user = `Create ${modeDescription} about "${focus}".
 ${careerInstructions}Difficulty: ${difficulty}.
-Number of questions: ${questionCount}.
+Number of questions: ${batchCount}.
 ${documentName ? `The material is based on an uploaded document named "${documentName}".` : ""}
 
 Return JSON with this exact shape:
@@ -86,8 +91,8 @@ Return JSON with this exact shape:
     }
   ]
 }
-Ensure correctIndex is the 0-based index of the correct option. Produce exactly ${questionCount} questions.
-Generate a fresh, original set of questions that differs from any previous run: vary the specific sub-topics, scenarios, examples, numbers, and wording so the learner cannot memorize the answers. Distribute the correct option across different positions. (variation key: ${variationKey})`;
+Ensure correctIndex is the 0-based index of the correct option. Produce exactly ${batchCount} questions.
+Generate a fresh, original set of questions that differs from any previous run: vary the specific sub-topics, scenarios, examples, numbers, and wording so the learner cannot memorize the answers. Distribute the correct option across different positions. ${batchHint} (variation key: ${variationKey})`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -134,16 +139,124 @@ Generate a fresh, original set of questions that differs from any previous run: 
       };
     });
 
-  if (questions.length === 0) {
-    throw new Error("AI returned no usable questions");
-  }
-
   const title =
     typeof parsed.title === "string" && parsed.title.trim().length > 0
       ? parsed.title.trim()
       : `${focus} ${mode}`;
 
   return { title, questions };
+}
+
+export async function generateQuizContent(
+  args: GenerateQuizArgs,
+): Promise<GeneratedQuiz> {
+  const total = Math.min(MAX_QUIZ_QUESTIONS, Math.max(1, args.questionCount));
+
+  if (total <= QUIZ_BATCH_SIZE) {
+    const batch = await generateQuizBatch(args, total, "");
+    if (batch.questions.length === 0) {
+      throw new Error("AI returned no usable questions");
+    }
+    return { title: batch.title, questions: batch.questions.slice(0, total) };
+  }
+
+  let title = "";
+  const merged: QuizQuestion[] = [];
+  const MAX_FILL_ROUNDS = 3;
+
+  for (let round = 0; round < MAX_FILL_ROUNDS && merged.length < total; round++) {
+    const need = total - merged.length;
+    const batchCounts: number[] = [];
+    let remaining = need;
+    while (remaining > 0) {
+      const next = Math.min(QUIZ_BATCH_SIZE, remaining);
+      batchCounts.push(next);
+      remaining -= next;
+    }
+
+    const results = await Promise.all(
+      batchCounts.map((count, i) =>
+        generateQuizBatch(
+          args,
+          count,
+          `This is one part of a longer ${total}-question test (round ${round + 1}, part ${i + 1}); cover different sub-topics, scenarios, and numbers than the other parts so there is no overlap.`,
+        ).catch(() => ({ title: "", questions: [] as QuizQuestion[] })),
+      ),
+    );
+
+    let producedThisRound = 0;
+    for (const r of results) {
+      if (!title && r.title) title = r.title;
+      for (const q of r.questions) merged.push(q);
+      producedThisRound += r.questions.length;
+    }
+
+    if (producedThisRound === 0) break;
+  }
+
+  if (merged.length === 0) {
+    throw new Error("AI returned no usable questions");
+  }
+
+  const questions = merged
+    .slice(0, total)
+    .map((q, index) => ({ ...q, id: index + 1, order: index }));
+
+  const fallbackFocus =
+    args.career?.trim() ?? args.topic ?? args.subjectName ?? "Practice";
+  return { title: title || `${fallbackFocus} ${args.mode}`, questions };
+}
+
+export type CareerExamInfo = {
+  examName: string | null;
+  questionCount: number;
+  note: string | null;
+};
+
+export async function getCareerExamInfo(
+  career: string,
+  section?: string,
+): Promise<CareerExamInfo> {
+  const system =
+    "You are an expert on hiring, civil-service, licensing, and professional certification exams. " +
+    "Return ONLY valid JSON, no prose, no markdown fences.";
+  const user = `For the role "${career}", identify the main official exam a candidate must pass${section ? ` and specifically its "${section}" section` : ""}.
+Return JSON: {"examName": "name of the real exam, or null if there is none", "questionCount": <typical total number of questions on ${section ? "that section" : "the full exam"}, as an integer>, "note": "one short sentence about the exam"}.
+Base questionCount on the real exam; if you are unsure, give your best realistic estimate. Never return 0.`;
+
+  const response = await openai.chat.completions.create({
+    model: MODEL,
+    max_completion_tokens: 400,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content ?? "";
+  const parsed = extractJson(content) as {
+    examName?: string;
+    questionCount?: number;
+    note?: string;
+  };
+
+  const questionCount =
+    typeof parsed.questionCount === "number" && parsed.questionCount > 0
+      ? Math.round(parsed.questionCount)
+      : 25;
+
+  return {
+    examName:
+      typeof parsed.examName === "string" && parsed.examName.trim()
+        ? parsed.examName.trim()
+        : null,
+    questionCount,
+    note:
+      typeof parsed.note === "string" && parsed.note.trim()
+        ? parsed.note.trim()
+        : null,
+  };
 }
 
 export type ResearchArgs = {
