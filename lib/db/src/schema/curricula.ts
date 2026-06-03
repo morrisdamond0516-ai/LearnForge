@@ -26,6 +26,7 @@ export type CurriculumModuleData = {
 
 export const curriculaTable = pgTable("curricula", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   subjectId: integer("subject_id").references(() => subjectsTable.id, {
     onDelete: "set null",
   }),

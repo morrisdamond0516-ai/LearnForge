@@ -10,6 +10,7 @@ export const subjectsTable = pgTable("subjects", {
   category: text("category").notNull().default("General"),
   icon: text("icon"),
   isCustom: boolean("is_custom").notNull().default(false),
+  userId: text("user_id"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

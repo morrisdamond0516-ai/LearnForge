@@ -17,6 +17,7 @@ export type LearnSectionData = {
 
 export const learnSessionsTable = pgTable("learn_sessions", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   subjectId: integer("subject_id").references(() => subjectsTable.id, {
     onDelete: "set null",
   }),

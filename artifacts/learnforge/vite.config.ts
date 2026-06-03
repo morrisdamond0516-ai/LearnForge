@@ -48,7 +48,7 @@ export default defineConfig({
   plugins: [
     ...noCacheInDev,
     react(),
-    tailwindcss(),
+    tailwindcss({ optimize: false }),
     runtimeErrorOverlay(),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined

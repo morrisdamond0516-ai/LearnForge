@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
 import { db, documentsTable, subjectsTable } from "@workspace/db";
 import {
   ListDocumentsResponse,
@@ -8,13 +8,20 @@ import {
   GetDocumentResponse,
   DeleteDocumentParams,
 } from "@workspace/api-zod";
+import {
+  ObjectStorageService,
+  ObjectNotFoundError,
+  ObjectAccessDeniedError,
+} from "../lib/objectStorage";
 
 const router: IRouter = Router();
+const objectStorageService = new ObjectStorageService();
 
-router.get("/documents", async (_req, res): Promise<void> => {
+router.get("/documents", async (req, res): Promise<void> => {
   const documents = await db
     .select()
     .from(documentsTable)
+    .where(eq(documentsTable.userId, req.userId!))
     .orderBy(desc(documentsTable.createdAt));
   res.json(ListDocumentsResponse.parse(documents));
 });
@@ -30,16 +37,47 @@ router.post("/documents", async (req, res): Promise<void> => {
     const [subject] = await db
       .select()
       .from(subjectsTable)
-      .where(eq(subjectsTable.id, parsed.data.subjectId));
+      .where(
+        and(
+          eq(subjectsTable.id, parsed.data.subjectId),
+          or(
+            isNull(subjectsTable.userId),
+            eq(subjectsTable.userId, req.userId!),
+          ),
+        ),
+      );
     if (!subject) {
       res.status(404).json({ error: "Subject not found" });
       return;
     }
   }
 
+  // Claim ownership of the uploaded object so only this user can read it back
+  // through GET /storage/objects. Fails closed if the object isn't there, and
+  // refuses to hijack an object already owned by someone else.
+  try {
+    await objectStorageService.claimObjectEntityOwnership(
+      parsed.data.objectPath,
+      req.userId!,
+    );
+  } catch (error) {
+    if (error instanceof ObjectNotFoundError) {
+      res.status(400).json({ error: "Uploaded file not found" });
+      return;
+    }
+    if (error instanceof ObjectAccessDeniedError) {
+      res.status(403).json({ error: "You do not have access to this file" });
+      return;
+    }
+    req.log.error({ err: error }, "Failed to set object ACL");
+    res.status(500).json({ error: "Failed to register uploaded file" });
+    return;
+  }
+
   const [document] = await db
     .insert(documentsTable)
     .values({
+      userId: req.userId!,
       name: parsed.data.name,
       objectPath: parsed.data.objectPath,
       contentType: parsed.data.contentType ?? null,
@@ -62,7 +100,12 @@ router.get("/documents/:id", async (req, res): Promise<void> => {
   const [document] = await db
     .select()
     .from(documentsTable)
-    .where(eq(documentsTable.id, params.data.id));
+    .where(
+      and(
+        eq(documentsTable.id, params.data.id),
+        eq(documentsTable.userId, req.userId!),
+      ),
+    );
 
   if (!document) {
     res.status(404).json({ error: "Document not found" });
@@ -81,7 +124,12 @@ router.delete("/documents/:id", async (req, res): Promise<void> => {
 
   const [document] = await db
     .delete(documentsTable)
-    .where(eq(documentsTable.id, params.data.id))
+    .where(
+      and(
+        eq(documentsTable.id, params.data.id),
+        eq(documentsTable.userId, req.userId!),
+      ),
+    )
     .returning();
 
   if (!document) {

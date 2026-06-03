@@ -22,6 +22,7 @@ export type QuizQuestion = {
 
 export const quizzesTable = pgTable("quizzes", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   title: text("title").notNull(),
   mode: text("mode").notNull().default("practice"),
   subjectId: integer("subject_id").references(() => subjectsTable.id, {

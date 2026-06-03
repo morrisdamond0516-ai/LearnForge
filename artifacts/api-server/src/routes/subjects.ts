@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { db, subjectsTable } from "@workspace/db";
 import {
   ListSubjectsResponse,
@@ -18,10 +18,11 @@ function slugify(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-router.get("/subjects", async (_req, res): Promise<void> => {
+router.get("/subjects", async (req, res): Promise<void> => {
   const subjects = await db
     .select()
     .from(subjectsTable)
+    .where(or(isNull(subjectsTable.userId), eq(subjectsTable.userId, req.userId!)))
     .orderBy(subjectsTable.name);
   res.json(ListSubjectsResponse.parse(subjects));
 });
@@ -54,6 +55,7 @@ router.post("/subjects", async (req, res): Promise<void> => {
       description: parsed.data.description ?? null,
       category: parsed.data.category ?? "General",
       isCustom: true,
+      userId: req.userId!,
     })
     .returning();
 
@@ -70,7 +72,12 @@ router.get("/subjects/:id", async (req, res): Promise<void> => {
   const [subject] = await db
     .select()
     .from(subjectsTable)
-    .where(eq(subjectsTable.id, params.data.id));
+    .where(
+      and(
+        eq(subjectsTable.id, params.data.id),
+        or(isNull(subjectsTable.userId), eq(subjectsTable.userId, req.userId!)),
+      ),
+    );
 
   if (!subject) {
     res.status(404).json({ error: "Subject not found" });

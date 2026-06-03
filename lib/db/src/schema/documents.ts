@@ -5,6 +5,7 @@ import { subjectsTable } from "./subjects";
 
 export const documentsTable = pgTable("documents", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   name: text("name").notNull(),
   objectPath: text("object_path").notNull(),
   contentType: text("content_type"),

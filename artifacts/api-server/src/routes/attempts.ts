@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import {
   db,
   quizzesTable,
@@ -34,7 +34,12 @@ router.post("/quizzes/:id/attempts", async (req, res): Promise<void> => {
   const [quiz] = await db
     .select()
     .from(quizzesTable)
-    .where(eq(quizzesTable.id, params.data.id));
+    .where(
+      and(
+        eq(quizzesTable.id, params.data.id),
+        eq(quizzesTable.userId, req.userId!),
+      ),
+    );
 
   if (!quiz) {
     res.status(404).json({ error: "Quiz not found" });
@@ -68,6 +73,7 @@ router.post("/quizzes/:id/attempts", async (req, res): Promise<void> => {
   const [attempt] = await db
     .insert(attemptsTable)
     .values({
+      userId: req.userId!,
       quizId: quiz.id,
       score,
       correctCount,
@@ -106,10 +112,11 @@ router.post("/quizzes/:id/attempts", async (req, res): Promise<void> => {
   );
 });
 
-router.get("/attempts", async (_req, res): Promise<void> => {
+router.get("/attempts", async (req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(attemptsTable)
+    .where(eq(attemptsTable.userId, req.userId!))
     .orderBy(desc(attemptsTable.completedAt));
 
   const quizzes = await db.select().from(quizzesTable);
@@ -150,7 +157,12 @@ router.get("/attempts/:id", async (req, res): Promise<void> => {
   const [attempt] = await db
     .select()
     .from(attemptsTable)
-    .where(eq(attemptsTable.id, params.data.id));
+    .where(
+      and(
+        eq(attemptsTable.id, params.data.id),
+        eq(attemptsTable.userId, req.userId!),
+      ),
+    );
 
   if (!attempt) {
     res.status(404).json({ error: "Attempt not found" });

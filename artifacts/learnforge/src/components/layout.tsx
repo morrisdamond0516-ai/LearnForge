@@ -1,5 +1,35 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut } from "lucide-react";
+import { useClerk, useUser } from "@clerk/react";
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function UserMenu() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
+  const label =
+    user?.primaryEmailAddress?.emailAddress ??
+    user?.fullName ??
+    user?.username ??
+    "Account";
+
+  return (
+    <div className="flex shrink-0 items-center gap-3 border-t border-white/15 pt-2 lg:border-t-0 lg:border-l lg:border-white/15 lg:pt-0 lg:pl-4">
+      <span className="max-w-[12rem] truncate text-sm text-white/80" title={label}>
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={() => signOut({ redirectUrl: basePath || "/" })}
+        className="flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+      >
+        <LogOut className="h-4 w-4" />
+        Log out
+      </button>
+    </div>
+  );
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -45,6 +75,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+
+        <UserMenu />
       </header>
 
       <main className="flex-1">

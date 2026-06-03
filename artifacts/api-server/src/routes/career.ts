@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db, careerPlansTable, documentsTable } from "@workspace/db";
 import {
   RecommendSchoolsBody,
@@ -43,7 +43,12 @@ router.post("/career/recommend", async (req, res): Promise<void> => {
     const [doc] = await db
       .select()
       .from(documentsTable)
-      .where(eq(documentsTable.id, documentId));
+      .where(
+        and(
+          eq(documentsTable.id, documentId),
+          eq(documentsTable.userId, req.userId!),
+        ),
+      );
     if (!doc) {
       res.status(404).json({ error: "Document not found" });
       return;
@@ -83,6 +88,7 @@ router.post("/career/recommend", async (req, res): Promise<void> => {
   const [saved] = await db
     .insert(careerPlansTable)
     .values({
+      userId: req.userId!,
       careerGoal,
       currentEducation: currentEducation ?? null,
       documentId: documentId ?? null,
@@ -113,10 +119,11 @@ router.post("/career/recommend", async (req, res): Promise<void> => {
   );
 });
 
-router.get("/career/plans", async (_req, res): Promise<void> => {
+router.get("/career/plans", async (req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(careerPlansTable)
+    .where(eq(careerPlansTable.userId, req.userId!))
     .orderBy(desc(careerPlansTable.createdAt));
 
   const summaries = rows.map((plan) => ({
@@ -141,7 +148,12 @@ router.get("/career/plans/:id", async (req, res): Promise<void> => {
   const [plan] = await db
     .select()
     .from(careerPlansTable)
-    .where(eq(careerPlansTable.id, params.data.id));
+    .where(
+      and(
+        eq(careerPlansTable.id, params.data.id),
+        eq(careerPlansTable.userId, req.userId!),
+      ),
+    );
 
   if (!plan) {
     res.status(404).json({ error: "Career plan not found" });

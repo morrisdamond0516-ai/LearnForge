@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
 import { db, curriculaTable, subjectsTable } from "@workspace/db";
 import {
   GenerateCurriculumBody,
@@ -30,7 +30,15 @@ router.post("/curriculum/generate", async (req, res): Promise<void> => {
     const [subjectRow] = await db
       .select()
       .from(subjectsTable)
-      .where(eq(subjectsTable.id, subjectId));
+      .where(
+        and(
+          eq(subjectsTable.id, subjectId),
+          or(
+            isNull(subjectsTable.userId),
+            eq(subjectsTable.userId, req.userId!),
+          ),
+        ),
+      );
     if (!subjectRow) {
       res.status(404).json({ error: "Subject not found" });
       return;
@@ -59,6 +67,7 @@ router.post("/curriculum/generate", async (req, res): Promise<void> => {
   const [saved] = await db
     .insert(curriculaTable)
     .values({
+      userId: req.userId!,
       subjectId: subjectId ?? null,
       subject,
       level,
@@ -84,10 +93,11 @@ router.post("/curriculum/generate", async (req, res): Promise<void> => {
   );
 });
 
-router.get("/curriculum", async (_req, res): Promise<void> => {
+router.get("/curriculum", async (req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(curriculaTable)
+    .where(eq(curriculaTable.userId, req.userId!))
     .orderBy(desc(curriculaTable.createdAt));
 
   const summaries = rows.map((c) => ({
@@ -113,7 +123,12 @@ router.get("/curriculum/:id", async (req, res): Promise<void> => {
   const [c] = await db
     .select()
     .from(curriculaTable)
-    .where(eq(curriculaTable.id, params.data.id));
+    .where(
+      and(
+        eq(curriculaTable.id, params.data.id),
+        eq(curriculaTable.userId, req.userId!),
+      ),
+    );
 
   if (!c) {
     res.status(404).json({ error: "Curriculum not found" });

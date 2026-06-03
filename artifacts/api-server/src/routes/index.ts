@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { requireAuth } from "../middlewares/auth";
 import healthRouter from "./health";
 import storageRouter from "./storage";
 import subjectsRouter from "./subjects";
@@ -13,8 +14,14 @@ import explainRouter from "./explain";
 
 const router: IRouter = Router();
 
+// Public routes (no auth).
 router.use(healthRouter);
+// Storage self-guards its protected endpoints (upload + private objects);
+// public objects stay open.
 router.use(storageRouter);
+
+// Everything below requires an authenticated user.
+router.use(requireAuth);
 router.use(subjectsRouter);
 router.use(documentsRouter);
 router.use(quizzesRouter);

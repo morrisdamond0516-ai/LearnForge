@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
 import { db, learnSessionsTable, subjectsTable } from "@workspace/db";
 import {
   ResearchTopicBody,
@@ -36,7 +36,15 @@ router.post("/learn/research", async (req, res): Promise<void> => {
     const [subject] = await db
       .select()
       .from(subjectsTable)
-      .where(eq(subjectsTable.id, subjectId));
+      .where(
+        and(
+          eq(subjectsTable.id, subjectId),
+          or(
+            isNull(subjectsTable.userId),
+            eq(subjectsTable.userId, req.userId!),
+          ),
+        ),
+      );
     if (!subject) {
       res.status(404).json({ error: "Subject not found" });
       return;
@@ -62,6 +70,7 @@ router.post("/learn/research", async (req, res): Promise<void> => {
   const [session] = await db
     .insert(learnSessionsTable)
     .values({
+      userId: req.userId!,
       subjectId: subjectId ?? null,
       topic,
       title: guide.title,
@@ -88,10 +97,11 @@ router.post("/learn/research", async (req, res): Promise<void> => {
   );
 });
 
-router.get("/learn/sessions", async (_req, res): Promise<void> => {
+router.get("/learn/sessions", async (req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(learnSessionsTable)
+    .where(eq(learnSessionsTable.userId, req.userId!))
     .orderBy(desc(learnSessionsTable.createdAt));
 
   const subjects = await db.select().from(subjectsTable);
@@ -123,7 +133,12 @@ router.get("/learn/sessions/:id", async (req, res): Promise<void> => {
   const [session] = await db
     .select()
     .from(learnSessionsTable)
-    .where(eq(learnSessionsTable.id, params.data.id));
+    .where(
+      and(
+        eq(learnSessionsTable.id, params.data.id),
+        eq(learnSessionsTable.userId, req.userId!),
+      ),
+    );
 
   if (!session) {
     res.status(404).json({ error: "Study guide not found" });

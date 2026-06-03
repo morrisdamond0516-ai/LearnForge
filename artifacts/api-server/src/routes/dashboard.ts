@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { desc } from "drizzle-orm";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
 import {
   db,
   quizzesTable,
@@ -17,12 +17,13 @@ import { assessLevel } from "../lib/ai";
 
 const router: IRouter = Router();
 
-router.get("/dashboard/summary", async (_req, res): Promise<void> => {
+router.get("/dashboard/summary", async (req, res): Promise<void> => {
+  const me = req.userId!;
   const [quizzes, attempts, documents, learnSessions] = await Promise.all([
-    db.select().from(quizzesTable),
-    db.select().from(attemptsTable),
-    db.select().from(documentsTable),
-    db.select().from(learnSessionsTable),
+    db.select().from(quizzesTable).where(eq(quizzesTable.userId, me)),
+    db.select().from(attemptsTable).where(eq(attemptsTable.userId, me)),
+    db.select().from(documentsTable).where(eq(documentsTable.userId, me)),
+    db.select().from(learnSessionsTable).where(eq(learnSessionsTable.userId, me)),
   ]);
 
   const averageScore =
@@ -46,22 +47,31 @@ router.get("/dashboard/summary", async (_req, res): Promise<void> => {
   );
 });
 
-router.get("/dashboard/recent-activity", async (_req, res): Promise<void> => {
+router.get("/dashboard/recent-activity", async (req, res): Promise<void> => {
+  const me = req.userId!;
   const [attempts, quizzes, documents, learnSessions] = await Promise.all([
     db
       .select()
       .from(attemptsTable)
+      .where(eq(attemptsTable.userId, me))
       .orderBy(desc(attemptsTable.completedAt))
       .limit(10),
-    db.select().from(quizzesTable).orderBy(desc(quizzesTable.createdAt)).limit(10),
+    db
+      .select()
+      .from(quizzesTable)
+      .where(eq(quizzesTable.userId, me))
+      .orderBy(desc(quizzesTable.createdAt))
+      .limit(10),
     db
       .select()
       .from(documentsTable)
+      .where(eq(documentsTable.userId, me))
       .orderBy(desc(documentsTable.createdAt))
       .limit(10),
     db
       .select()
       .from(learnSessionsTable)
+      .where(eq(learnSessionsTable.userId, me))
       .orderBy(desc(learnSessionsTable.createdAt))
       .limit(10),
   ]);
@@ -107,11 +117,15 @@ router.get("/dashboard/recent-activity", async (_req, res): Promise<void> => {
   res.json(GetRecentActivityResponse.parse(items.slice(0, 12)));
 });
 
-router.get("/dashboard/subject-progress", async (_req, res): Promise<void> => {
+router.get("/dashboard/subject-progress", async (req, res): Promise<void> => {
+  const me = req.userId!;
   const [subjects, quizzes, attempts] = await Promise.all([
-    db.select().from(subjectsTable),
-    db.select().from(quizzesTable),
-    db.select().from(attemptsTable),
+    db
+      .select()
+      .from(subjectsTable)
+      .where(or(isNull(subjectsTable.userId), eq(subjectsTable.userId, me))),
+    db.select().from(quizzesTable).where(eq(quizzesTable.userId, me)),
+    db.select().from(attemptsTable).where(eq(attemptsTable.userId, me)),
   ]);
 
   const quizById = new Map(quizzes.map((q) => [q.id, q]));

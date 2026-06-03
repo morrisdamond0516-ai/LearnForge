@@ -23,6 +23,7 @@ export type AttemptQuestionResult = {
 
 export const attemptsTable = pgTable("attempts", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   quizId: integer("quiz_id")
     .notNull()
     .references(() => quizzesTable.id, { onDelete: "cascade" }),

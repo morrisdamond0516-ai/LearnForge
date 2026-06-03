@@ -37,6 +37,14 @@ export class ObjectNotFoundError extends Error {
   }
 }
 
+export class ObjectAccessDeniedError extends Error {
+  constructor() {
+    super("Object access denied");
+    this.name = "ObjectAccessDeniedError";
+    Object.setPrototypeOf(this, ObjectAccessDeniedError.prototype);
+  }
+}
+
 export class ObjectStorageService {
   constructor() {}
 
@@ -191,6 +199,32 @@ export class ObjectStorageService {
 
     const objectFile = await this.getObjectEntityFile(normalizedPath);
     await setObjectAclPolicy(objectFile, aclPolicy);
+    return normalizedPath;
+  }
+
+  // Claim private ownership of an uploaded object for a user. The claim is
+  // immutable: if the object is already owned by a different user, this throws
+  // ObjectAccessDeniedError rather than overwriting the ACL, preventing a
+  // known-path hijack. Re-claiming by the same owner is a no-op-safe rewrite.
+  async claimObjectEntityOwnership(
+    rawPath: string,
+    userId: string,
+  ): Promise<string> {
+    const normalizedPath = this.normalizeObjectEntityPath(rawPath);
+    if (!normalizedPath.startsWith("/")) {
+      return normalizedPath;
+    }
+
+    const objectFile = await this.getObjectEntityFile(normalizedPath);
+    const existing = await getObjectAclPolicy(objectFile);
+    if (existing && existing.owner !== userId) {
+      throw new ObjectAccessDeniedError();
+    }
+
+    await setObjectAclPolicy(objectFile, {
+      owner: userId,
+      visibility: "private",
+    });
     return normalizedPath;
   }
 

@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull, or } from "drizzle-orm";
 import {
   db,
   quizzesTable,
@@ -53,7 +53,7 @@ router.get("/quizzes", async (req, res): Promise<void> => {
     return;
   }
 
-  const conditions = [];
+  const conditions = [eq(quizzesTable.userId, req.userId!)];
   if (query.data.mode) conditions.push(eq(quizzesTable.mode, query.data.mode));
   if (query.data.subjectId != null)
     conditions.push(eq(quizzesTable.subjectId, query.data.subjectId));
@@ -61,7 +61,7 @@ router.get("/quizzes", async (req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(quizzesTable)
-    .where(conditions.length ? and(...conditions) : undefined)
+    .where(and(...conditions))
     .orderBy(desc(quizzesTable.createdAt));
 
   const subjects = await db.select().from(subjectsTable);
@@ -104,7 +104,15 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
     const [subject] = await db
       .select()
       .from(subjectsTable)
-      .where(eq(subjectsTable.id, subjectId));
+      .where(
+        and(
+          eq(subjectsTable.id, subjectId),
+          or(
+            isNull(subjectsTable.userId),
+            eq(subjectsTable.userId, req.userId!),
+          ),
+        ),
+      );
     if (!subject) {
       res.status(404).json({ error: "Subject not found" });
       return;
@@ -117,7 +125,12 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
     const [doc] = await db
       .select()
       .from(documentsTable)
-      .where(eq(documentsTable.id, documentId));
+      .where(
+        and(
+          eq(documentsTable.id, documentId),
+          eq(documentsTable.userId, req.userId!),
+        ),
+      );
     if (!doc) {
       res.status(404).json({ error: "Document not found" });
       return;
@@ -147,6 +160,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
   const [quiz] = await db
     .insert(quizzesTable)
     .values({
+      userId: req.userId!,
       title: title?.trim() || generated.title,
       mode,
       subjectId: subjectId ?? null,
@@ -171,7 +185,12 @@ router.get("/quizzes/:id", async (req, res): Promise<void> => {
   const [quiz] = await db
     .select()
     .from(quizzesTable)
-    .where(eq(quizzesTable.id, params.data.id));
+    .where(
+      and(
+        eq(quizzesTable.id, params.data.id),
+        eq(quizzesTable.userId, req.userId!),
+      ),
+    );
 
   if (!quiz) {
     res.status(404).json({ error: "Quiz not found" });
@@ -192,7 +211,12 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
   const [quiz] = await db
     .select()
     .from(quizzesTable)
-    .where(eq(quizzesTable.id, params.data.id));
+    .where(
+      and(
+        eq(quizzesTable.id, params.data.id),
+        eq(quizzesTable.userId, req.userId!),
+      ),
+    );
 
   if (!quiz) {
     res.status(404).json({ error: "Quiz not found" });
@@ -249,7 +273,12 @@ router.delete("/quizzes/:id", async (req, res): Promise<void> => {
 
   const [quiz] = await db
     .delete(quizzesTable)
-    .where(eq(quizzesTable.id, params.data.id))
+    .where(
+      and(
+        eq(quizzesTable.id, params.data.id),
+        eq(quizzesTable.userId, req.userId!),
+      ),
+    )
     .returning();
 
   if (!quiz) {

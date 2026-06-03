@@ -32,6 +32,7 @@ export type CareerPreferencesData = {
 
 export const careerPlansTable = pgTable("career_plans", {
   id: serial("id").primaryKey(),
+  userId: text("user_id"),
   careerGoal: text("career_goal").notNull(),
   currentEducation: text("current_education"),
   documentId: integer("document_id").references(() => documentsTable.id, {
