@@ -37,10 +37,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Subjects", href: "/subjects", icon: BookOpen },
-    { name: "Quizzes", href: "/quizzes", icon: GraduationCap },
+    { name: "Education/Career Test", href: "/quizzes", icon: GraduationCap },
     { name: "Study Guides", href: "/learn", icon: Library },
     { name: "Curriculum", href: "/curriculum", icon: BookMarked },
-    { name: "Careers/Pathways", href: "/pathways", icon: Compass },
+    { name: "College/Trade", href: "/pathways", icon: Compass },
     { name: "Documents", href: "/documents", icon: FileText },
   ];
 

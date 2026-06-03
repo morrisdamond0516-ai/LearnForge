@@ -54,7 +54,7 @@ export default function Pathway() {
       <div className="space-y-6">
         <Link href="/pathways">
           <Button variant="ghost" className="-ml-4 text-muted-foreground">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Careers/Pathways
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to College/Trade
           </Button>
         </Link>
         <div>
