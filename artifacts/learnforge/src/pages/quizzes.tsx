@@ -156,6 +156,9 @@ export default function Quizzes() {
                       <SelectItem value="3">3 (Quick)</SelectItem>
                       <SelectItem value="5">5 (Standard)</SelectItem>
                       <SelectItem value="10">10 (Deep)</SelectItem>
+                      <SelectItem value="15">15 (Exam)</SelectItem>
+                      <SelectItem value="20">20 (Full exam)</SelectItem>
+                      <SelectItem value="25">25 (Comprehensive)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
