@@ -39,6 +39,7 @@ function toQuizResponse(quiz: Quiz, subjectName: string | null) {
     subjectName,
     documentId: quiz.documentId,
     topic: quiz.topic,
+    career: quiz.career,
     difficulty: quiz.difficulty,
     questionCount: quiz.questionCount,
     createdAt: quiz.createdAt,
@@ -74,6 +75,7 @@ router.get("/quizzes", async (req, res): Promise<void> => {
     subjectId: quiz.subjectId,
     subjectName: quiz.subjectId != null ? (nameById.get(quiz.subjectId) ?? null) : null,
     topic: quiz.topic,
+    career: quiz.career,
     difficulty: quiz.difficulty,
     questionCount: quiz.questionCount,
     createdAt: quiz.createdAt,
@@ -89,13 +91,20 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
     return;
   }
 
-  const { mode, subjectId, documentId, topic, title, difficulty, questionCount } =
+  const { mode, subjectId, documentId, topic, career, title, difficulty, questionCount } =
     parsed.data;
 
-  if (subjectId == null && documentId == null && (!topic || !topic.trim())) {
+  const careerName = career?.trim() || null;
+
+  if (
+    subjectId == null &&
+    documentId == null &&
+    !careerName &&
+    (!topic || !topic.trim())
+  ) {
     res
       .status(400)
-      .json({ error: "Provide a subject, a document, or a topic to generate from" });
+      .json({ error: "Provide a career, subject, document, or topic to generate from" });
     return;
   }
 
@@ -148,6 +157,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
       subjectName: subjectName ?? undefined,
       topic: topic ?? undefined,
       documentName,
+      career: careerName ?? undefined,
       difficulty: resolvedDifficulty,
       questionCount: resolvedCount,
     });
@@ -166,6 +176,7 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
       subjectId: subjectId ?? null,
       documentId: documentId ?? null,
       topic: topic ?? null,
+      career: careerName,
       difficulty: resolvedDifficulty,
       questionCount: generated.questions.length,
       questions: generated.questions,
@@ -241,6 +252,7 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
       subjectName: subjectName ?? undefined,
       topic: quiz.topic ?? undefined,
       documentName,
+      career: quiz.career ?? undefined,
       difficulty: quiz.difficulty,
       questionCount: quiz.questionCount || 8,
     });

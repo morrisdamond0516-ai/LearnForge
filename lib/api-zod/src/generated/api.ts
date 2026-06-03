@@ -188,6 +188,7 @@ export const ListQuizzesResponseItem = zod.object({
   "subjectId": zod.number().nullish(),
   "subjectName": zod.string().nullish(),
   "topic": zod.string().nullish(),
+  "career": zod.string().nullish(),
   "difficulty": zod.string(),
   "questionCount": zod.number(),
   "createdAt": zod.coerce.date()
@@ -211,6 +212,7 @@ export const GenerateQuizBody = zod.object({
   "subjectId": zod.number().optional(),
   "documentId": zod.number().optional(),
   "topic": zod.string().optional(),
+  "career": zod.string().optional(),
   "title": zod.string().optional(),
   "difficulty": zod.enum(['easy', 'medium', 'hard', 'mixed']).optional(),
   "questionCount": zod.number().min(generateQuizBodyQuestionCountMin).max(generateQuizBodyQuestionCountMax).optional()
@@ -232,6 +234,7 @@ export const GetQuizResponse = zod.object({
   "subjectName": zod.string().nullish(),
   "documentId": zod.number().nullish(),
   "topic": zod.string().nullish(),
+  "career": zod.string().nullish(),
   "difficulty": zod.string(),
   "questionCount": zod.number(),
   "createdAt": zod.coerce.date(),
@@ -269,6 +272,7 @@ export const RefreshQuizResponse = zod.object({
   "subjectName": zod.string().nullish(),
   "documentId": zod.number().nullish(),
   "topic": zod.string().nullish(),
+  "career": zod.string().nullish(),
   "difficulty": zod.string(),
   "questionCount": zod.number(),
   "createdAt": zod.coerce.date(),

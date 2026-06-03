@@ -19,6 +19,37 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const CAREER_OPTIONS = [
+  "Social Services Caseworker",
+  "Certified Nursing Assistant (CNA)",
+  "Medical Assistant",
+  "Pharmacy Technician",
+  "Police Officer",
+  "Firefighter / EMT",
+  "Postal Worker",
+  "Administrative / Office Assistant",
+  "Bookkeeper / Accounting Clerk",
+  "Bank Teller",
+  "Electrician (Apprentice / Journeyman)",
+  "HVAC Technician",
+  "Commercial Driver (CDL)",
+  "IT Support / CompTIA A+",
+  "Project Management (PMP / CAPM)",
+  "Real Estate Agent",
+  "Cosmetology License",
+  "Teacher Certification (Praxis)",
+] as const;
+
+const CAREER_FOCUS_OPTIONS = [
+  { value: "full", label: "Full qualifying test (all sections)" },
+  { value: "Math", label: "Math / Quantitative" },
+  { value: "Reading Comprehension", label: "Reading Comprehension" },
+  { value: "Vocabulary / Verbal", label: "Vocabulary / Verbal" },
+  { value: "Writing / Grammar", label: "Writing / Grammar" },
+  { value: "Situational Judgment", label: "Situational Judgment" },
+  { value: "Job Knowledge / Technical", label: "Job Knowledge / Technical" },
+] as const;
+
 export default function Quizzes() {
   const { data: quizzes, isLoading } = useListQuizzes();
   const { data: subjects } = useListSubjects();
@@ -30,8 +61,11 @@ export default function Quizzes() {
   
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<QuizGenerateInputMode>("practice");
-  const [sourceType, setSourceType] = useState<"subject"|"document"|"topic">("topic");
+  const [sourceType, setSourceType] = useState<"subject"|"document"|"topic"|"career">("topic");
   const [subjectId, setSubjectId] = useState<string>("");
+  const [career, setCareer] = useState<string>("");
+  const [customCareer, setCustomCareer] = useState<string>("");
+  const [careerFocus, setCareerFocus] = useState<string>("full");
 
   const search = useSearch();
   useEffect(() => {
@@ -56,7 +90,12 @@ export default function Quizzes() {
     };
     if (sourceType === "subject" && subjectId) input.subjectId = parseInt(subjectId);
     if (sourceType === "document" && documentId) input.documentId = parseInt(documentId);
-    if (sourceType === "topic" && topic) input.topic = topic;
+    if (sourceType === "topic" && topic.trim()) input.topic = topic.trim();
+    if (sourceType === "career") {
+      const chosen = career === "__custom" ? customCareer.trim() : career;
+      if (chosen) input.career = chosen;
+      if (careerFocus && careerFocus !== "full") input.topic = careerFocus;
+    }
 
     generateQuiz.mutate({ data: input }, {
       onSuccess: (res) => {
@@ -128,6 +167,7 @@ export default function Quizzes() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="topic">Free-form Topic</SelectItem>
+                    <SelectItem value="career">Career / Job or Certification Test</SelectItem>
                     <SelectItem value="subject">From Subject</SelectItem>
                     <SelectItem value="document">From Document</SelectItem>
                   </SelectContent>
@@ -139,6 +179,47 @@ export default function Quizzes() {
                   <label className="text-sm font-medium">Topic</label>
                   <Input value={topic} onChange={e => setTopic(e.target.value)} placeholder="e.g. React Hooks, French Revolution..." />
                 </div>
+              )}
+
+              {sourceType === "career" && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Career / Certification</label>
+                    <Select value={career} onValueChange={setCareer}>
+                      <SelectTrigger><SelectValue placeholder="Select a career or certification..." /></SelectTrigger>
+                      <SelectContent>
+                        {CAREER_OPTIONS.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                        <SelectItem value="__custom">Other (type your own)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {career === "__custom" && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Job or certification name</label>
+                      <Input
+                        value={customCareer}
+                        onChange={(e) => setCustomCareer(e.target.value)}
+                        placeholder="e.g. Dental Hygienist, AWS Certified..."
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Test section</label>
+                    <Select value={careerFocus} onValueChange={setCareerFocus}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {CAREER_FOCUS_OPTIONS.map((f) => (
+                          <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      The AI researches the real exam for this role and writes practice questions for the section you pick.
+                    </p>
+                  </div>
+                </>
               )}
 
               {sourceType === "subject" && (
@@ -185,9 +266,11 @@ export default function Quizzes() {
                 onClick={handleGenerate}
                 disabled={
                   generateQuiz.isPending ||
-                  (sourceType === "topic" && !topic) ||
+                  (sourceType === "topic" && !topic.trim()) ||
                   (sourceType === "subject" && !subjectId) ||
-                  (sourceType === "document" && !documentId)
+                  (sourceType === "document" && !documentId) ||
+                  (sourceType === "career" &&
+                    (!career || (career === "__custom" && !customCareer.trim())))
                 }
               >
                 {generateQuiz.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -216,7 +299,7 @@ export default function Quizzes() {
                     <span className="px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground text-xs font-medium uppercase tracking-wider">{quiz.difficulty}</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {quiz.questionCount} questions • {quiz.topic || quiz.subjectName || "Custom Assessment"}
+                    {quiz.questionCount} questions • {quiz.career ? `${quiz.career}${quiz.topic ? ` (${quiz.topic})` : ""}` : quiz.topic || quiz.subjectName || "Custom Assessment"}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">

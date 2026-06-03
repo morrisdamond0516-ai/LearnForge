@@ -112,6 +112,8 @@ export interface Quiz {
   documentId?: number | null;
   /** @nullable */
   topic?: string | null;
+  /** @nullable */
+  career?: string | null;
   difficulty: string;
   questionCount: number;
   createdAt: string;
@@ -137,6 +139,8 @@ export interface QuizSummary {
   subjectName?: string | null;
   /** @nullable */
   topic?: string | null;
+  /** @nullable */
+  career?: string | null;
   difficulty: string;
   questionCount: number;
   createdAt: string;
@@ -166,6 +170,7 @@ export interface QuizGenerateInput {
   subjectId?: number;
   documentId?: number;
   topic?: string;
+  career?: string;
   title?: string;
   difficulty?: QuizGenerateInputDifficulty;
   /**

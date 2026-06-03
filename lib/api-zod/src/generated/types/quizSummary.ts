@@ -17,6 +17,8 @@ export interface QuizSummary {
   subjectName?: string | null;
   /** @nullable */
   topic?: string | null;
+  /** @nullable */
+  career?: string | null;
   difficulty: string;
   questionCount: number;
   createdAt: Date;

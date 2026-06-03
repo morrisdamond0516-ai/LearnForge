@@ -13,6 +13,7 @@ export interface QuizGenerateInput {
   subjectId?: number;
   documentId?: number;
   topic?: string;
+  career?: string;
   title?: string;
   difficulty?: QuizGenerateInputDifficulty;
   /**

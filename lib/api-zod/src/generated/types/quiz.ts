@@ -20,6 +20,8 @@ export interface Quiz {
   documentId?: number | null;
   /** @nullable */
   topic?: string | null;
+  /** @nullable */
+  career?: string | null;
   difficulty: string;
   questionCount: number;
   createdAt: Date;

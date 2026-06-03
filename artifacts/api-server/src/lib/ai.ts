@@ -16,6 +16,7 @@ export type GenerateQuizArgs = {
   subjectName?: string;
   topic?: string;
   documentName?: string;
+  career?: string;
   difficulty: string;
   questionCount: number;
 };
@@ -28,14 +29,17 @@ export type GeneratedQuiz = {
 export async function generateQuizContent(
   args: GenerateQuizArgs,
 ): Promise<GeneratedQuiz> {
-  const { mode, subjectName, topic, documentName, difficulty, questionCount } =
+  const { mode, subjectName, topic, documentName, career, difficulty, questionCount } =
     args;
 
   const variationKey = `${Date.now().toString(36)}-${Math.random()
     .toString(36)
     .slice(2, 10)}`;
 
+  const careerName = career?.trim();
+
   const focus =
+    careerName ??
     topic ??
     subjectName ??
     documentName ??
@@ -48,13 +52,25 @@ export async function generateQuizContent(
         ? "a comprehensive exam"
         : "a focused practice quiz";
 
-  const system =
-    "You are an expert instructional designer who writes high quality multiple-choice assessment questions. " +
-    "Every question has exactly 4 options, exactly one correct answer, and a concise explanation. " +
-    "Return ONLY valid JSON, no prose, no markdown fences.";
+  const system = careerName
+    ? "You are an expert exam-prep author who builds realistic practice tests that mirror the official hiring, qualifying, civil-service, and professional certification exams used for specific jobs. " +
+      "Base every question on the real competencies and section content those exams actually assess; do not invent fictional test formats. " +
+      "Every question has exactly 4 options, exactly one correct answer, and a concise explanation that teaches the underlying concept. " +
+      "Return ONLY valid JSON, no prose, no markdown fences."
+    : "You are an expert instructional designer who writes high quality multiple-choice assessment questions. " +
+      "Every question has exactly 4 options, exactly one correct answer, and a concise explanation. " +
+      "Return ONLY valid JSON, no prose, no markdown fences.";
+
+  const careerInstructions = careerName
+    ? `This is a job-readiness / certification practice test for the role: "${careerName}".
+First determine which official test(s) a candidate for this role must pass (e.g. civil-service exams, licensing or professional certification exams, employer screening tests) and which sections/competencies those exams assess.
+${topic ? `Focus this test specifically on the "${topic}" section/competency of that exam (for example, if the focus is "Math", write the kind of quantitative questions that exam asks: arithmetic, fractions, decimals, percentages, ratios and proportions, basic algebra, unit conversions, reading tables/charts, and real-world word problems framed around the job's daily tasks).` : `Cover the core sections of that exam proportionally (for example, quantitative/math reasoning, reading comprehension, vocabulary, and situational-judgment where applicable), weighting the sections the way the real exam does.`}
+Match the realistic style, framing, and difficulty of the actual exam so this serves as genuine preparation.
+`
+    : "";
 
   const user = `Create ${modeDescription} about "${focus}".
-Difficulty: ${difficulty}.
+${careerInstructions}Difficulty: ${difficulty}.
 Number of questions: ${questionCount}.
 ${documentName ? `The material is based on an uploaded document named "${documentName}".` : ""}
 

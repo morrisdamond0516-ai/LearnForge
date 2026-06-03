@@ -32,6 +32,7 @@ export const quizzesTable = pgTable("quizzes", {
     onDelete: "set null",
   }),
   topic: text("topic"),
+  career: text("career"),
   difficulty: text("difficulty").notNull().default("medium"),
   questionCount: integer("question_count").notNull().default(0),
   questions: jsonb("questions").$type<QuizQuestion[]>().notNull().default([]),
