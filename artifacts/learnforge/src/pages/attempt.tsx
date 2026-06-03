@@ -208,12 +208,19 @@ export default function Attempt() {
                 </>
               )}
               {attempt.subjectId == null && (
-                <Link href="/quizzes">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <RotateCcw className="h-4 w-4" />
-                    Try another quiz
-                  </Button>
-                </Link>
+                <>
+                  <Link href={`/quizzes/${attempt.quizId}`}>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <RotateCcw className="h-4 w-4" />
+                      Retake this test
+                    </Button>
+                  </Link>
+                  <Link href="/quizzes">
+                    <Button variant="outline" size="sm" className="gap-2">
+                      Try a different quiz
+                    </Button>
+                  </Link>
+                </>
               )}
               <Button
                 onClick={handleBuildCurriculum}
