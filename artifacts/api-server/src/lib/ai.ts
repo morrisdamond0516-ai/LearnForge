@@ -30,6 +30,37 @@ export type GeneratedQuiz = {
 const QUIZ_BATCH_SIZE = 15;
 export const MAX_QUIZ_QUESTIONS = 60;
 
+function normalizeOption(s: string): string {
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-d][).:\-]\s*/i, "")
+    .replace(/\s+/g, " ");
+}
+
+function resolveCorrectIndex(
+  options: string[],
+  correctAnswer: unknown,
+  correctIndex: unknown,
+): number {
+  if (typeof correctAnswer === "string" && correctAnswer.trim().length > 0) {
+    const exactTarget = correctAnswer.trim();
+    const exact = options
+      .map((o, i) => ({ i, v: o.trim() }))
+      .filter((o) => o.v === exactTarget);
+    if (exact.length === 1) return exact[0]!.i;
+
+    const target = normalizeOption(correctAnswer);
+    const matches = options
+      .map((o, i) => ({ i, v: normalizeOption(o) }))
+      .filter((o) => o.v === target);
+    if (matches.length === 1) return matches[0]!.i;
+  }
+  let idx = typeof correctIndex === "number" ? correctIndex : 0;
+  if (idx < 0 || idx >= options.length) idx = 0;
+  return idx;
+}
+
 async function generateQuizBatch(
   args: GenerateQuizArgs,
   batchCount: number,
@@ -102,11 +133,12 @@ Return JSON with this exact shape:
       "prompt": "the question text",
       "options": ["option A", "option B", "option C", "option D"],
       "correctIndex": 0,
+      "correctAnswer": "the exact text of the correct option, copied verbatim from the options array",
       "explanation": "why the correct answer is correct"
     }
   ]
 }
-Ensure correctIndex is the 0-based index of the correct option. For any question involving calculation, work out the answer step by step, then verify that the option at correctIndex is exactly that value and that your explanation ends with that same value — fix correctIndex or the options if they disagree. Produce exactly ${batchCount} questions.
+correctAnswer is the source of truth: it MUST be a verbatim, character-for-character copy of exactly one entry in the options array — the correct one — and correctIndex MUST be its 0-based position. For any question involving calculation, work out the answer step by step first, then set correctAnswer to the option string equal to that value and make sure correctIndex points to it and your explanation ends with that same value. If correctAnswer, correctIndex, and the explanation disagree, fix them so all three name the same option. Produce exactly ${batchCount} questions.
 Generate a fresh, original set of questions that differs from any previous run: vary the specific sub-topics, scenarios, examples, numbers, and wording so the learner cannot memorize the answers. Distribute the correct option across different positions. ${batchHint} (variation key: ${variationKey})`;
 
   const response = await openai.chat.completions.create({
@@ -126,6 +158,7 @@ Generate a fresh, original set of questions that differs from any previous run: 
       prompt?: string;
       options?: string[];
       correctIndex?: number;
+      correctAnswer?: string;
       explanation?: string;
     }>;
   };
@@ -140,9 +173,11 @@ Generate a fresh, original set of questions that differs from any previous run: 
     )
     .map((q, index) => {
       const options = (q.options ?? []).map((o) => String(o));
-      let correctIndex =
-        typeof q.correctIndex === "number" ? q.correctIndex : 0;
-      if (correctIndex < 0 || correctIndex >= options.length) correctIndex = 0;
+      const correctIndex = resolveCorrectIndex(
+        options,
+        q.correctAnswer,
+        q.correctIndex,
+      );
       return {
         id: index + 1,
         prompt: String(q.prompt),

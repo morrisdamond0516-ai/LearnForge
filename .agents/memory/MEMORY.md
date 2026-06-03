@@ -1,5 +1,6 @@
 - [wouter Link anchors](wouter-link-anchors.md) — wouter v3 Link renders its own <a>; never nest <a> inside, put props on Link directly.
 - [Composite libs in monorepo](composite-libs.md) — libs in root tsconfig references must be composite:true or artifact typecheck fails.
 - [pdf-parse in Node server](pdf-parse-node.md) — use v1 via `pdf-parse/lib/pdf-parse.js`; root entry / v2 crash on DOMMatrix or debug file-read at startup.
+- [Quiz answer-key index integrity](quiz-answer-key-index.md) — don't trust the LLM's numeric correctIndex; emit correctAnswer text and derive index by matching options.
 - [Object storage multi-user ACL](object-storage-multiuser-acl.md) — template object storage is open by default; adding auth needs immutable owner-claim + read enforcement + fail-closed on no-ACL.
 - [Preview blank in privacy browsers](preview-blank-privacy-browsers.md) — user "no color/blank/clicks do nothing" but server screenshots fine = client browser/cache (Norton blocks Vite HMR), not the app.
