@@ -61,9 +61,11 @@ async function generateQuizBatch(
     ? "You are an expert exam-prep author who builds realistic practice tests that mirror the official hiring, qualifying, civil-service, and professional certification exams used for specific jobs. " +
       "Base every question on the real competencies and section content those exams actually assess; do not invent fictional test formats. " +
       "Every question has exactly 4 options, exactly one correct answer, and a concise explanation that teaches the underlying concept. " +
+      "Solve every question yourself before writing it; the option you mark correct must exactly equal your worked-out answer and the final answer stated in your explanation. " +
       "Return ONLY valid JSON, no prose, no markdown fences."
     : "You are an expert instructional designer who writes high quality multiple-choice assessment questions. " +
       "Every question has exactly 4 options, exactly one correct answer, and a concise explanation. " +
+      "Solve every question yourself before writing it; the option you mark correct must exactly equal your worked-out answer and the final answer stated in your explanation. " +
       "Return ONLY valid JSON, no prose, no markdown fences.";
 
   const careerInstructions = careerName
@@ -91,7 +93,7 @@ Return JSON with this exact shape:
     }
   ]
 }
-Ensure correctIndex is the 0-based index of the correct option. Produce exactly ${batchCount} questions.
+Ensure correctIndex is the 0-based index of the correct option. For any question involving calculation, work out the answer step by step, then verify that the option at correctIndex is exactly that value and that your explanation ends with that same value — fix correctIndex or the options if they disagree. Produce exactly ${batchCount} questions.
 Generate a fresh, original set of questions that differs from any previous run: vary the specific sub-topics, scenarios, examples, numbers, and wording so the learner cannot memorize the answers. Distribute the correct option across different positions. ${batchHint} (variation key: ${variationKey})`;
 
   const response = await openai.chat.completions.create({
