@@ -192,6 +192,27 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(1100px 620px at 102% -8%, hsl(38 92% 50% / 0.08), transparent 58%),
+      radial-gradient(1000px 640px at -6% -4%, hsl(224 85% 52% / 0.09), transparent 56%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
+}
+
+.dark body {
+  background-image:
+    radial-gradient(1100px 620px at 102% -8%, hsl(38 92% 55% / 0.10), transparent 58%),
+    radial-gradient(1000px 640px at -6% -4%, hsl(224 85% 62% / 0.12), transparent 56%);
+}
+
+.app-header {
+  background-image: linear-gradient(
+    100deg,
+    hsl(226 57% 17%) 0%,
+    hsl(230 56% 25%) 52%,
+    hsl(224 72% 33%) 100%
+  );
 }

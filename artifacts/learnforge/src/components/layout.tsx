@@ -15,9 +15,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
-      <header className="sticky top-0 z-40 flex flex-col gap-2 bg-primary px-4 py-3 shadow-md sm:px-6 lg:flex-row lg:items-center lg:gap-6 lg:py-0 lg:h-16 lg:px-8">
+      <header className="app-header sticky top-0 z-40 flex flex-col gap-2 px-4 py-3 shadow-lg sm:px-6 lg:flex-row lg:items-center lg:gap-6 lg:py-0 lg:h-16 lg:px-8">
         <div className="flex shrink-0 items-center gap-2 font-bold text-xl text-white tracking-tight">
-          <GraduationCap className="h-6 w-6" />
+          <GraduationCap className="h-6 w-6 text-accent" />
           <span>LearnForge</span>
         </div>
 
