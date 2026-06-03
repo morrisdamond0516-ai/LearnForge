@@ -255,6 +255,35 @@ export const DeleteQuizParams = zod.object({
 
 
 /**
+ * @summary Regenerate a quiz with a fresh, different set of AI-generated questions
+ */
+export const RefreshQuizParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RefreshQuizResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "mode": zod.enum(['placement', 'practice', 'exam']),
+  "subjectId": zod.number().nullish(),
+  "subjectName": zod.string().nullish(),
+  "documentId": zod.number().nullish(),
+  "topic": zod.string().nullish(),
+  "difficulty": zod.string(),
+  "questionCount": zod.number(),
+  "createdAt": zod.coerce.date(),
+  "questions": zod.array(zod.object({
+  "id": zod.number(),
+  "prompt": zod.string(),
+  "options": zod.array(zod.string()),
+  "correctIndex": zod.number(),
+  "explanation": zod.string().nullish(),
+  "order": zod.number()
+}))
+})
+
+
+/**
  * @summary Submit answers for a quiz and get a scored result
  */
 export const SubmitAttemptParams = zod.object({

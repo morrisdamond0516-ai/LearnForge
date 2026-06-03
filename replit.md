@@ -40,12 +40,13 @@ An AI-powered learning and test-prep web app: pick any subject, generate custom 
 - Foreign keys link documents/quizzes/learnSessions to subjects (set null on delete) and attempts to quizzes (cascade). Routes also reject non-existent linkage IDs with 404 before insert.
 - No authentication: this is a single-user personal tool. Object storage private-object serving uses the template default (no per-user ACL) consistent with that.
 - Career Pathways uses the uploaded document's real text: the route downloads the object and extracts readable text (capped 4000 chars, aligned with the prompt slice in `ai.ts`) before passing it to the AI. Extraction is best-effort and bounded — files over 10MB or that exceed a 15s PDF parse timeout are skipped, and if extraction fails or yields nothing (e.g. scanned-image PDF), the request still succeeds with the AI told the text could not be read. The route also rejects an empty AI result (no recommendations / blank summary) with a 500 rather than persisting it.
+- Fresh questions per take: taking a quiz regenerates its questions instead of replaying the stored set, so a learner can't memorize answers. `POST /quizzes/:id/refresh` regenerates from the quiz's stored params (mode/subject/topic/document/difficulty/count), persists the new set onto `quizzes.questions`, and returns it; `quiz-take.tsx` fires this once on mount. `generateQuizContent` adds a per-call variation key + instruction so each set differs. Submit (`/quizzes/:id/attempts`) still scores against the quiz row, which is consistent because generation fires exactly once per take (no React StrictMode in `main.tsx`) and this is a single-user tool; attempts also snapshot their own question data into `attempts.results`, so regenerating never corrupts past results.
 
 ## Product
 
 - Dashboard: progress summary, recent activity, per-subject levels
 - Subjects: browse and create custom subjects
-- Quizzes: generate placement/practice/exam quizzes from a subject, document, or free-form topic; take them and get scored results with explanations and an assessed level
+- Quizzes: generate placement/practice/exam quizzes from a subject, document, or free-form topic; each time you take one, a fresh set of questions is generated (you can't just memorize answers); get scored results with explanations and an assessed level
 - Learn: AI study guides for any topic (summary, sections, key points, next steps)
 - Documents: upload PDFs/files to use as quiz source material
 - Career Pathways: upload a transcript/document + career goal + preferences (format/budget/location/timeline) → AI recommends real schools/programs, skill gaps, and next steps; plans are saved and browsable

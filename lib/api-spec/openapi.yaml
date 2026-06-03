@@ -382,6 +382,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+  /quizzes/{id}/refresh:
+    post:
+      operationId: refreshQuiz
+      tags: [quizzes]
+      summary: Regenerate a quiz with a fresh, different set of AI-generated questions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Quiz with newly generated questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
   /quizzes/{id}/attempts:
     post:
       operationId: submitAttempt

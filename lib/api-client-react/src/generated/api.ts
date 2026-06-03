@@ -1191,6 +1191,76 @@ export const useDeleteQuiz = <TError = ErrorType<ErrorEnvelope>,
       return useMutation(getDeleteQuizMutationOptions(options));
     }
 
+export const getRefreshQuizUrl = (id: number,) => {
+
+
+
+
+  return `/api/quizzes/${id}/refresh`
+}
+
+/**
+ * @summary Regenerate a quiz with a fresh, different set of AI-generated questions
+ */
+export const refreshQuiz = async (id: number, options?: RequestInit): Promise<Quiz> => {
+
+  return customFetch<Quiz>(getRefreshQuizUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRefreshQuizMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshQuiz>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof refreshQuiz>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['refreshQuiz'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof refreshQuiz>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  refreshQuiz(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RefreshQuizMutationResult = NonNullable<Awaited<ReturnType<typeof refreshQuiz>>>
+
+    export type RefreshQuizMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Regenerate a quiz with a fresh, different set of AI-generated questions
+ */
+export const useRefreshQuiz = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof refreshQuiz>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof refreshQuiz>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRefreshQuizMutationOptions(options));
+    }
+
 export const getSubmitAttemptUrl = (id: number,) => {
 
 

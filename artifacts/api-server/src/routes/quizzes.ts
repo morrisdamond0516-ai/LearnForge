@@ -182,6 +182,64 @@ router.get("/quizzes/:id", async (req, res): Promise<void> => {
   res.json(GetQuizResponse.parse(toQuizResponse(quiz, subjectName)));
 });
 
+router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
+  const params = GetQuizParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [quiz] = await db
+    .select()
+    .from(quizzesTable)
+    .where(eq(quizzesTable.id, params.data.id));
+
+  if (!quiz) {
+    res.status(404).json({ error: "Quiz not found" });
+    return;
+  }
+
+  const subjectName = await subjectNameFor(quiz.subjectId);
+
+  let documentName: string | undefined;
+  if (quiz.documentId != null) {
+    const [doc] = await db
+      .select()
+      .from(documentsTable)
+      .where(eq(documentsTable.id, quiz.documentId));
+    documentName = doc?.name;
+  }
+
+  let generated;
+  try {
+    generated = await generateQuizContent({
+      mode: quiz.mode as "placement" | "practice" | "exam",
+      subjectName: subjectName ?? undefined,
+      topic: quiz.topic ?? undefined,
+      documentName,
+      difficulty: quiz.difficulty,
+      questionCount: quiz.questionCount || 8,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Quiz refresh failed");
+    res
+      .status(500)
+      .json({ error: "Failed to generate fresh questions. Please try again." });
+    return;
+  }
+
+  const [updated] = await db
+    .update(quizzesTable)
+    .set({
+      questions: generated.questions,
+      questionCount: generated.questions.length,
+    })
+    .where(eq(quizzesTable.id, quiz.id))
+    .returning();
+
+  res.json(GetQuizResponse.parse(toQuizResponse(updated, subjectName)));
+});
+
 router.delete("/quizzes/:id", async (req, res): Promise<void> => {
   const params = DeleteQuizParams.safeParse(req.params);
   if (!params.success) {

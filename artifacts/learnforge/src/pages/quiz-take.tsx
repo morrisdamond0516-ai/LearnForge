@@ -1,19 +1,18 @@
-import { useGetQuiz, useSubmitAttempt, getListAttemptsQueryKey, getGetQuizQueryKey } from "@workspace/api-client-react";
+import { useRefreshQuiz, useSubmitAttempt, getListAttemptsQueryKey } from "@workspace/api-client-react";
 import { useParams, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export default function QuizTake() {
   const { id } = useParams();
   const quizId = parseInt(id || "0");
-  const { data: quiz, isLoading, error } = useGetQuiz(quizId, { query: { enabled: !!quizId, queryKey: getGetQuizQueryKey(quizId) } });
+  const refreshQuiz = useRefreshQuiz();
   const submitAttempt = useSubmitAttempt();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -23,8 +22,35 @@ export default function QuizTake() {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [advancing, setAdvancing] = useState(false);
 
-  if (isLoading) return <div className="p-8 space-y-4 max-w-3xl mx-auto"><Skeleton className="h-8 w-1/3" /><Skeleton className="h-64 w-full" /></div>;
-  if (error || !quiz) return <div className="p-8 text-center text-destructive">Failed to load quiz.</div>;
+  const startedRef = useRef(false);
+  const { mutate: refreshMutate } = refreshQuiz;
+  useEffect(() => {
+    if (!quizId || startedRef.current) return;
+    startedRef.current = true;
+    refreshMutate({ id: quizId });
+  }, [quizId, refreshMutate]);
+
+  const quiz = refreshQuiz.data;
+
+  if (!quizId || refreshQuiz.isError) {
+    return (
+      <div className="p-8 text-center text-destructive">
+        Failed to load quiz. Please go back and try again.
+      </div>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <div className="max-w-3xl mx-auto py-16 text-center space-y-4 animate-in fade-in duration-500">
+        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
+        <p className="text-lg font-medium">Preparing a fresh set of questions...</p>
+        <p className="text-sm text-muted-foreground">
+          Each attempt is newly generated so you learn the material, not the answers.
+        </p>
+      </div>
+    );
+  }
 
   const currentQuestion = quiz.questions[currentQuestionIdx];
   const isLastQuestion = currentQuestionIdx === quiz.questions.length - 1;

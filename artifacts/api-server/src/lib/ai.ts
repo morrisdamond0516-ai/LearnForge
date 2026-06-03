@@ -31,6 +31,10 @@ export async function generateQuizContent(
   const { mode, subjectName, topic, documentName, difficulty, questionCount } =
     args;
 
+  const variationKey = `${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+
   const focus =
     topic ??
     subjectName ??
@@ -66,7 +70,8 @@ Return JSON with this exact shape:
     }
   ]
 }
-Ensure correctIndex is the 0-based index of the correct option. Produce exactly ${questionCount} questions.`;
+Ensure correctIndex is the 0-based index of the correct option. Produce exactly ${questionCount} questions.
+Generate a fresh, original set of questions that differs from any previous run: vary the specific sub-topics, scenarios, examples, numbers, and wording so the learner cannot memorize the answers. Distribute the correct option across different positions. (variation key: ${variationKey})`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
