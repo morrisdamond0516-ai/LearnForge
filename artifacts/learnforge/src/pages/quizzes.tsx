@@ -178,10 +178,20 @@ export default function Quizzes() {
                 </Select>
               </div>
             </div>
-            <DialogFooter>
-              <Button onClick={handleGenerate} disabled={generateQuiz.isPending || (sourceType==='topic' && !topic)}>
+            <DialogFooter className="sm:flex-col sm:space-x-0">
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={handleGenerate}
+                disabled={
+                  generateQuiz.isPending ||
+                  (sourceType === "topic" && !topic) ||
+                  (sourceType === "subject" && !subjectId) ||
+                  (sourceType === "document" && !documentId)
+                }
+              >
                 {generateQuiz.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Generate with AI
+                {generateQuiz.isPending ? "Generating..." : "Generate with AI"}
               </Button>
             </DialogFooter>
           </DialogContent>
