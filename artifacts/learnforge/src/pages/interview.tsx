@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CAREER_OPTIONS } from "@/lib/careers";
+import { errorMessage } from "@/lib/api-error";
 import { Link } from "wouter";
 
 type Stage = "setup" | "interview" | "feedback";
@@ -57,8 +58,11 @@ export default function Interview() {
         onSuccess: (res) => {
           setMessages([...history, { role: "host", content: res.message }]);
         },
-        onError: () => {
-          toast({ title: "The interviewer didn't respond. Please try again.", variant: "destructive" });
+        onError: (err) => {
+          toast({
+            title: errorMessage(err, "The interviewer didn't respond. Please try again."),
+            variant: "destructive",
+          });
         },
       },
     );
@@ -94,8 +98,11 @@ export default function Interview() {
           setFeedback(res);
           setStage("feedback");
         },
-        onError: () => {
-          toast({ title: "Couldn't generate feedback. Please try again.", variant: "destructive" });
+        onError: (err) => {
+          toast({
+            title: errorMessage(err, "Couldn't generate feedback. Please try again."),
+            variant: "destructive",
+          });
         },
       },
     );
