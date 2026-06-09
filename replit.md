@@ -60,6 +60,10 @@ An AI-powered learning and test-prep web app: pick any subject, generate custom 
 - Career Pathways: upload a transcript/document + career goal + preferences (format/budget/location/timeline) → AI recommends real schools/programs, skill gaps, and next steps; plans are saved and browsable
 - Onboarding/guidance (built for students and first-time users): a "How it works" Help page (`pages/help.tsx`, route `/help`, in the nav) explains the core loop and every feature in plain language; a first-time welcome walkthrough (`components/welcome-tour.tsx`) auto-opens once per user (localStorage flag `learnforge:welcome-seen`, with an in-session fallback if storage is blocked) and is replayable via the `learnforge:start-tour` window event (exported `startTour()`), wired to buttons on the Help page and Dashboard; nuanced quiz-generator options use a touch-friendly `components/help-tip.tsx` (click/tap Popover, not hover, with a padded tap target) for inline plain-language hints. `WelcomeTour` is rendered once inside `Layout` so it overlays the whole signed-in app.
 
+## Planned / future
+
+- ebookgamez monetization bridge (not built yet): the Curriculum and Career Pathways AI already recommend real book titles (currently shown as plain "where to find it" notes). Future work is to turn those recommended titles into "Buy on ebookgamez" links/buttons so students can purchase at the moment a book is recommended, ideally with affiliate tracking to earn per sale. Blocked on deciding how ebookgamez exposes books (a search/URL pattern to link to, vs. an API/catalog to pull real titles + prices). Revisit once that's known.
+
 ## User preferences
 
 - No emojis in the UI.
