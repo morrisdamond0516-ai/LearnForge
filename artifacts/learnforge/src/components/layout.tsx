@@ -15,27 +15,18 @@ function UserMenu() {
     "Account";
 
   return (
-    <div className="flex shrink-0 flex-col items-start gap-1 border-t border-white/15 pt-2 lg:items-end lg:border-t-0 lg:border-l lg:border-white/15 lg:pt-0 lg:pl-4">
-      <div className="flex items-center gap-3">
-        <span className="max-w-[12rem] truncate text-sm text-white/80" title={label}>
-          {label}
-        </span>
-        <button
-          type="button"
-          onClick={() => signOut({ redirectUrl: basePath || "/" })}
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white"
-        >
-          <LogOut className="h-4 w-4" />
-          Log out
-        </button>
-      </div>
-      <Link
-        href="/documents"
-        className="flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+    <div className="flex shrink-0 items-center gap-3 border-t border-white/15 pt-2 lg:border-t-0 lg:border-l lg:border-white/15 lg:pt-0 lg:pl-4">
+      <span className="max-w-[12rem] truncate text-sm text-white/80" title={label}>
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={() => signOut({ redirectUrl: basePath || "/" })}
+        className="flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/15 hover:text-white"
       >
-        <FileText className="h-3.5 w-3.5" />
-        Documents
-      </Link>
+        <LogOut className="h-4 w-4" />
+        Log out
+      </button>
     </div>
   );
 }
@@ -89,6 +80,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-6 flex justify-end">
+            <Link
+              href="/documents"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <FileText className="h-4 w-4" />
+              Documents
+            </Link>
+          </div>
           {children}
         </div>
       </main>
