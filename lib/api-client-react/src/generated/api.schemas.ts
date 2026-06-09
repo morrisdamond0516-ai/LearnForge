@@ -5,6 +5,36 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export type RoleplayMessageRole = typeof RoleplayMessageRole[keyof typeof RoleplayMessageRole];
+
+
+export const RoleplayMessageRole = {
+  host: 'host',
+  candidate: 'candidate',
+} as const;
+
+export interface RoleplayMessage {
+  role: RoleplayMessageRole;
+  /** @minLength 1 */
+  content: string;
+}
+
+export interface RoleplayInput {
+  /** @minLength 1 */
+  career: string;
+  /** @nullable */
+  focus?: string | null;
+  messages: RoleplayMessage[];
+}
+
+export interface RoleplayFeedback {
+  overallScore: number;
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  recommendedTopics: string[];
+}
+
 export interface ExplainInput {
   prompt: string;
   options: string[];
@@ -440,5 +470,9 @@ export type ExplainQuestion200 = {
   steps: string[];
   example: string;
   tip: string;
+};
+
+export type RoleplayMessage200 = {
+  message: string;
 };
 

@@ -11,6 +11,7 @@ import careerRouter from "./career";
 import curriculumRouter from "./curriculum";
 import dashboardRouter from "./dashboard";
 import explainRouter from "./explain";
+import roleplayRouter from "./roleplay";
 
 const router: IRouter = Router();
 
@@ -31,5 +32,6 @@ router.use(careerRouter);
 router.use(curriculumRouter);
 router.use(dashboardRouter);
 router.use(explainRouter);
+router.use(roleplayRouter);
 
 export default router;

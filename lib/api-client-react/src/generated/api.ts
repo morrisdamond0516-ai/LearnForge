@@ -44,6 +44,9 @@ import type {
   Quiz,
   QuizGenerateInput,
   QuizSummary,
+  RoleplayFeedback,
+  RoleplayInput,
+  RoleplayMessage200,
   Subject,
   SubjectInput,
   SubjectProgress,
@@ -2476,5 +2479,147 @@ export const useExplainQuestion = <TError = ErrorType<ErrorEnvelope>,
         TContext
       > => {
       return useMutation(getExplainQuestionMutationOptions(options));
+    }
+
+export const getRoleplayMessageUrl = () => {
+
+
+
+
+  return `/api/roleplay/message`
+}
+
+/**
+ * @summary Get the next host message in a live mock interview roleplay
+ */
+export const roleplayMessage = async (roleplayInput: RoleplayInput, options?: RequestInit): Promise<RoleplayMessage200> => {
+
+  return customFetch<RoleplayMessage200>(getRoleplayMessageUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      roleplayInput,)
+  }
+);}
+
+
+
+
+export const getRoleplayMessageMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof roleplayMessage>>, TError,{data: BodyType<RoleplayInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof roleplayMessage>>, TError,{data: BodyType<RoleplayInput>}, TContext> => {
+
+const mutationKey = ['roleplayMessage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof roleplayMessage>>, {data: BodyType<RoleplayInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  roleplayMessage(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RoleplayMessageMutationResult = NonNullable<Awaited<ReturnType<typeof roleplayMessage>>>
+    export type RoleplayMessageMutationBody = BodyType<RoleplayInput>
+    export type RoleplayMessageMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Get the next host message in a live mock interview roleplay
+ */
+export const useRoleplayMessage = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof roleplayMessage>>, TError,{data: BodyType<RoleplayInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof roleplayMessage>>,
+        TError,
+        {data: BodyType<RoleplayInput>},
+        TContext
+      > => {
+      return useMutation(getRoleplayMessageMutationOptions(options));
+    }
+
+export const getEvaluateRoleplayUrl = () => {
+
+
+
+
+  return `/api/roleplay/evaluate`
+}
+
+/**
+ * @summary Evaluate a completed mock interview roleplay and return structured feedback
+ */
+export const evaluateRoleplay = async (roleplayInput: RoleplayInput, options?: RequestInit): Promise<RoleplayFeedback> => {
+
+  return customFetch<RoleplayFeedback>(getEvaluateRoleplayUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      roleplayInput,)
+  }
+);}
+
+
+
+
+export const getEvaluateRoleplayMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof evaluateRoleplay>>, TError,{data: BodyType<RoleplayInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof evaluateRoleplay>>, TError,{data: BodyType<RoleplayInput>}, TContext> => {
+
+const mutationKey = ['evaluateRoleplay'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof evaluateRoleplay>>, {data: BodyType<RoleplayInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  evaluateRoleplay(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EvaluateRoleplayMutationResult = NonNullable<Awaited<ReturnType<typeof evaluateRoleplay>>>
+    export type EvaluateRoleplayMutationBody = BodyType<RoleplayInput>
+    export type EvaluateRoleplayMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Evaluate a completed mock interview roleplay and return structured feedback
+ */
+export const useEvaluateRoleplay = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof evaluateRoleplay>>, TError,{data: BodyType<RoleplayInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof evaluateRoleplay>>,
+        TError,
+        {data: BodyType<RoleplayInput>},
+        TContext
+      > => {
+      return useMutation(getEvaluateRoleplayMutationOptions(options));
     }
 

@@ -795,8 +795,106 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
 
+  /roleplay/message:
+    post:
+      operationId: roleplayMessage
+      tags: [roleplay]
+      summary: Get the next host message in a live mock interview roleplay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleplayInput"
+      responses:
+        "200":
+          description: Next host message
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message]
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /roleplay/evaluate:
+    post:
+      operationId: evaluateRoleplay
+      tags: [roleplay]
+      summary: Evaluate a completed mock interview roleplay and return structured feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleplayInput"
+      responses:
+        "200":
+          description: Roleplay feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleplayFeedback"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
 components:
   schemas:
+    RoleplayMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [host, candidate]
+        content:
+          type: string
+          minLength: 1
+    RoleplayInput:
+      type: object
+      required: [career, messages]
+      properties:
+        career:
+          type: string
+          minLength: 1
+        focus:
+          type: ["string", "null"]
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleplayMessage"
+    RoleplayFeedback:
+      type: object
+      required: [overallScore, summary, strengths, improvements, recommendedTopics]
+      properties:
+        overallScore:
+          type: integer
+        summary:
+          type: string
+        strengths:
+          type: array
+          items:
+            type: string
+        improvements:
+          type: array
+          items:
+            type: string
+        recommendedTopics:
+          type: array
+          items:
+            type: string
+
     ExplainInput:
       type: object
       required: [prompt, options, correctIndex, selectedIndex]

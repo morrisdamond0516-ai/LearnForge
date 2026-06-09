@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { BookType, Sparkles, Loader2, ArrowRight } from "lucide-react";
+import { BookType, Sparkles, Loader2, ArrowRight, MessagesSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -65,6 +65,25 @@ export default function Learn() {
           </CardContent>
         </Card>
       </div>
+
+      <Link href="/learn/interview">
+        <Card className="hover-elevate cursor-pointer border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent transition-all duration-300 hover:border-primary/40">
+          <CardContent className="flex flex-col sm:flex-row sm:items-center gap-4 p-6">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <MessagesSquare className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold tracking-tight">Roleplay Job Interview</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Practice a realistic mock interview with an AI hiring manager for any career, then get scored feedback and ways to improve.
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-primary shrink-0">
+              Start practicing <ArrowRight className="h-4 w-4" />
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
 
       <div>
         <h2 className="text-2xl font-bold tracking-tight mb-6">Saved Guides</h2>

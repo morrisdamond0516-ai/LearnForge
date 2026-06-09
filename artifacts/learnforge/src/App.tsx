@@ -28,6 +28,7 @@ import Quizzes from "@/pages/quizzes";
 import QuizTake from "@/pages/quiz-take";
 import Learn from "@/pages/learn";
 import LearnSession from "@/pages/learn-session";
+import Interview from "@/pages/interview";
 import Pathways from "@/pages/pathways";
 import Pathway from "@/pages/pathway";
 import Curriculum from "@/pages/curriculum";
@@ -149,6 +150,7 @@ function AppShell() {
         <Route path="/quizzes" component={Quizzes} />
         <Route path="/quizzes/:id" component={QuizTake} />
         <Route path="/learn" component={Learn} />
+        <Route path="/learn/interview" component={Interview} />
         <Route path="/learn/:id" component={LearnSession} />
         <Route path="/pathways" component={Pathways} />
         <Route path="/pathways/:id" component={Pathway} />

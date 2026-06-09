@@ -609,3 +609,49 @@ export const ExplainQuestionResponse = zod.object({
 })
 
 
+/**
+ * @summary Get the next host message in a live mock interview roleplay
+ */
+
+
+
+
+export const RoleplayMessageBody = zod.object({
+  "career": zod.string().min(1),
+  "focus": zod.string().nullish(),
+  "messages": zod.array(zod.object({
+  "role": zod.enum(['host', 'candidate']),
+  "content": zod.string().min(1)
+}))
+})
+
+export const RoleplayMessageResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Evaluate a completed mock interview roleplay and return structured feedback
+ */
+
+
+
+
+export const EvaluateRoleplayBody = zod.object({
+  "career": zod.string().min(1),
+  "focus": zod.string().nullish(),
+  "messages": zod.array(zod.object({
+  "role": zod.enum(['host', 'candidate']),
+  "content": zod.string().min(1)
+}))
+})
+
+export const EvaluateRoleplayResponse = zod.object({
+  "overallScore": zod.number(),
+  "summary": zod.string(),
+  "strengths": zod.array(zod.string()),
+  "improvements": zod.array(zod.string()),
+  "recommendedTopics": zod.array(zod.string())
+})
+
+

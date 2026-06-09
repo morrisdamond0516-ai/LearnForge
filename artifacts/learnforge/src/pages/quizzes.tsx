@@ -18,27 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const CAREER_OPTIONS = [
-  "Social Services Caseworker",
-  "Certified Nursing Assistant (CNA)",
-  "Medical Assistant",
-  "Pharmacy Technician",
-  "Police Officer",
-  "Firefighter / EMT",
-  "Postal Worker",
-  "Administrative / Office Assistant",
-  "Bookkeeper / Accounting Clerk",
-  "Bank Teller",
-  "Electrician (Apprentice / Journeyman)",
-  "HVAC Technician",
-  "Commercial Driver (CDL)",
-  "IT Support / CompTIA A+",
-  "Project Management (PMP / CAPM)",
-  "Real Estate Agent",
-  "Cosmetology License",
-  "Teacher Certification (Praxis)",
-] as const;
+import { CAREER_OPTIONS } from "@/lib/careers";
 
 const CAREER_FOCUS_OPTIONS = [
   { value: "full", label: "Full qualifying test (all sections)" },
