@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { HelpTip } from "@/components/help-tip";
 import { CAREER_OPTIONS } from "@/lib/careers";
 
 const CAREER_FOCUS_OPTIONS = [
@@ -122,7 +123,17 @@ export default function Quizzes() {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Mode</label>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-sm font-medium">Mode</label>
+                    <HelpTip label="What does Mode mean?">
+                      <p className="font-medium">How the test is used:</p>
+                      <ul className="mt-1 space-y-1">
+                        <li><span className="font-medium">Placement</span> — finds your level (Beginner, Intermediate, Advanced).</li>
+                        <li><span className="font-medium">Practice</span> — learn as you go, with explanations.</li>
+                        <li><span className="font-medium">Full Exam</span> — a longer, realistic test.</li>
+                      </ul>
+                    </HelpTip>
+                  </div>
                   <Select value={mode} onValueChange={(v) => setMode(v as QuizGenerateInputMode)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -133,7 +144,12 @@ export default function Quizzes() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Questions</label>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-sm font-medium">Questions</label>
+                    <HelpTip label="How many questions?">
+                      How many questions the test will have. Start small to practice; pick more for a fuller test. For a career or certification test, "Auto" matches the real exam's length.
+                    </HelpTip>
+                  </div>
                   <Select value={questionCount} onValueChange={setQuestionCount}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -154,7 +170,18 @@ export default function Quizzes() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Source Type</label>
+                <div className="flex items-center gap-1.5">
+                  <label className="text-sm font-medium">Source Type</label>
+                  <HelpTip label="What is Source Type?">
+                    <p className="font-medium">Where the questions come from:</p>
+                    <ul className="mt-1 space-y-1">
+                      <li><span className="font-medium">Free-form Topic</span> — anything you type in.</li>
+                      <li><span className="font-medium">Career / Certification</span> — a real job or exam.</li>
+                      <li><span className="font-medium">From Subject</span> — one of your subjects.</li>
+                      <li><span className="font-medium">From Document</span> — a file you uploaded.</li>
+                    </ul>
+                  </HelpTip>
+                </div>
                 <Select value={sourceType} onValueChange={(v: any) => {
                   setSourceType(v);
                   if (v === "career") setQuestionCount("auto");
@@ -243,7 +270,12 @@ export default function Quizzes() {
               )}
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Difficulty</label>
+                <div className="flex items-center gap-1.5">
+                  <label className="text-sm font-medium">Difficulty</label>
+                  <HelpTip label="What is Difficulty?">
+                    How hard the questions are. Choose <span className="font-medium">Mixed</span> for a range, or pick Easy, Medium, or Hard to focus.
+                  </HelpTip>
+                </div>
                 <Select value={difficulty} onValueChange={(v) => setDifficulty(v as QuizGenerateInputDifficulty)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>

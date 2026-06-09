@@ -114,7 +114,8 @@ export default function Subjects() {
           {subjects?.length === 0 && (
             <div className="col-span-full py-12 text-center text-muted-foreground">
               <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p>No subjects found. Create your first one!</p>
+              <p>No subjects yet.</p>
+              <p className="text-sm mt-1">A subject is a topic you want to study, like Algebra or Biology. Create one to start generating tests and learning plans for it.</p>
             </div>
           )}
         </div>

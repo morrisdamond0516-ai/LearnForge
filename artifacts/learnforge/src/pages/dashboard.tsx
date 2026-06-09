@@ -1,9 +1,10 @@
 import { useGetDashboardSummary, useGetRecentActivity, useGetSubjectProgress } from "@workspace/api-client-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, BookOpen, GraduationCap, Upload, TrendingUp, Sparkles, BookType, ArrowRight } from "lucide-react";
+import { Activity, BookOpen, GraduationCap, Upload, TrendingUp, Sparkles, BookType, ArrowRight, PlayCircle, HelpCircle } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { startTour } from "@/components/welcome-tour";
 
 export default function Dashboard() {
   const { data: summary, isLoading: isLoadingSummary } = useGetDashboardSummary();
@@ -12,9 +13,21 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
-        <p className="text-muted-foreground mt-1">Here is an overview of your learning journey.</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
+          <p className="text-muted-foreground mt-1">Here is an overview of your learning journey.</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" onClick={startTour}>
+            <PlayCircle className="mr-2 h-4 w-4" /> Take a quick tour
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/help">
+              <HelpCircle className="mr-2 h-4 w-4" /> How it works
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {isLoadingSummary ? (

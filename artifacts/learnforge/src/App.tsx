@@ -29,6 +29,7 @@ import QuizTake from "@/pages/quiz-take";
 import Learn from "@/pages/learn";
 import LearnSession from "@/pages/learn-session";
 import Interview from "@/pages/interview";
+import Help from "@/pages/help";
 import Pathways from "@/pages/pathways";
 import Pathway from "@/pages/pathway";
 import Curriculum from "@/pages/curriculum";
@@ -157,6 +158,7 @@ function AppShell() {
         <Route path="/curriculum" component={Curriculum} />
         <Route path="/curriculum/:id" component={CurriculumDetail} />
         <Route path="/documents" component={Documents} />
+        <Route path="/help" component={Help} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />
       </Switch>

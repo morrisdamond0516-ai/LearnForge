@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
+import { WelcomeTour } from "@/components/welcome-tour";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -41,6 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { name: "Study Guides", href: "/learn", icon: Library },
     { name: "Curriculum", href: "/curriculum", icon: BookMarked },
     { name: "College/Trade", href: "/pathways", icon: Compass },
+    { name: "Help", href: "/help", icon: HelpCircle },
   ];
 
   return (
@@ -92,6 +94,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+      <WelcomeTour />
     </div>
   );
 }

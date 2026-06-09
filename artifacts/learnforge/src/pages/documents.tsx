@@ -106,7 +106,7 @@ export default function Documents() {
             <div className="col-span-full py-16 text-center text-muted-foreground border border-dashed rounded-xl bg-muted/30">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
               <p>No documents uploaded yet.</p>
-              <p className="text-sm mt-1">Upload your class notes, textbooks, or research papers.</p>
+              <p className="text-sm mt-1">Upload your class notes, textbooks, or research papers (PDF or text files). You can then turn them into quizzes and study guides built from your own material.</p>
             </div>
           )}
         </div>
