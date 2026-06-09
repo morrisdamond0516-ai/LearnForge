@@ -1,4 +1,5 @@
 export const CAREER_OPTIONS = [
+  "Family Service Specialist 1",
   "Social Services Caseworker",
   "Certified Nursing Assistant (CNA)",
   "Medical Assistant",
