@@ -1,6 +1,7 @@
 - [wouter Link anchors](wouter-link-anchors.md) — wouter v3 Link renders its own <a>; never nest <a> inside, put props on Link directly.
 - [Composite libs in monorepo](composite-libs.md) — libs in root tsconfig references must be composite:true or artifact typecheck fails.
 - [pdf-parse in Node server](pdf-parse-node.md) — use v1 via `pdf-parse/lib/pdf-parse.js`; root entry / v2 crash on DOMMatrix or debug file-read at startup.
+- [Stripe via stripe-replit-sync](stripe-replit-sync.md) — connector key is `settings.secret` not `secret_key`; must esbuild-external `stripe-replit-sync` (else schema w/ zero tables); runMigrations has no schema opt.
 - [Pricing model](pricing-model.md) — free under-18 / 6-mo free then paid (18+); /pricing page is copy-only, no billing enforced yet.
 - [Quiz answer-key index integrity](quiz-answer-key-index.md) — don't trust the LLM's numeric correctIndex; emit correctAnswer text and derive index by matching options.
 - [Quiz in-progress persistence](quiz-progress-persistence.md) — persist quiz progress to localStorage & resume on mount; don't regenerate on remount (Clerk session flicker remounts AppShell).
