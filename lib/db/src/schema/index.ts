@@ -24,3 +24,4 @@ export * from "./attempts";
 export * from "./learnSessions";
 export * from "./careerPlans";
 export * from "./curricula";
+export * from "./users";

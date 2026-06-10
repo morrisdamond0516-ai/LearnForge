@@ -12,6 +12,7 @@ import curriculumRouter from "./curriculum";
 import dashboardRouter from "./dashboard";
 import explainRouter from "./explain";
 import roleplayRouter from "./roleplay";
+import stripeRouter from "./stripe";
 
 const router: IRouter = Router();
 
@@ -33,5 +34,6 @@ router.use(curriculumRouter);
 router.use(dashboardRouter);
 router.use(explainRouter);
 router.use(roleplayRouter);
+router.use(stripeRouter);
 
 export default router;

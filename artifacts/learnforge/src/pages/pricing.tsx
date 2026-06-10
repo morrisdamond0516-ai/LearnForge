@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Show } from "@clerk/react";
 import {
@@ -9,10 +10,14 @@ import {
   ArrowRight,
   Clock,
   Users,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+type PlanKey = "pro_monthly" | "pro_annual";
 
 type Plan = {
   name: string;
@@ -22,10 +27,31 @@ type Plan = {
   note: string;
   cta: string;
   ctaHref: string;
+  planKey?: PlanKey;
   highlight?: boolean;
   badge?: string;
   features: string[];
 };
+
+async function postJson<T>(url: string, body?: unknown): Promise<T> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    let message = "Request failed";
+    try {
+      const data = (await res.json()) as { error?: string };
+      if (data.error) message = data.error;
+    } catch {
+      // ignore parse errors, keep default message
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as T;
+}
 
 const plans: Plan[] = [
   {
@@ -53,6 +79,7 @@ const plans: Plan[] = [
     note: "Start with 6 months free. Billed monthly after your free period — cancel anytime.",
     cta: "Start 6 months free",
     ctaHref: "/sign-up",
+    planKey: "pro_monthly",
     features: [
       "Everything in Students, with no age limit",
       "Unlimited AI quizzes & full-length exams",
@@ -70,6 +97,7 @@ const plans: Plan[] = [
     note: "About $7.50/month — save 42% vs. monthly. Start with 6 months free.",
     cta: "Start 6 months free",
     ctaHref: "/sign-up",
+    planKey: "pro_annual",
     highlight: true,
     badge: "Best value",
     features: [
@@ -82,6 +110,116 @@ const plans: Plan[] = [
     ],
   },
 ];
+
+function PlanCta({ plan }: { plan: Plan }) {
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+
+  const variant = plan.highlight ? "default" : "outline";
+  const btnClass = "mt-5 w-full gap-2";
+
+  async function startCheckout() {
+    if (!plan.planKey) return;
+    setBusy(true);
+    try {
+      const { url } = await postJson<{ url: string | null }>(
+        "/api/stripe/checkout",
+        { plan: plan.planKey },
+      );
+      if (!url) throw new Error("Could not start checkout");
+      window.location.href = url;
+    } catch (err) {
+      setBusy(false);
+      toast({
+        title: "Couldn't start checkout",
+        description:
+          err instanceof Error ? err.message : "Please try again in a moment.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  // Free plan, or any plan without a Stripe price: just route the user.
+  if (!plan.planKey) {
+    return (
+      <Button asChild size="lg" className={btnClass} variant={variant}>
+        <Link href={plan.ctaHref}>
+          {plan.cta}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
+    );
+  }
+
+  return (
+    <>
+      <Show when="signed-out">
+        <Button asChild size="lg" className={btnClass} variant={variant}>
+          <Link href={plan.ctaHref}>
+            {plan.cta}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </Show>
+      <Show when="signed-in">
+        <Button
+          size="lg"
+          className={btnClass}
+          variant={variant}
+          onClick={startCheckout}
+          disabled={busy}
+        >
+          {busy ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Starting checkout...
+            </>
+          ) : (
+            <>
+              {plan.cta}
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
+        </Button>
+      </Show>
+    </>
+  );
+}
+
+function ManageBillingButton() {
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+
+  async function openPortal() {
+    setBusy(true);
+    try {
+      const { url } = await postJson<{ url: string | null }>(
+        "/api/stripe/portal",
+      );
+      if (!url) throw new Error("No billing account yet");
+      window.location.href = url;
+    } catch (err) {
+      setBusy(false);
+      toast({
+        title: "Couldn't open billing",
+        description:
+          err instanceof Error ? err.message : "Please try again in a moment.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      className="text-white hover:bg-white/15 hover:text-white"
+      onClick={openPortal}
+      disabled={busy}
+    >
+      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Manage billing"}
+    </Button>
+  );
+}
 
 export default function Pricing() {
   return (
@@ -96,6 +234,7 @@ export default function Pricing() {
         </Link>
         <div className="flex items-center gap-2">
           <Show when="signed-in">
+            <ManageBillingButton />
             <Button asChild className="bg-white text-primary hover:bg-white/90">
               <Link href="/">Go to dashboard</Link>
             </Button>
@@ -193,17 +332,7 @@ export default function Pricing() {
                 <p className="mt-3 min-h-[2.5rem] text-sm text-muted-foreground">
                   {plan.note}
                 </p>
-                <Button
-                  asChild
-                  size="lg"
-                  className="mt-5 w-full gap-2"
-                  variant={plan.highlight ? "default" : "outline"}
-                >
-                  <Link href={plan.ctaHref}>
-                    {plan.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
+                <PlanCta plan={plan} />
                 <ul className="mt-6 space-y-3">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-start gap-2.5 text-sm">
