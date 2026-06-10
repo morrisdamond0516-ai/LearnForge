@@ -49,6 +49,7 @@ export * from './roleplayInput';
 export * from './roleplayMessage';
 export * from './roleplayMessage200';
 export * from './roleplayMessageRole';
+export * from './roleplayQuestionReview';
 export * from './schoolRecommendation';
 export * from './subject';
 export * from './subjectInput';

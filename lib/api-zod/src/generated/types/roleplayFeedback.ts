@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { RoleplayQuestionReview } from './roleplayQuestionReview';
 
 export interface RoleplayFeedback {
   overallScore: number;
@@ -12,4 +13,5 @@ export interface RoleplayFeedback {
   strengths: string[];
   improvements: string[];
   recommendedTopics: string[];
+  questionReviews: RoleplayQuestionReview[];
 }

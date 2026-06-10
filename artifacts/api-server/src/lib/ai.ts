@@ -799,12 +799,20 @@ export async function conductInterviewTurn(
   return { message };
 }
 
+export type InterviewQuestionReview = {
+  question: string;
+  yourAnswer: string;
+  suggestedAnswer: string;
+  comment: string;
+};
+
 export type InterviewFeedback = {
   overallScore: number;
   summary: string;
   strengths: string[];
   improvements: string[];
   recommendedTopics: string[];
+  questionReviews: InterviewQuestionReview[];
 };
 
 export async function evaluateInterview(
@@ -840,13 +848,21 @@ Return JSON with this exact shape:
   "summary": "2-3 sentence overall assessment of the candidate's interview performance for this role",
   "strengths": ["specific things the candidate did well, grounded in their answers"],
   "improvements": ["specific, actionable ways the candidate could improve their answers"],
-  "recommendedTopics": ["short study-guide topics the candidate should review to be more prepared for this role's interview"]
+  "recommendedTopics": ["short study-guide topics the candidate should review to be more prepared for this role's interview"],
+  "questionReviews": [
+    {
+      "question": "the interviewer's question, quoted or faithfully paraphrased",
+      "yourAnswer": "what the candidate actually said in response, quoted or faithfully summarized (use \\"(no answer given)\\" if they did not answer it)",
+      "suggestedAnswer": "a strong, concrete example answer (2-4 sentences) the candidate could have given instead — a realistic model response for this role, not generic advice",
+      "comment": "one sentence on why the suggested answer is stronger than what the candidate gave"
+    }
+  ]
 }
-overallScore is an integer from 0 to 100 reflecting how well the candidate performed in this interview. Provide 2-4 items in each list. If the candidate barely answered, score low and say so honestly.`;
+overallScore is an integer from 0 to 100 reflecting how well the candidate performed in this interview. Provide 2-4 items in each of strengths, improvements, and recommendedTopics. For questionReviews, add one entry per substantive question the interviewer asked, in order, covering at most the 8 most important questions (skip pure greetings or filler). Keep each suggestedAnswer to 2-4 sentences, written in the first person as the candidate, demonstrating what a strong response sounds like for this role. If the candidate barely answered, score low and say so honestly.`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
-    max_completion_tokens: 1500,
+    max_completion_tokens: 3000,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: system },
@@ -861,12 +877,31 @@ overallScore is an integer from 0 to 100 reflecting how well the candidate perfo
     strengths?: unknown;
     improvements?: unknown;
     recommendedTopics?: unknown;
+    questionReviews?: unknown;
   };
 
   const strArray = (v: unknown): string[] =>
     (Array.isArray(v) ? v : []).filter(
       (s): s is string => typeof s === "string" && s.trim().length > 0,
     );
+
+  const str = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
+
+  const reviews: InterviewQuestionReview[] = (
+    Array.isArray(parsed.questionReviews) ? parsed.questionReviews : []
+  )
+    .map((r): InterviewQuestionReview => {
+      const obj = (r ?? {}) as Record<string, unknown>;
+      return {
+        question: str(obj.question),
+        yourAnswer: str(obj.yourAnswer),
+        suggestedAnswer: str(obj.suggestedAnswer),
+        comment: str(obj.comment),
+      };
+    })
+    // Keep an entry only if it has a question and a model example answer.
+    .filter((r) => r.question.length > 0 && r.suggestedAnswer.length > 0)
+    .slice(0, 8);
 
   let score =
     typeof parsed.overallScore === "number" ? Math.round(parsed.overallScore) : 0;
@@ -879,6 +914,7 @@ overallScore is an integer from 0 to 100 reflecting how well the candidate perfo
     strengths: strArray(parsed.strengths),
     improvements: strArray(parsed.improvements),
     recommendedTopics: strArray(parsed.recommendedTopics),
+    questionReviews: reviews,
   };
 }
 

@@ -983,9 +983,29 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/RoleplayMessage"
+    RoleplayQuestionReview:
+      type: object
+      required: [question, yourAnswer, suggestedAnswer, comment]
+      properties:
+        question:
+          type: string
+        yourAnswer:
+          type: string
+        suggestedAnswer:
+          type: string
+        comment:
+          type: string
     RoleplayFeedback:
       type: object
-      required: [overallScore, summary, strengths, improvements, recommendedTopics]
+      required:
+        [
+          overallScore,
+          summary,
+          strengths,
+          improvements,
+          recommendedTopics,
+          questionReviews,
+        ]
       properties:
         overallScore:
           type: integer
@@ -1003,6 +1023,10 @@ components:
           type: array
           items:
             type: string
+        questionReviews:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleplayQuestionReview"
 
     ExplainInput:
       type: object

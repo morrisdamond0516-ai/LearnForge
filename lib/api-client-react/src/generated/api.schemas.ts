@@ -27,12 +27,20 @@ export interface RoleplayInput {
   messages: RoleplayMessage[];
 }
 
+export interface RoleplayQuestionReview {
+  question: string;
+  yourAnswer: string;
+  suggestedAnswer: string;
+  comment: string;
+}
+
 export interface RoleplayFeedback {
   overallScore: number;
   summary: string;
   strengths: string[];
   improvements: string[];
   recommendedTopics: string[];
+  questionReviews: RoleplayQuestionReview[];
 }
 
 export interface ExplainInput {

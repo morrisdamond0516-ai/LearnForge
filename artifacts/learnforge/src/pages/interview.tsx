@@ -248,6 +248,36 @@ export default function Interview() {
           </Card>
         </div>
 
+        {feedback.questionReviews.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg"><MessagesSquare className="h-5 w-5 text-primary" /> Question-by-question review</CardTitle>
+              <CardDescription>Every question you were asked, your answer, and a strong example of what you could have said instead.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {feedback.questionReviews.map((r, i) => (
+                <div key={i} className="space-y-3 border-t pt-5 first:border-t-0 first:pt-0">
+                  <div className="flex gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{i + 1}</span>
+                    <p className="text-sm font-semibold leading-relaxed">{r.question}</p>
+                  </div>
+                  <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">Your answer</p>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">{r.yourAnswer || "(no answer given)"}</p>
+                  </div>
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Stronger example answer</p>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap">{r.suggestedAnswer}</p>
+                  </div>
+                  {r.comment && (
+                    <p className="flex gap-2 text-sm text-muted-foreground"><TrendingUp className="h-4 w-4 shrink-0 text-primary mt-0.5" /><span>{r.comment}</span></p>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
         {feedback.recommendedTopics.length > 0 && (
           <Card>
             <CardHeader>

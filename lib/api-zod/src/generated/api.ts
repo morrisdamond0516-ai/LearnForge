@@ -701,7 +701,13 @@ export const EvaluateRoleplayResponse = zod.object({
   "summary": zod.string(),
   "strengths": zod.array(zod.string()),
   "improvements": zod.array(zod.string()),
-  "recommendedTopics": zod.array(zod.string())
+  "recommendedTopics": zod.array(zod.string()),
+  "questionReviews": zod.array(zod.object({
+  "question": zod.string(),
+  "yourAnswer": zod.string(),
+  "suggestedAnswer": zod.string(),
+  "comment": zod.string()
+}))
 })
 
 
