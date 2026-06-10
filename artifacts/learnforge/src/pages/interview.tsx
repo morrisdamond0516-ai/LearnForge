@@ -9,8 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   MessagesSquare,
   Loader2,
@@ -23,6 +32,8 @@ import {
   TrendingUp,
   BookOpen,
   RotateCcw,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CAREER_OPTIONS } from "@/lib/careers";
@@ -41,6 +52,7 @@ export default function Interview() {
 
   const [stage, setStage] = useState<Stage>("setup");
   const [career, setCareer] = useState<string>("");
+  const [careerOpen, setCareerOpen] = useState(false);
   const [customCareer, setCustomCareer] = useState<string>("");
   const [focus, setFocus] = useState<string>("");
   const [messages, setMessages] = useState<RoleplayMessage[]>([]);
@@ -158,15 +170,66 @@ export default function Interview() {
           <CardContent className="space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium">Career / Role</label>
-              <Select value={career} onValueChange={setCareer}>
-                <SelectTrigger><SelectValue placeholder="Select a career to interview for..." /></SelectTrigger>
-                <SelectContent>
-                  {CAREER_OPTIONS.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                  <SelectItem value="__custom">Other (type your own)</SelectItem>
-                </SelectContent>
-              </Select>
+              <Popover open={careerOpen} onOpenChange={setCareerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={careerOpen}
+                    className="w-full justify-between font-normal"
+                  >
+                    <span className={cn("truncate", !career && "text-muted-foreground")}>
+                      {career === "__custom"
+                        ? "Other (type your own)"
+                        : career || "Select a career to interview for..."}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search careers..." />
+                    <CommandList>
+                      <CommandEmpty>No matching career. Pick "Other" to type your own.</CommandEmpty>
+                      <CommandGroup>
+                        {CAREER_OPTIONS.map((c) => (
+                          <CommandItem
+                            key={c}
+                            value={c}
+                            onSelect={() => {
+                              setCareer(c);
+                              setCareerOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                career === c ? "opacity-100" : "opacity-0",
+                              )}
+                            />
+                            {c}
+                          </CommandItem>
+                        ))}
+                        <CommandItem
+                          value="Other type your own custom career"
+                          onSelect={() => {
+                            setCareer("__custom");
+                            setCareerOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              career === "__custom" ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                          Other (type your own)
+                        </CommandItem>
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {career === "__custom" && (
