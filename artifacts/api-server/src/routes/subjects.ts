@@ -7,6 +7,7 @@ import {
   GetSubjectParams,
   GetSubjectResponse,
 } from "@workspace/api-zod";
+import { validateLearningInput } from "../lib/ai";
 
 const router: IRouter = Router();
 
@@ -31,6 +32,12 @@ router.post("/subjects", async (req, res): Promise<void> => {
   const parsed = CreateSubjectBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const nameCheck = await validateLearningInput(parsed.data.name);
+  if (!nameCheck.valid) {
+    res.status(400).json({ error: nameCheck.reason });
     return;
   }
 

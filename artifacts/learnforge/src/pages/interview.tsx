@@ -66,6 +66,10 @@ export default function Interview() {
           setMessages([...history, { role: "host", content: res.message }]);
         },
         onError: (err) => {
+          // If the opening turn is rejected (e.g. the career failed moderation),
+          // return to setup so the user can fix it instead of being stranded on
+          // an empty chat screen.
+          if (history.length === 0) setStage("setup");
           toast({
             title: errorMessage(err, "The interviewer didn't respond. Please try again."),
             variant: "destructive",

@@ -8,7 +8,7 @@ import {
   GetLearnSessionResponse,
   DeleteLearnSessionParams,
 } from "@workspace/api-zod";
-import { generateStudyGuide } from "../lib/ai";
+import { generateStudyGuide, validateLearningInput } from "../lib/ai";
 
 const router: IRouter = Router();
 
@@ -31,6 +31,14 @@ router.post("/learn/research", async (req, res): Promise<void> => {
   }
 
   const { topic, subjectId, focus } = parsed.data;
+
+  if (topic && topic.trim().length > 0) {
+    const topicCheck = await validateLearningInput(topic);
+    if (!topicCheck.valid) {
+      res.status(400).json({ error: topicCheck.reason });
+      return;
+    }
+  }
 
   let subjectName: string | null = null;
   if (subjectId != null) {

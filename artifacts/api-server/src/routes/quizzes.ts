@@ -19,6 +19,7 @@ import {
   generateQuizContent,
   getCareerExamInfo,
   MAX_QUIZ_QUESTIONS,
+  validateLearningInput,
 } from "../lib/ai";
 import { extractDocumentText } from "../lib/documentText";
 
@@ -115,6 +116,16 @@ router.post("/quizzes/generate", async (req, res): Promise<void> => {
       .status(400)
       .json({ error: "Provide a career, subject, document, or topic to generate from" });
     return;
+  }
+
+  for (const freeText of [careerName, topic?.trim() || null]) {
+    if (freeText) {
+      const check = await validateLearningInput(freeText);
+      if (!check.valid) {
+        res.status(400).json({ error: check.reason });
+        return;
+      }
+    }
   }
 
   let subjectName: string | null = null;
@@ -264,6 +275,16 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
   if (!quiz) {
     res.status(404).json({ error: "Quiz not found" });
     return;
+  }
+
+  for (const freeText of [quiz.career, quiz.topic]) {
+    if (freeText && freeText.trim().length > 0) {
+      const check = await validateLearningInput(freeText);
+      if (!check.valid) {
+        res.status(400).json({ error: check.reason });
+        return;
+      }
+    }
   }
 
   const subjectName = await subjectNameFor(quiz.subjectId);

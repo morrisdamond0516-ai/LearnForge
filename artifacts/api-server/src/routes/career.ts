@@ -7,7 +7,7 @@ import {
   GetCareerPlanParams,
   GetCareerPlanResponse,
 } from "@workspace/api-zod";
-import { generateCareerRecommendations } from "../lib/ai";
+import { generateCareerRecommendations, validateLearningInput } from "../lib/ai";
 import { extractDocumentText } from "../lib/documentText";
 
 const router: IRouter = Router();
@@ -34,6 +34,12 @@ router.post("/career/recommend", async (req, res): Promise<void> => {
   const careerGoal = parsed.data.careerGoal.trim();
   if (careerGoal.length === 0) {
     res.status(400).json({ error: "Career goal is required" });
+    return;
+  }
+
+  const careerCheck = await validateLearningInput(careerGoal);
+  if (!careerCheck.valid) {
+    res.status(400).json({ error: careerCheck.reason });
     return;
   }
 

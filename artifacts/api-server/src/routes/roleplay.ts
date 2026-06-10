@@ -1,6 +1,10 @@
 import { Router, type IRouter } from "express";
 import { RoleplayMessageBody, EvaluateRoleplayBody } from "@workspace/api-zod";
-import { conductInterviewTurn, evaluateInterview } from "../lib/ai";
+import {
+  conductInterviewTurn,
+  evaluateInterview,
+  validateLearningInput,
+} from "../lib/ai";
 import type { InterviewMessage } from "../lib/ai";
 
 const router: IRouter = Router();
@@ -13,6 +17,14 @@ router.post("/roleplay/message", async (req, res): Promise<void> => {
   }
 
   const { career, focus, messages } = parsed.data;
+
+  if (messages.length === 0) {
+    const check = await validateLearningInput(career);
+    if (!check.valid) {
+      res.status(400).json({ error: check.reason });
+      return;
+    }
+  }
 
   try {
     const result = await conductInterviewTurn({
@@ -37,6 +49,12 @@ router.post("/roleplay/evaluate", async (req, res): Promise<void> => {
   }
 
   const { career, focus, messages } = parsed.data;
+
+  const check = await validateLearningInput(career);
+  if (!check.valid) {
+    res.status(400).json({ error: check.reason });
+    return;
+  }
 
   try {
     const result = await evaluateInterview({
