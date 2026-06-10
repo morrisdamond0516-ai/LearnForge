@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle, Tag } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { WelcomeTour } from "@/components/welcome-tour";
 
@@ -42,6 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { name: "Study Guides", href: "/learn", icon: Library },
     { name: "Curriculum", href: "/curriculum", icon: BookMarked },
     { name: "College/Trade", href: "/pathways", icon: Compass },
+    { name: "Pricing", href: "/pricing", icon: Tag },
     { name: "Help", href: "/help", icon: HelpCircle },
   ];
 

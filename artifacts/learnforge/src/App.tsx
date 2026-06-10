@@ -36,6 +36,7 @@ import Curriculum from "@/pages/curriculum";
 import CurriculumDetail from "@/pages/curriculum-detail";
 import Documents from "@/pages/documents";
 import Attempt from "@/pages/attempt";
+import Pricing from "@/pages/pricing";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -250,6 +251,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
             <Route path="/" component={RootGate} />
+            <Route path="/pricing" component={Pricing} />
             <Route component={ProtectedGate} />
           </Switch>
           <Toaster />

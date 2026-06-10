@@ -90,6 +90,13 @@ export default function Landing() {
           <Button
             asChild
             variant="ghost"
+            className="hidden text-white hover:bg-white/15 hover:text-white sm:inline-flex"
+          >
+            <Link href="/pricing">Pricing</Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
             className="text-white hover:bg-white/15 hover:text-white"
           >
             <Link href="/sign-in">Sign in</Link>
