@@ -1,8 +1,11 @@
 import {
   useGetCurriculum,
   getGetCurriculumQueryKey,
+  useGetCurriculumProgress,
+  getGetCurriculumProgressQueryKey,
+  usePracticeCurriculumModule,
 } from "@workspace/api-client-react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import {
   Card,
   CardContent,
@@ -11,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft,
   BookOpen,
@@ -22,6 +26,11 @@ import {
   ListChecks,
   MapPin,
   User,
+  Target,
+  Loader2,
+  CheckCircle2,
+  Trophy,
+  Dumbbell,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -38,6 +47,9 @@ function iconForType(type: string): LucideIcon {
 export default function CurriculumDetail() {
   const { id } = useParams();
   const curriculumId = parseInt(id || "0");
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
   const {
     data: plan,
     isLoading,
@@ -48,6 +60,33 @@ export default function CurriculumDetail() {
       queryKey: getGetCurriculumQueryKey(curriculumId),
     },
   });
+
+  const { data: progress } = useGetCurriculumProgress(curriculumId, {
+    query: {
+      enabled: !!curriculumId,
+      queryKey: getGetCurriculumProgressQueryKey(curriculumId),
+    },
+  });
+
+  const practice = usePracticeCurriculumModule();
+
+  const startPractice = (index: number) => {
+    practice.mutate(
+      { id: curriculumId, index },
+      {
+        onSuccess: (res) => {
+          setLocation(`/quizzes/${res.quizId}`);
+        },
+        onError: () => {
+          toast({
+            title: "Could not start practice",
+            description: "Please try again.",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
 
   if (isLoading)
     return (
@@ -63,6 +102,14 @@ export default function CurriculumDetail() {
         Failed to load curriculum.
       </div>
     );
+
+  const progressByModule = new Map(
+    (progress ?? []).map((p) => [p.moduleIndex, p]),
+  );
+  const masteredCount = (progress ?? []).filter((p) => p.mastered).length;
+  const pendingIndex = practice.isPending
+    ? (practice.variables?.index ?? null)
+    : null;
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-500 pb-12">
@@ -80,6 +127,11 @@ export default function CurriculumDetail() {
             <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium tracking-wide uppercase">
               {plan.level}
             </span>
+            {plan.modules.length > 0 && (
+              <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm font-medium tracking-wide">
+                {masteredCount} of {plan.modules.length} modules mastered
+              </span>
+            )}
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
             {plan.title}
@@ -94,66 +146,160 @@ export default function CurriculumDetail() {
         <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3">
           <BookOpen className="h-6 w-6 text-primary" /> Your Learning Path
         </h2>
-        <div className="space-y-8">
-          {plan.modules.map((mod, idx) => (
-            <div key={idx} className="relative">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="flex-shrink-0 w-9 h-9 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
-                  {idx + 1}
-                </span>
-                <div>
-                  <h3 className="text-xl font-bold tracking-tight">
-                    {mod.title}
-                  </h3>
-                  {mod.objective && (
-                    <p className="text-sm text-muted-foreground">
-                      {mod.objective}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 md:pl-12">
-                {mod.materials.map((mat, i) => {
-                  const Icon = iconForType(mat.type);
-                  return (
-                    <Card
-                      key={i}
-                      className="h-full border-l-4 border-l-secondary shadow-sm"
+        <div className="space-y-6">
+          {plan.modules.map((mod, idx) => {
+            const skills = mod.skills ?? [];
+            const prog = progressByModule.get(idx);
+            const hasAttempts = (prog?.attempts ?? 0) > 0;
+            const mastered = prog?.mastered ?? false;
+            const isPending = pendingIndex === idx;
+            return (
+              <Card
+                key={idx}
+                className={`border-l-4 shadow-sm ${
+                  mastered ? "border-l-primary" : "border-l-secondary"
+                }`}
+              >
+                <CardHeader className="pb-4">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={`flex-shrink-0 w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center ${
+                        mastered
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-secondary-foreground"
+                      }`}
                     >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Icon className="h-4 w-4 text-primary shrink-0" />
-                          <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-medium uppercase tracking-wider">
-                            {mat.type}
-                          </span>
-                        </div>
-                        <CardTitle className="text-base leading-snug">
-                          {mat.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2 text-sm text-muted-foreground">
-                        {mat.author && (
-                          <span className="flex items-center gap-2">
-                            <User className="h-3.5 w-3.5 shrink-0" />
-                            {mat.author}
+                      {mastered ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : (
+                        idx + 1
+                      )}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-xl font-bold tracking-tight">
+                          {mod.title}
+                        </h3>
+                        {mastered && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
+                            <Trophy className="h-3.5 w-3.5" /> Mastered
                           </span>
                         )}
-                        {mat.description && (
-                          <p className="leading-relaxed">{mat.description}</p>
-                        )}
-                        {mat.whereToFind && (
-                          <span className="flex items-start gap-2 text-foreground/70">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                            <span>{mat.whereToFind}</span>
+                      </div>
+                      {mod.objective && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {mod.objective}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {skills.length > 0 && (
+                    <div>
+                      <p className="flex items-center gap-2 text-sm font-semibold mb-2">
+                        <Target className="h-4 w-4 text-primary" /> What you
+                        will practice and master
+                      </p>
+                      <ul className="grid gap-1.5 sm:grid-cols-2">
+                        {skills.map((skill, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-sm text-muted-foreground"
+                          >
+                            <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                            {skill}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-4 pt-1">
+                    <Button
+                      onClick={() => startPractice(idx)}
+                      disabled={practice.isPending}
+                    >
+                      {isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Dumbbell className="mr-2 h-4 w-4" />
+                      )}
+                      {isPending
+                        ? "Building your test..."
+                        : hasAttempts
+                          ? "Practice again"
+                          : "Practice this module"}
+                    </Button>
+                    {hasAttempts && (
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>
+                          Best score:{" "}
+                          <span className="font-semibold text-foreground">
+                            {Math.round(prog?.bestScore ?? 0)}%
                           </span>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+                        </span>
+                        <span>
+                          {prog?.attempts}{" "}
+                          {prog?.attempts === 1 ? "attempt" : "attempts"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {mod.materials.length > 0 && (
+                    <details className="group pt-2">
+                      <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground select-none">
+                        Optional extra resources ({mod.materials.length})
+                      </summary>
+                      <div className="grid gap-4 md:grid-cols-2 mt-4">
+                        {mod.materials.map((mat, i) => {
+                          const Icon = iconForType(mat.type);
+                          return (
+                            <Card
+                              key={i}
+                              className="h-full border-l-4 border-l-muted shadow-none bg-muted/30"
+                            >
+                              <CardHeader className="pb-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                  <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                                    {mat.type}
+                                  </span>
+                                </div>
+                                <CardTitle className="text-base leading-snug">
+                                  {mat.name}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                                {mat.author && (
+                                  <span className="flex items-center gap-2">
+                                    <User className="h-3.5 w-3.5 shrink-0" />
+                                    {mat.author}
+                                  </span>
+                                )}
+                                {mat.description && (
+                                  <p className="leading-relaxed">
+                                    {mat.description}
+                                  </p>
+                                )}
+                                {mat.whereToFind && (
+                                  <span className="flex items-start gap-2 text-foreground/70">
+                                    <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                                    <span>{mat.whereToFind}</span>
+                                  </span>
+                                )}
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
 

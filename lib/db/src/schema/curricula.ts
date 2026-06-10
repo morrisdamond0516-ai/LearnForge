@@ -21,6 +21,7 @@ export type CurriculumMaterialData = {
 export type CurriculumModuleData = {
   title: string;
   objective: string;
+  skills: string[];
   materials: CurriculumMaterialData[];
 };
 

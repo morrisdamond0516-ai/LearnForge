@@ -41,6 +41,8 @@ import type {
   LearnSession,
   LearnSessionSummary,
   ListQuizzesParams,
+  ModulePracticeResult,
+  ModuleProgress,
   Quiz,
   QuizGenerateInput,
   QuizSummary,
@@ -1484,6 +1486,157 @@ export function useGetCurriculum<TData = Awaited<ReturnType<typeof getCurriculum
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetCurriculumQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getPracticeCurriculumModuleUrl = (id: number,
+    index: number,) => {
+
+
+
+
+  return `/api/curriculum/${id}/modules/${index}/practice`
+}
+
+/**
+ * Finds the existing practice quiz tied to this module, or creates one focused on the module's skills, and returns its quiz id so the learner can take (and retake) it in the app.
+
+ * @summary Generate or fetch a focused practice quiz for a curriculum module
+ */
+export const practiceCurriculumModule = async (id: number,
+    index: number, options?: RequestInit): Promise<ModulePracticeResult> => {
+
+  return customFetch<ModulePracticeResult>(getPracticeCurriculumModuleUrl(id,index),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPracticeCurriculumModuleMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof practiceCurriculumModule>>, TError,{id: number;index: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof practiceCurriculumModule>>, TError,{id: number;index: number}, TContext> => {
+
+const mutationKey = ['practiceCurriculumModule'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof practiceCurriculumModule>>, {id: number;index: number}> = (props) => {
+          const {id,index} = props ?? {};
+
+          return  practiceCurriculumModule(id,index,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PracticeCurriculumModuleMutationResult = NonNullable<Awaited<ReturnType<typeof practiceCurriculumModule>>>
+
+    export type PracticeCurriculumModuleMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Generate or fetch a focused practice quiz for a curriculum module
+ */
+export const usePracticeCurriculumModule = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof practiceCurriculumModule>>, TError,{id: number;index: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof practiceCurriculumModule>>,
+        TError,
+        {id: number;index: number},
+        TContext
+      > => {
+      return useMutation(getPracticeCurriculumModuleMutationOptions(options));
+    }
+
+export const getGetCurriculumProgressUrl = (id: number,) => {
+
+
+
+
+  return `/api/curriculum/${id}/progress`
+}
+
+/**
+ * @summary Per-module practice progress for a curriculum
+ */
+export const getCurriculumProgress = async (id: number, options?: RequestInit): Promise<ModuleProgress[]> => {
+
+  return customFetch<ModuleProgress[]>(getGetCurriculumProgressUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCurriculumProgressQueryKey = (id: number,) => {
+    return [
+    `/api/curriculum/${id}/progress`
+    ] as const;
+    }
+
+
+export const getGetCurriculumProgressQueryOptions = <TData = Awaited<ReturnType<typeof getCurriculumProgress>>, TError = ErrorType<ErrorEnvelope>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCurriculumProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCurriculumProgressQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCurriculumProgress>>> = ({ signal }) => getCurriculumProgress(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCurriculumProgress>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCurriculumProgressQueryResult = NonNullable<Awaited<ReturnType<typeof getCurriculumProgress>>>
+export type GetCurriculumProgressQueryError = ErrorType<ErrorEnvelope>
+
+
+/**
+ * @summary Per-module practice progress for a curriculum
+ */
+
+export function useGetCurriculumProgress<TData = Awaited<ReturnType<typeof getCurriculumProgress>>, TError = ErrorType<ErrorEnvelope>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCurriculumProgress>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCurriculumProgressQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

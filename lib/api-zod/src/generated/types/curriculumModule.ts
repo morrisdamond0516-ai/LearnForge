@@ -10,5 +10,6 @@ import type { CurriculumMaterial } from './curriculumMaterial';
 export interface CurriculumModule {
   title: string;
   objective: string;
+  skills?: string[];
   materials: CurriculumMaterial[];
 }

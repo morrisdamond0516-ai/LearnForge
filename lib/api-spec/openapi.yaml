@@ -492,6 +492,77 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+  /curriculum/{id}/modules/{index}/practice:
+    post:
+      operationId: practiceCurriculumModule
+      tags: [curriculum]
+      summary: Generate or fetch a focused practice quiz for a curriculum module
+      description: >
+        Finds the existing practice quiz tied to this module, or creates one
+        focused on the module's skills, and returns its quiz id so the learner
+        can take (and retake) it in the app.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Practice quiz ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModulePracticeResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Curriculum or module not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /curriculum/{id}/progress:
+    get:
+      operationId: getCurriculumProgress
+      tags: [curriculum]
+      summary: Per-module practice progress for a curriculum
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Progress for each module
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ModuleProgress"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
   /quizzes/{id}/attempts:
     post:
       operationId: submitAttempt
@@ -1431,10 +1502,36 @@ components:
           type: string
         objective:
           type: string
+        skills:
+          type: array
+          items:
+            type: string
         materials:
           type: array
           items:
             $ref: "#/components/schemas/CurriculumMaterial"
+    ModulePracticeResult:
+      type: object
+      required: [quizId]
+      properties:
+        quizId:
+          type: integer
+    ModuleProgress:
+      type: object
+      required: [moduleIndex, attempts, mastered]
+      properties:
+        moduleIndex:
+          type: integer
+        quizId:
+          type: ["integer", "null"]
+        attempts:
+          type: integer
+        bestScore:
+          type: ["number", "null"]
+        lastScore:
+          type: ["number", "null"]
+        mastered:
+          type: boolean
     CurriculumInput:
       type: object
       required: [subject]

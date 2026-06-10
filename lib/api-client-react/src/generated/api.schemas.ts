@@ -365,7 +365,24 @@ export interface CurriculumMaterial {
 export interface CurriculumModule {
   title: string;
   objective: string;
+  skills?: string[];
   materials: CurriculumMaterial[];
+}
+
+export interface ModulePracticeResult {
+  quizId: number;
+}
+
+export interface ModuleProgress {
+  moduleIndex: number;
+  /** @nullable */
+  quizId?: number | null;
+  attempts: number;
+  /** @nullable */
+  bestScore?: number | null;
+  /** @nullable */
+  lastScore?: number | null;
+  mastered: boolean;
 }
 
 export interface CurriculumInput {

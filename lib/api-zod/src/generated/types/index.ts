@@ -33,6 +33,8 @@ export * from './learnSession';
 export * from './learnSessionSummary';
 export * from './listQuizzesMode';
 export * from './listQuizzesParams';
+export * from './modulePracticeResult';
+export * from './moduleProgress';
 export * from './question';
 export * from './questionResult';
 export * from './quiz';

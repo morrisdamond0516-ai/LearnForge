@@ -341,6 +341,7 @@ export const GetCurriculumResponse = zod.object({
   "modules": zod.array(zod.object({
   "title": zod.string(),
   "objective": zod.string(),
+  "skills": zod.array(zod.string()).optional(),
   "materials": zod.array(zod.object({
   "type": zod.string(),
   "name": zod.string(),
@@ -352,6 +353,39 @@ export const GetCurriculumResponse = zod.object({
   "nextSteps": zod.array(zod.string()),
   "createdAt": zod.coerce.date()
 })
+
+
+/**
+ * Finds the existing practice quiz tied to this module, or creates one focused on the module's skills, and returns its quiz id so the learner can take (and retake) it in the app.
+
+ * @summary Generate or fetch a focused practice quiz for a curriculum module
+ */
+export const PracticeCurriculumModuleParams = zod.object({
+  "id": zod.coerce.number(),
+  "index": zod.coerce.number()
+})
+
+export const PracticeCurriculumModuleResponse = zod.object({
+  "quizId": zod.number()
+})
+
+
+/**
+ * @summary Per-module practice progress for a curriculum
+ */
+export const GetCurriculumProgressParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCurriculumProgressResponseItem = zod.object({
+  "moduleIndex": zod.number(),
+  "quizId": zod.number().nullish(),
+  "attempts": zod.number(),
+  "bestScore": zod.number().nullish(),
+  "lastScore": zod.number().nullish(),
+  "mastered": zod.boolean()
+})
+export const GetCurriculumProgressResponse = zod.array(GetCurriculumProgressResponseItem)
 
 
 /**

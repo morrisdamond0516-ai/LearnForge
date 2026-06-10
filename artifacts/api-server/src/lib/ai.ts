@@ -614,6 +614,7 @@ export type CurriculumMaterial = {
 export type CurriculumModule = {
   title: string;
   objective: string;
+  skills: string[];
   materials: CurriculumMaterial[];
 };
 
@@ -640,10 +641,11 @@ export async function generateCurriculum(
     .slice(0, 12);
 
   const system =
-    "You are an expert curriculum designer and tutor. You build practical, sequenced learning plans using the best real-world learning materials. " +
-    "Recommend specific, well-known, real resources across a mix of types (Book, Video, Course, Worksheet, Tool, Article, Practice). " +
-    "Prefer widely available, reputable resources and name the author/creator/provider and where to find it (e.g. publisher, platform, library, or website name). " +
-    "Do not invent fake titles or URLs; if unsure of an exact link, describe where to find it instead. " +
+    "You are an expert curriculum designer and tutor for LearnForge, an app where learners improve by taking repeated, focused practice quizzes. " +
+    "Design a sequenced learning plan where each module centers on concrete, testable skills the learner will practice and master INSIDE the app by taking a quiz on that module again and again until they score well. " +
+    "For every module, list 3-6 specific, testable skills - the kind a multiple-choice quiz can actually check. " +
+    "You MAY optionally add a few real-world extra resources (Book, Video, Course, Worksheet, Tool, Article) for learners who want outside reading, but these are strictly secondary: the core of every module is practicing here in LearnForge, not sending the learner to other websites. " +
+    "When you do list a resource, name a specific, well-known, real one with its author/creator/provider and where to find it; never invent fake titles or URLs. " +
     "Do not use emojis. Return ONLY valid JSON, no prose, no markdown fences.";
 
   const user = `Design a learning curriculum for the subject "${subject}".
@@ -651,19 +653,20 @@ The learner's current assessed level is: ${level}.
 Tailor the difficulty and starting point to a ${level} learner.
 ${focus.length > 0 ? `Give extra attention to these areas the learner struggled with or wants to strengthen:\n${focus.map((f) => `- ${f}`).join("\n")}` : ""}
 
-Organize the plan as an ordered set of modules, from foundational to advanced. Each module groups the best materials to learn that part.
+Organize the plan as an ordered set of modules, from foundational to advanced. Each module is something the learner will master by repeatedly taking a focused practice quiz on it inside LearnForge.
 
 Return JSON with this exact shape:
 {
   "title": "a short, motivating title for this curriculum",
-  "summary": "a 2-3 sentence overview of the plan and how it fits a ${level} learner",
+  "summary": "a 2-3 sentence overview that emphasizes improving through repeated, focused practice inside the app, fitted to a ${level} learner",
   "modules": [
     {
       "title": "module title",
-      "objective": "what the learner will be able to do after this module",
+      "objective": "what the learner will be able to do after mastering this module",
+      "skills": ["a specific, testable skill the practice quiz for this module will cover", "another testable skill", "..."],
       "materials": [
         {
-          "type": "Book | Video | Course | Worksheet | Tool | Article | Practice",
+          "type": "Book | Video | Course | Worksheet | Tool | Article",
           "name": "the exact title/name of the resource",
           "author": "author, creator, channel, or provider",
           "description": "1-2 sentences on what it is and why it helps here",
@@ -672,9 +675,9 @@ Return JSON with this exact shape:
       ]
     }
   ],
-  "nextSteps": ["a concrete action the learner should take to start"]
+  "nextSteps": ["a concrete action focused on practicing in the app, e.g. 'Take the practice quiz for Module 1 and retake it until you score 80% or higher'"]
 }
-Include 4-6 modules. Each module should have 2-4 materials with a mix of types across the whole plan. Include 3-5 nextSteps.`;
+Include 4-6 modules. Each module MUST have 3-6 skills. Materials are OPTIONAL (0-3 per module) and only for extra outside reading - do not pad them. Include 3-5 nextSteps centered on practicing in LearnForge.`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -693,6 +696,7 @@ Include 4-6 modules. Each module should have 2-4 materials with a mix of types a
     modules?: Array<{
       title?: unknown;
       objective?: unknown;
+      skills?: unknown;
       materials?: Array<Record<string, unknown>>;
     }>;
     nextSteps?: unknown;
@@ -707,6 +711,11 @@ Include 4-6 modules. Each module should have 2-4 materials with a mix of types a
     .map((m) => ({
       title: str(m.title).trim() || "Module",
       objective: str(m.objective).trim(),
+      skills: (Array.isArray(m.skills) ? m.skills : [])
+        .filter((s): s is string => typeof s === "string")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0)
+        .slice(0, 8),
       materials: (Array.isArray(m.materials) ? m.materials : [])
         .filter((mat) => mat && typeof mat === "object")
         .map((mat) => ({
@@ -718,7 +727,7 @@ Include 4-6 modules. Each module should have 2-4 materials with a mix of types a
         }))
         .filter((mat) => mat.name.length > 0),
     }))
-    .filter((m) => m.materials.length > 0);
+    .filter((m) => m.skills.length > 0 || m.materials.length > 0);
 
   const nextSteps = (Array.isArray(parsed.nextSteps) ? parsed.nextSteps : [])
     .filter((s): s is string => typeof s === "string")
