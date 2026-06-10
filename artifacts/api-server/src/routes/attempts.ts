@@ -13,6 +13,7 @@ import {
   ListAttemptsResponse,
   GetAttemptParams,
   GetAttemptResponse,
+  DeleteAttemptParams,
 } from "@workspace/api-zod";
 import { assessLevel, buildFeedback } from "../lib/ai";
 
@@ -200,6 +201,31 @@ router.get("/attempts/:id", async (req, res): Promise<void> => {
       results: attempt.results,
     }),
   );
+});
+
+router.delete("/attempts/:id", async (req, res): Promise<void> => {
+  const params = DeleteAttemptParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [attempt] = await db
+    .delete(attemptsTable)
+    .where(
+      and(
+        eq(attemptsTable.id, params.data.id),
+        eq(attemptsTable.userId, req.userId!),
+      ),
+    )
+    .returning();
+
+  if (!attempt) {
+    res.status(404).json({ error: "Attempt not found" });
+    return;
+  }
+
+  res.sendStatus(204);
 });
 
 export default router;

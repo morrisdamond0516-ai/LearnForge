@@ -1722,6 +1722,76 @@ export function useGetAttempt<TData = Awaited<ReturnType<typeof getAttempt>>, TE
 
 
 
+export const getDeleteAttemptUrl = (id: number,) => {
+
+
+
+
+  return `/api/attempts/${id}`
+}
+
+/**
+ * @summary Delete an attempt
+ */
+export const deleteAttempt = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteAttemptUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteAttemptMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAttempt>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAttempt>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteAttempt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAttempt>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteAttempt(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAttemptMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAttempt>>>
+
+    export type DeleteAttemptMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Delete an attempt
+ */
+export const useDeleteAttempt = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAttempt>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAttempt>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteAttemptMutationOptions(options));
+    }
+
 export const getResearchTopicUrl = () => {
 
 
@@ -1949,6 +2019,76 @@ export function useGetLearnSession<TData = Awaited<ReturnType<typeof getLearnSes
 
 
 
+
+export const getDeleteLearnSessionUrl = (id: number,) => {
+
+
+
+
+  return `/api/learn/sessions/${id}`
+}
+
+/**
+ * @summary Delete a saved study guide
+ */
+export const deleteLearnSession = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteLearnSessionUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteLearnSessionMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLearnSession>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteLearnSession>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteLearnSession'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteLearnSession>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteLearnSession(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteLearnSessionMutationResult = NonNullable<Awaited<ReturnType<typeof deleteLearnSession>>>
+
+    export type DeleteLearnSessionMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Delete a saved study guide
+ */
+export const useDeleteLearnSession = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLearnSession>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteLearnSession>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteLearnSessionMutationOptions(options));
+    }
 
 export const getRecommendSchoolsUrl = () => {
 

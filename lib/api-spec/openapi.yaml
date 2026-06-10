@@ -567,6 +567,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: deleteAttempt
+      tags: [attempts]
+      summary: Delete an attempt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
 
   /learn/research:
     post:
@@ -633,6 +652,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LearnSession"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: deleteLearnSession
+      tags: [learn]
+      summary: Delete a saved study guide
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
         "404":
           description: Not found
           content:

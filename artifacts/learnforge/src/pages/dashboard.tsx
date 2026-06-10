@@ -1,15 +1,71 @@
-import { useGetDashboardSummary, useGetRecentActivity, useGetSubjectProgress } from "@workspace/api-client-react";
+import {
+  useGetDashboardSummary,
+  useGetRecentActivity,
+  useGetSubjectProgress,
+  useDeleteAttempt,
+  useDeleteQuiz,
+  useDeleteLearnSession,
+  useDeleteDocument,
+  getGetRecentActivityQueryKey,
+  getGetDashboardSummaryQueryKey,
+  getGetSubjectProgressQueryKey,
+} from "@workspace/api-client-react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, BookOpen, GraduationCap, Upload, TrendingUp, Sparkles, BookType, ArrowRight, PlayCircle, HelpCircle } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Activity, BookOpen, GraduationCap, Upload, TrendingUp, Sparkles, BookType, ArrowRight, PlayCircle, HelpCircle, Trash2, Loader2 } from "lucide-react";
 import { Link } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 import { startTour } from "@/components/welcome-tour";
 
 export default function Dashboard() {
   const { data: summary, isLoading: isLoadingSummary } = useGetDashboardSummary();
   const { data: activity, isLoading: isLoadingActivity } = useGetRecentActivity();
   const { data: progress, isLoading: isLoadingProgress } = useGetSubjectProgress();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [pendingDelete, setPendingDelete] = useState<{ type: string; rawId: string; title: string } | null>(null);
+  const deleteAttempt = useDeleteAttempt();
+  const deleteQuiz = useDeleteQuiz();
+  const deleteLearnSession = useDeleteLearnSession();
+  const deleteDocument = useDeleteDocument();
+
+  const deletingId =
+    deleteAttempt.isPending ? `attempt-${deleteAttempt.variables?.id}` :
+    deleteQuiz.isPending ? `quiz-${deleteQuiz.variables?.id}` :
+    deleteLearnSession.isPending ? `learn-${deleteLearnSession.variables?.id}` :
+    deleteDocument.isPending ? `document-${deleteDocument.variables?.id}` :
+    null;
+
+  const handleDeleteActivity = (type: string, rawId: string) => {
+    const id = parseInt(rawId, 10);
+    if (!Number.isFinite(id)) return;
+    const onSuccess = () => {
+      toast({ title: "Removed from your activity" });
+      setPendingDelete(null);
+      queryClient.invalidateQueries({ queryKey: getGetRecentActivityQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetSubjectProgressQueryKey() });
+    };
+    const onError = () => toast({ title: "Could not remove that item", variant: "destructive" });
+    const opts = { onSuccess, onError };
+    if (type === "attempt") deleteAttempt.mutate({ id }, opts);
+    else if (type === "quiz") deleteQuiz.mutate({ id }, opts);
+    else if (type === "learn") deleteLearnSession.mutate({ id }, opts);
+    else if (type === "document") deleteDocument.mutate({ id }, opts);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -170,17 +226,30 @@ export default function Dashboard() {
                     </>
                   );
 
-                  return href ? (
-                    <Link
+                  const isDeleting = deletingId === item.id;
+
+                  return (
+                    <div
                       key={item.id}
-                      href={href}
-                      className="flex items-start rounded-md -mx-2 px-2 py-2 hover-elevate transition-colors"
+                      className="flex items-center gap-1 rounded-md -mx-2 px-2 hover-elevate transition-colors"
                     >
-                      {inner}
-                    </Link>
-                  ) : (
-                    <div key={item.id} className="flex items-start -mx-2 px-2 py-2">
-                      {inner}
+                      {href ? (
+                        <Link href={href} className="flex flex-1 items-start py-2 min-w-0">
+                          {inner}
+                        </Link>
+                      ) : (
+                        <div className="flex flex-1 items-start py-2 min-w-0">{inner}</div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Remove from activity"
+                        disabled={isDeleting}
+                        onClick={() => setPendingDelete({ type: item.type, rawId, title: item.title })}
+                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                      >
+                        {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      </Button>
                     </div>
                   );
                 })}
@@ -201,6 +270,35 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={pendingDelete !== null} onOpenChange={(open) => { if (!open) setPendingDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete?.type === "quiz"
+                ? `This permanently deletes the test "${pendingDelete?.title}" and all of its past attempts. This cannot be undone.`
+                : pendingDelete?.type === "document"
+                ? `This permanently deletes the document "${pendingDelete?.title}". This cannot be undone.`
+                : pendingDelete?.type === "learn"
+                ? `This permanently deletes the study guide "${pendingDelete?.title}". This cannot be undone.`
+                : `This permanently deletes this attempt and its results. This cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingId !== null}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deletingId !== null}
+              onClick={(e) => {
+                e.preventDefault();
+                if (pendingDelete) handleDeleteActivity(pendingDelete.type, pendingDelete.rawId);
+              }}
+            >
+              {deletingId !== null ? "Removing..." : "Remove"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

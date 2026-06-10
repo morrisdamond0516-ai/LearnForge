@@ -417,6 +417,14 @@ export const GetAttemptResponse = zod.object({
 
 
 /**
+ * @summary Delete an attempt
+ */
+export const DeleteAttemptParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
  * Produces a structured study guide (summary, sections, key points and
 suggested next steps) for a chosen subject or free-form topic.
 
@@ -468,6 +476,14 @@ export const GetLearnSessionResponse = zod.object({
   "keyPoints": zod.array(zod.string()),
   "nextSteps": zod.array(zod.string()).optional(),
   "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a saved study guide
+ */
+export const DeleteLearnSessionParams = zod.object({
+  "id": zod.coerce.number()
 })
 
 

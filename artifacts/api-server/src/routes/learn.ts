@@ -6,6 +6,7 @@ import {
   ListLearnSessionsResponse,
   GetLearnSessionParams,
   GetLearnSessionResponse,
+  DeleteLearnSessionParams,
 } from "@workspace/api-zod";
 import { generateStudyGuide } from "../lib/ai";
 
@@ -161,6 +162,31 @@ router.get("/learn/sessions/:id", async (req, res): Promise<void> => {
       createdAt: session.createdAt,
     }),
   );
+});
+
+router.delete("/learn/sessions/:id", async (req, res): Promise<void> => {
+  const params = DeleteLearnSessionParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [session] = await db
+    .delete(learnSessionsTable)
+    .where(
+      and(
+        eq(learnSessionsTable.id, params.data.id),
+        eq(learnSessionsTable.userId, req.userId!),
+      ),
+    )
+    .returning();
+
+  if (!session) {
+    res.status(404).json({ error: "Study guide not found" });
+    return;
+  }
+
+  res.sendStatus(204);
 });
 
 export default router;
