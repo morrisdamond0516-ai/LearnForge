@@ -45,19 +45,71 @@ type Stage = "setup" | "interview" | "feedback";
 // Keep in sync with INTERVIEW_QUESTION_COUNT in api-server/src/lib/ai.ts.
 const TOTAL_QUESTIONS = 6;
 
+// The interview is non-persisted server-side, so an AppShell remount (e.g. a
+// Clerk dev-session flicker) would otherwise wipe all in-memory state and dump
+// the user back to setup mid-interview. We snapshot the active interview to
+// localStorage and restore it on mount so the learner resumes in place.
+const STORAGE_KEY = "learnforge:interview-progress";
+
+type SavedInterview = {
+  stage: Stage;
+  career: string;
+  customCareer: string;
+  focus: string;
+  messages: RoleplayMessage[];
+  feedback: RoleplayFeedback | null;
+};
+
+function loadSavedInterview(): SavedInterview | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw) as Partial<SavedInterview>;
+    // Only an in-progress interview or a finished feedback report is worth
+    // restoring; a "setup" snapshot means nothing was underway.
+    if (p.stage !== "interview" && p.stage !== "feedback") return null;
+    if (!Array.isArray(p.messages)) return null;
+    // Restore code dereferences m.role/m.content, so reject any array with a
+    // malformed item rather than crashing the chat render on a corrupt payload.
+    const validMessages = p.messages.every(
+      (m): m is RoleplayMessage =>
+        !!m &&
+        typeof m === "object" &&
+        (m.role === "host" || m.role === "candidate") &&
+        typeof m.content === "string",
+    );
+    if (!validMessages) return null;
+    // A feedback stage with no report object would crash the report render.
+    if (p.stage === "feedback" && (!p.feedback || typeof p.feedback !== "object")) {
+      return null;
+    }
+    return {
+      stage: p.stage,
+      career: typeof p.career === "string" ? p.career : "",
+      customCareer: typeof p.customCareer === "string" ? p.customCareer : "",
+      focus: typeof p.focus === "string" ? p.focus : "",
+      messages: p.messages as RoleplayMessage[],
+      feedback: (p.feedback as RoleplayFeedback | null) ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function Interview() {
   const { toast } = useToast();
   const roleplayMessage = useRoleplayMessage();
   const evaluateRoleplay = useEvaluateRoleplay();
 
-  const [stage, setStage] = useState<Stage>("setup");
-  const [career, setCareer] = useState<string>("");
+  const [restored] = useState(loadSavedInterview);
+  const [stage, setStage] = useState<Stage>(restored?.stage ?? "setup");
+  const [career, setCareer] = useState<string>(restored?.career ?? "");
   const [careerOpen, setCareerOpen] = useState(false);
-  const [customCareer, setCustomCareer] = useState<string>("");
-  const [focus, setFocus] = useState<string>("");
-  const [messages, setMessages] = useState<RoleplayMessage[]>([]);
+  const [customCareer, setCustomCareer] = useState<string>(restored?.customCareer ?? "");
+  const [focus, setFocus] = useState<string>(restored?.focus ?? "");
+  const [messages, setMessages] = useState<RoleplayMessage[]>(restored?.messages ?? []);
   const [answer, setAnswer] = useState<string>("");
-  const [feedback, setFeedback] = useState<RoleplayFeedback | null>(null);
+  const [feedback, setFeedback] = useState<RoleplayFeedback | null>(restored?.feedback ?? null);
 
   const chosenCareer = career === "__custom" ? customCareer.trim() : career;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -69,6 +121,22 @@ export default function Interview() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, roleplayMessage.isPending]);
+
+  // Snapshot the active interview so a remount can resume it (see STORAGE_KEY).
+  useEffect(() => {
+    try {
+      if (stage === "setup") {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ stage, career, customCareer, focus, messages, feedback }),
+      );
+    } catch {
+      // Storage unavailable (private mode / quota) — degrade to no resume.
+    }
+  }, [stage, career, customCareer, focus, messages, feedback]);
 
   const requestHostTurn = (history: RoleplayMessage[]) => {
     roleplayMessage.mutate(
@@ -90,6 +158,22 @@ export default function Interview() {
       },
     );
   };
+
+  // If the remount happened while waiting for the interviewer's next question
+  // (last turn is the candidate's answer and the interview isn't finished),
+  // re-request that question once on resume so the user isn't stuck.
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current) return;
+    resumedRef.current = true;
+    if (stage !== "interview" || messages.length === 0) return;
+    const last = messages[messages.length - 1];
+    const answered = messages.filter((m) => m.role === "candidate").length;
+    if (last.role === "candidate" && answered < TOTAL_QUESTIONS) {
+      requestHostTurn(messages);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const startInterview = () => {
     if (!chosenCareer) return;

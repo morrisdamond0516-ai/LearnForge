@@ -2,6 +2,7 @@
 - [Composite libs in monorepo](composite-libs.md) — libs in root tsconfig references must be composite:true or artifact typecheck fails.
 - [pdf-parse in Node server](pdf-parse-node.md) — use v1 via `pdf-parse/lib/pdf-parse.js`; root entry / v2 crash on DOMMatrix or debug file-read at startup.
 - [Select touch scrolling](select-touch-scroll.md) — shared shadcn Select omits Radix scroll-up/down buttons so long dropdowns scroll natively on touch; don't re-add them.
+- [Clerk remount wipes state](clerk-remount-wipes-state.md) — Clerk dev flicker remounts the app shell + wipes useState; persist in-progress client-only flows to localStorage (lazy init).
 - [Drizzle partial-index upsert](drizzle-partial-index-upsert.md) — idempotent find-or-create: partial unique index + onConflictDoNothing; repeat the predicate via `where` (not `targetWhere`).
 - [Entitlement grant atomicity](entitlement-grant-atomicity.md) — Pro-time grants must commit in the same tx as what authorizes them; external payments need an idempotency-keyed ledger.
 - [Stripe via stripe-replit-sync](stripe-replit-sync.md) — connector key is `settings.secret` not `secret_key`; must esbuild-external `stripe-replit-sync` (else schema w/ zero tables); runMigrations has no schema opt.
