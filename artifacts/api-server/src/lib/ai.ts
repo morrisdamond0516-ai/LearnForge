@@ -755,6 +755,11 @@ export type InterviewTurnArgs = {
   messages: InterviewMessage[];
 };
 
+// Fixed number of questions per mock interview. The frontend shows this count
+// and stops the interview after the candidate answers this many questions, so
+// keep TOTAL_QUESTIONS in interview.tsx in sync with this value.
+export const INTERVIEW_QUESTION_COUNT = 6;
+
 export async function conductInterviewTurn(
   args: InterviewTurnArgs,
 ): Promise<{ message: string }> {
@@ -766,6 +771,7 @@ export async function conductInterviewTurn(
 
   const system =
     `You are a realistic, professional hiring interviewer conducting a live mock job interview for the role: "${career}".${focusLine} ` +
+    `This is a structured interview of exactly ${INTERVIEW_QUESTION_COUNT} questions total — pace yourself to cover that many, and treat your ${INTERVIEW_QUESTION_COUNT}th question as the final, closing question. ` +
     "Stay fully in character as the interviewer at all times. Conduct the interview the way a real one for this role would go: open with a brief, warm greeting and your first question, then proceed one question at a time. " +
     "Mix question types appropriate to this role — behavioral (\"tell me about a time...\"), situational/scenario, role-specific technical or knowledge questions, and motivation/fit. " +
     "After each candidate answer, react briefly and naturally (a short acknowledgement or a focused follow-up that digs deeper), then ask the next question. Ask only ONE question per turn. " +

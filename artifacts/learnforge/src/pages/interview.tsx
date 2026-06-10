@@ -31,6 +31,9 @@ import { Link } from "wouter";
 
 type Stage = "setup" | "interview" | "feedback";
 
+// Keep in sync with INTERVIEW_QUESTION_COUNT in api-server/src/lib/ai.ts.
+const TOTAL_QUESTIONS = 6;
+
 export default function Interview() {
   const { toast } = useToast();
   const roleplayMessage = useRoleplayMessage();
@@ -46,6 +49,10 @@ export default function Interview() {
 
   const chosenCareer = career === "__custom" ? customCareer.trim() : career;
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const answeredCount = messages.filter((m) => m.role === "candidate").length;
+  const isComplete = answeredCount >= TOTAL_QUESTIONS;
+  const currentQuestion = Math.min(answeredCount + 1, TOTAL_QUESTIONS);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -82,6 +89,8 @@ export default function Interview() {
     const history: RoleplayMessage[] = [...messages, { role: "candidate", content: text }];
     setMessages(history);
     setAnswer("");
+    const answered = history.filter((m) => m.role === "candidate").length;
+    if (answered >= TOTAL_QUESTIONS) return; // final question answered — wait for Submit
     requestHostTurn(history);
   };
 
@@ -131,8 +140,9 @@ export default function Interview() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight mt-4">Roleplay Job Interview</h1>
           <p className="text-muted-foreground mt-1">
-            Practice a realistic interview with an AI hiring manager for any career. Answer questions out loud or in
-            writing, then get scored feedback with specific ways to improve.
+            Practice a realistic interview with an AI hiring manager for any career. You'll answer{" "}
+            {TOTAL_QUESTIONS} questions, one at a time. When you've answered the last one, press Submit to get scored
+            feedback with specific ways to improve.
           </p>
         </div>
 
@@ -314,12 +324,26 @@ export default function Interview() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight">{chosenCareer} interview</h1>
-          {focus && <p className="text-sm text-muted-foreground">Focus: {focus}</p>}
+          <p className="text-sm text-muted-foreground">
+            {isComplete ? (
+              <span className="font-medium text-foreground">All {TOTAL_QUESTIONS} questions answered</span>
+            ) : (
+              <>Question {currentQuestion} of {TOTAL_QUESTIONS}</>
+            )}
+            {focus ? <span> · Focus: {focus}</span> : null}
+          </p>
         </div>
-        <Button variant="outline" size="sm" onClick={endInterview} disabled={evaluateRoleplay.isPending}>
-          {evaluateRoleplay.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          End & get feedback
-        </Button>
+        {!isComplete && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={endInterview}
+            disabled={evaluateRoleplay.isPending || roleplayMessage.isPending}
+          >
+            {evaluateRoleplay.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            End early
+          </Button>
+        )}
       </div>
 
       <Card className="border-2 border-primary/10 shadow-md">
@@ -352,25 +376,48 @@ export default function Interview() {
         </div>
 
         <CardContent className="border-t p-4">
-          <div className="flex gap-3 items-end">
-            <Textarea
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Type your answer..."
-              className="min-h-[44px] max-h-40 resize-none"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendAnswer();
-                }
-              }}
-              disabled={roleplayMessage.isPending}
-            />
-            <Button onClick={sendAnswer} disabled={!answer.trim() || roleplayMessage.isPending} className="h-11 shrink-0">
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">Press Enter to send, Shift+Enter for a new line.</p>
+          {isComplete ? (
+            <div className="flex flex-col items-center gap-3 py-2 text-center">
+              <p className="text-sm text-muted-foreground">
+                You've answered all {TOTAL_QUESTIONS} questions. Press Submit to get your detailed feedback.
+              </p>
+              <Button
+                onClick={endInterview}
+                disabled={evaluateRoleplay.isPending}
+                className="w-full sm:w-auto"
+                size="lg"
+              >
+                {evaluateRoleplay.isPending ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="mr-2 h-5 w-5" />
+                )}
+                Submit & get feedback
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-3 items-end">
+                <Textarea
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Type your answer..."
+                  className="min-h-[44px] max-h-40 resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendAnswer();
+                    }
+                  }}
+                  disabled={roleplayMessage.isPending}
+                />
+                <Button onClick={sendAnswer} disabled={!answer.trim() || roleplayMessage.isPending} className="h-11 shrink-0">
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Press Enter to send, Shift+Enter for a new line.</p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
