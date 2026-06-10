@@ -11,6 +11,11 @@ export const usersTable = pgTable("users", {
   email: text("email"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
+  // Pro entitlement granted by non-Stripe means (redeemed access codes,
+  // one-time PayPal purchases). A user is Pro if they have an active Stripe
+  // subscription OR `proUntil` is in the future. Stripe-recurring access is
+  // derived from the synced `stripe` schema and is NOT mirrored here.
+  proUntil: timestamp("pro_until", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

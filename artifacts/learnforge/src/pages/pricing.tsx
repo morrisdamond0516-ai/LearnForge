@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { AltPayments } from "@/components/alt-payments";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -404,6 +405,9 @@ export default function Pricing() {
               </div>
             </div>
           </div>
+
+          {/* Alternative / international payments */}
+          <AltPayments />
         </section>
 
         {/* Why it's competitive */}

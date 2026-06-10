@@ -13,6 +13,8 @@ import dashboardRouter from "./dashboard";
 import explainRouter from "./explain";
 import roleplayRouter from "./roleplay";
 import stripeRouter from "./stripe";
+import accessCodesRouter from "./access-codes";
+import paypalRouter from "./paypal";
 
 const router: IRouter = Router();
 
@@ -35,5 +37,7 @@ router.use(dashboardRouter);
 router.use(explainRouter);
 router.use(roleplayRouter);
 router.use(stripeRouter);
+router.use(accessCodesRouter);
+router.use(paypalRouter);
 
 export default router;

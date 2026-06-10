@@ -25,3 +25,5 @@ export * from "./learnSessions";
 export * from "./careerPlans";
 export * from "./curricula";
 export * from "./users";
+export * from "./accessCodes";
+export * from "./paypalPurchases";
