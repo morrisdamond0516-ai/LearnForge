@@ -131,24 +131,59 @@ export default function Dashboard() {
                 <Skeleton className="h-10 w-full" />
               </div>
             ) : activity?.length ? (
-              <div className="space-y-6">
-                {activity.map((item) => (
-                  <div key={item.id} className="flex items-start">
-                    <div className="mr-4 mt-0.5 text-muted-foreground">
-                      {item.type === 'quiz' ? <GraduationCap className="h-4 w-4 text-primary" /> : 
-                       item.type === 'learn' ? <BookType className="h-4 w-4 text-secondary-foreground" /> :
-                       item.type === 'attempt' ? <Activity className="h-4 w-4 text-accent" /> :
-                       <Upload className="h-4 w-4" />}
+              <div className="space-y-2">
+                {activity.map((item) => {
+                  const rawId = item.id.slice(item.id.indexOf("-") + 1);
+                  const href =
+                    item.type === "attempt" ? `/attempts/${rawId}` :
+                    item.type === "quiz" ? `/quizzes/${rawId}` :
+                    item.type === "learn" ? `/learn/${rawId}` :
+                    item.type === "document" ? "/documents" :
+                    null;
+                  const actionLabel =
+                    item.type === "attempt" ? "Review answers and mistakes" :
+                    item.type === "quiz" ? "Take this test again" :
+                    item.type === "learn" ? "Open study guide" :
+                    item.type === "document" ? "View documents" :
+                    null;
+                  const icon =
+                    item.type === "quiz" ? <GraduationCap className="h-4 w-4 text-primary" /> :
+                    item.type === "learn" ? <BookType className="h-4 w-4 text-secondary-foreground" /> :
+                    item.type === "attempt" ? <Activity className="h-4 w-4 text-accent" /> :
+                    <Upload className="h-4 w-4" />;
+
+                  const inner = (
+                    <>
+                      <div className="mr-4 mt-0.5 text-muted-foreground">{icon}</div>
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium leading-none">{item.title}</p>
+                        {item.detail && <p className="text-xs text-muted-foreground">{item.detail}</p>}
+                        {href && actionLabel && (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                            {actionLabel} <ArrowRight className="h-3 w-3" />
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(item.timestamp).toLocaleDateString()}
+                      </div>
+                    </>
+                  );
+
+                  return href ? (
+                    <Link
+                      key={item.id}
+                      href={href}
+                      className="flex items-start rounded-md -mx-2 px-2 py-2 hover-elevate transition-colors"
+                    >
+                      {inner}
+                    </Link>
+                  ) : (
+                    <div key={item.id} className="flex items-start -mx-2 px-2 py-2">
+                      {inner}
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">{item.title}</p>
-                      {item.detail && <p className="text-xs text-muted-foreground">{item.detail}</p>}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(item.timestamp).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
