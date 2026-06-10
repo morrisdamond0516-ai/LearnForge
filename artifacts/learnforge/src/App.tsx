@@ -37,6 +37,7 @@ import CurriculumDetail from "@/pages/curriculum-detail";
 import Documents from "@/pages/documents";
 import Attempt from "@/pages/attempt";
 import Pricing from "@/pages/pricing";
+import SchoolCodes from "@/pages/school-codes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -160,6 +161,7 @@ function AppShell() {
         <Route path="/curriculum/:id" component={CurriculumDetail} />
         <Route path="/documents" component={Documents} />
         <Route path="/help" component={Help} />
+        <Route path="/school-codes" component={SchoolCodes} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />
       </Switch>

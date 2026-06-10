@@ -44,6 +44,53 @@ export const stripeService = {
     });
   },
 
+  /**
+   * One-time (mode: payment) checkout for a school bulk seat purchase. Uses
+   * inline `price_data` so the per-seat amount comes straight from the server's
+   * authoritative quote; quantity is the number of student seats. As with the
+   * subscription checkout, `payment_method_types` is omitted so all eligible
+   * methods are offered. `metadata` is echoed back on the session for fulfilment.
+   */
+  async createBulkCheckoutSession(opts: {
+    customerId: string;
+    perSeatCents: number;
+    quantity: number;
+    currency: string;
+    productName: string;
+    metadata: Record<string, string>;
+    successUrl: string;
+    cancelUrl: string;
+  }): Promise<Stripe.Checkout.Session> {
+    const stripe = await getUncachableStripeClient();
+    return stripe.checkout.sessions.create({
+      customer: opts.customerId,
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: opts.currency,
+            unit_amount: opts.perSeatCents,
+            product_data: { name: opts.productName },
+          },
+          quantity: opts.quantity,
+        },
+      ],
+      allow_promotion_codes: true,
+      billing_address_collection: "auto",
+      metadata: opts.metadata,
+      success_url: opts.successUrl,
+      cancel_url: opts.cancelUrl,
+    });
+  },
+
+  /** Retrieve a checkout session (used to verify payment before fulfilment). */
+  async retrieveCheckoutSession(
+    sessionId: string,
+  ): Promise<Stripe.Checkout.Session> {
+    const stripe = await getUncachableStripeClient();
+    return stripe.checkout.sessions.retrieve(sessionId);
+  },
+
   async createBillingPortalSession(customerId: string, returnUrl: string) {
     const stripe = await getUncachableStripeClient();
     return stripe.billingPortal.sessions.create({

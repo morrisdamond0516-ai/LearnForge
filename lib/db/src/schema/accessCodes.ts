@@ -21,6 +21,8 @@ export const accessCodesTable = pgTable("access_codes", {
   durationDays: integer("duration_days").notNull(),
   // Free-form label for tracking (sponsor / school name, batch, etc.).
   note: text("note"),
+  // Links a code to the bulk order (Stripe session id) that minted it, if any.
+  batchId: text("batch_id"),
   // "active" | "redeemed" | "revoked".
   status: text("status").notNull().default("active"),
   redeemedByUserId: text("redeemed_by_user_id"),

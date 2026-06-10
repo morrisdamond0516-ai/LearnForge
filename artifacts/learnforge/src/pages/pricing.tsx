@@ -6,17 +6,15 @@ import {
   Check,
   Sparkles,
   ShieldCheck,
-  Building2,
   ArrowRight,
   Clock,
   Users,
   Loader2,
-  Mail,
-  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AltPayments } from "@/components/alt-payments";
+import { SchoolPurchase } from "@/components/school-purchase";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -348,63 +346,8 @@ export default function Pricing() {
             ))}
           </div>
 
-          {/* Schools / educators */}
-          <div className="mt-6 rounded-2xl border border-card-border bg-card p-6 sm:p-7">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Building2 className="h-5 w-5" />
-              </span>
-              <div className="w-full">
-                <h3 className="font-semibold text-card-foreground">Schools & educators</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Bring LearnForge to your classroom or district with bulk seats
-                  and simple admin management. Choose the billing that suits your
-                  school — pay monthly, or save with yearly billing. Get in touch
-                  for a quote.
-                </p>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-xl border border-card-border bg-background/60 p-4">
-                    <p className="text-sm font-semibold text-card-foreground">
-                      Monthly billing
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Flexible per-seat plan billed each month.
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-card-border bg-background/60 p-4">
-                    <p className="text-sm font-semibold text-card-foreground">
-                      Yearly billing
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      One annual payment for the school year — the best rate.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Button asChild variant="outline" className="shrink-0 gap-2">
-                    <a href="mailto:ebookgames@yahoo.com?subject=LearnForge%20for%20schools">
-                      <Mail className="h-4 w-4" />
-                      ebookgames@yahoo.com
-                    </a>
-                  </Button>
-                  <Button asChild variant="outline" className="shrink-0 gap-2">
-                    <a href="tel:+17023790396">
-                      <Phone className="h-4 w-4" />
-                      702-379-0396
-                    </a>
-                  </Button>
-                </div>
-
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Call 702-379-0396 and leave a message with an associate, or
-                  email us and we'll get back to you with monthly and yearly
-                  pricing for your school.
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Schools / educators — self-serve bulk seats */}
+          <SchoolPurchase />
 
           {/* Alternative / international payments */}
           <AltPayments />

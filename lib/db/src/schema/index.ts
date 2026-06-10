@@ -27,3 +27,4 @@ export * from "./curricula";
 export * from "./users";
 export * from "./accessCodes";
 export * from "./paypalPurchases";
+export * from "./bulkOrders";

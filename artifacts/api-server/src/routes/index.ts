@@ -13,6 +13,7 @@ import dashboardRouter from "./dashboard";
 import explainRouter from "./explain";
 import roleplayRouter from "./roleplay";
 import stripeRouter from "./stripe";
+import schoolRouter from "./school";
 import accessCodesRouter from "./access-codes";
 import paypalRouter from "./paypal";
 
@@ -37,6 +38,7 @@ router.use(dashboardRouter);
 router.use(explainRouter);
 router.use(roleplayRouter);
 router.use(stripeRouter);
+router.use(schoolRouter);
 router.use(accessCodesRouter);
 router.use(paypalRouter);
 
