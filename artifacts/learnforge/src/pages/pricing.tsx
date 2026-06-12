@@ -15,8 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AltPayments } from "@/components/alt-payments";
 import { SchoolPurchase } from "@/components/school-purchase";
-
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { SiteFooter } from "@/components/site-footer";
 
 type PlanKey = "pro_monthly" | "pro_annual";
 
@@ -346,6 +345,31 @@ export default function Pricing() {
             ))}
           </div>
 
+          {/* Subscription / auto-renewal disclosure */}
+          <div className="mt-8 rounded-xl border border-card-border bg-muted/40 p-5 text-sm text-muted-foreground">
+            <h3 className="font-semibold text-foreground">Subscription terms</h3>
+            <p className="mt-2">
+              Paid LearnForge plans are subscriptions that renew automatically.
+              After any free trial, Pro Monthly is billed $12.99 each month and
+              Pro Annual is billed $89.99 each year, using your payment method on
+              file, until you cancel. You can cancel anytime from Manage billing in
+              your account; cancelling stops future charges and your access
+              continues until the end of the current billing period. By
+              subscribing you authorize these recurring charges.
+            </p>
+            <p className="mt-2">
+              See our{" "}
+              <Link href="/terms" className="font-medium text-primary">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link href="/refund" className="font-medium text-primary">
+                Refunds &amp; Cancellation Policy
+              </Link>
+              .
+            </p>
+          </div>
+
           {/* Schools / educators — self-serve bulk seats */}
           <SchoolPurchase />
 
@@ -442,13 +466,7 @@ export default function Pricing() {
         </section>
       </main>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <span className="font-semibold text-foreground">LearnForge</span> · Free for
-        learners under 18 ·{" "}
-        <a href={`${basePath}/sign-up`} className="font-medium text-primary">
-          Get started
-        </a>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

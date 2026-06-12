@@ -15,8 +15,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+import { SiteFooter } from "@/components/site-footer";
 
 const features = [
   {
@@ -366,13 +365,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <span className="font-semibold text-foreground">LearnForge</span> ·{" "}
-        <a href={`${basePath}/sign-up`} className="font-medium text-primary">
-          Get started
-        </a>{" "}
-        and your progress is saved to your own account.
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

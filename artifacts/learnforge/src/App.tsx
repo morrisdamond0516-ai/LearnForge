@@ -37,6 +37,10 @@ import CurriculumDetail from "@/pages/curriculum-detail";
 import Documents from "@/pages/documents";
 import Attempt from "@/pages/attempt";
 import Pricing from "@/pages/pricing";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
+import Refund from "@/pages/refund";
+import Contact from "@/pages/contact";
 import SchoolCodes from "@/pages/school-codes";
 
 const queryClient = new QueryClient({
@@ -254,6 +258,10 @@ function ClerkProviderWithRoutes() {
             <Route path="/sign-up/*?" component={SignUpPage} />
             <Route path="/" component={RootGate} />
             <Route path="/pricing" component={Pricing} />
+            <Route path="/terms" component={Terms} />
+            <Route path="/privacy" component={Privacy} />
+            <Route path="/refund" component={Refund} />
+            <Route path="/contact" component={Contact} />
             <Route component={ProtectedGate} />
           </Switch>
           <Toaster />

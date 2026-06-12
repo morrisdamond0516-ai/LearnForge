@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle, Tag } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { WelcomeTour } from "@/components/welcome-tour";
+import { SiteFooter } from "@/components/site-footer";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -95,6 +96,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+      <SiteFooter />
       <WelcomeTour />
     </div>
   );
