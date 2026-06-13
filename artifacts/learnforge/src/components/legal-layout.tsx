@@ -1,6 +1,7 @@
 import { Link } from "wouter";
-import { GraduationCap, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { SiteFooter } from "@/components/site-footer";
+import { Logo } from "@/components/logo";
 
 export function LegalLayout({
   title,
@@ -18,7 +19,7 @@ export function LegalLayout({
           href="/"
           className="flex shrink-0 items-center gap-2 font-bold text-xl text-white tracking-tight"
         >
-          <GraduationCap className="h-6 w-6 text-accent" />
+          <Logo className="h-8 w-auto text-white" />
           <span>LearnForge</span>
         </Link>
         <Link

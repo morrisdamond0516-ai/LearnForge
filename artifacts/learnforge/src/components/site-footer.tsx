@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { GraduationCap } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { COMPANY } from "@/lib/company";
 
 export function SiteFooter() {
@@ -8,7 +8,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 font-semibold text-foreground">
-            <GraduationCap className="h-5 w-5 text-primary" />
+            <Logo className="h-6 w-auto text-primary" />
             <span>{COMPANY.appName}</span>
           </div>
           <nav

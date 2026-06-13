@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteFooter } from "@/components/site-footer";
+import { Logo } from "@/components/logo";
 
 const features = [
   {
@@ -82,7 +83,7 @@ export default function Landing() {
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <header className="app-header sticky top-0 z-40 flex items-center justify-between px-4 py-3 shadow-lg sm:px-6 lg:px-8 lg:h-16 lg:py-0">
         <div className="flex shrink-0 items-center gap-2 font-bold text-xl text-white tracking-tight">
-          <GraduationCap className="h-6 w-6 text-accent" />
+          <Logo className="h-8 w-auto text-white" />
           <span>LearnForge</span>
         </div>
         <div className="flex items-center gap-2">

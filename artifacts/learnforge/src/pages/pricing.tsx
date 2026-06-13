@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Show } from "@clerk/react";
 import {
-  GraduationCap,
   Check,
   Sparkles,
   ShieldCheck,
@@ -11,6 +10,7 @@ import {
   Users,
   Loader2,
 } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { AltPayments } from "@/components/alt-payments";
@@ -229,7 +229,7 @@ export default function Pricing() {
           href="/"
           className="flex shrink-0 items-center gap-2 font-bold text-xl text-white tracking-tight"
         >
-          <GraduationCap className="h-6 w-6 text-accent" />
+          <Logo className="h-8 w-auto text-white" />
           <span>LearnForge</span>
         </Link>
         <div className="flex items-center gap-2">
