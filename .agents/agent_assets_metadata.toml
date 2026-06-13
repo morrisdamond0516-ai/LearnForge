@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "12h8NihN8XIukVeFBTaN_"
+uri = "file://exports/learnforge-brand-kit.zip"
+type = "unspecified"
+title = "LearnForge Brand Kit (icon + logo)"
