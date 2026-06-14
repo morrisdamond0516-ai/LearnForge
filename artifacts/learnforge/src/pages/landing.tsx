@@ -113,20 +113,20 @@ export default function Landing() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              <span className="text-foreground/70">Learning for everyone</span>
+              <span className="text-foreground/70">From the classroom to the cutting edge</span>
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Anyone can learn anything —
-              <span className="block text-primary">when it finally makes sense.</span>
+              Master anything —
+              <span className="block text-primary">from algebra to aerospace.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              LearnForge is built on one belief: nobody is "bad at learning" —
-              they just haven't been met where they are yet. Whatever you're
-              facing — a subject that never clicked, a high-stakes exam, a career
-              change, or simply the urge to understand something new — we turn it
-              into patient practice, clear explanations, and a plan that grows
-              with you. No judgment, no gatekeeping. Just real help, whenever you
-              need it.
+              LearnForge goes as deep as the subject demands. Whether you're a
+              high-schooler wrestling with calculus, a college student deep in
+              organic chemistry or linear algebra, or a professional preparing
+              for engineering, aerospace, or certification exams, it turns dense,
+              rigorous material into genuine understanding — adaptive practice,
+              first-principles explanations, and a plan that scales from your
+              first concept to true mastery.
             </p>
             <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               <Button asChild size="lg" className="gap-2">
