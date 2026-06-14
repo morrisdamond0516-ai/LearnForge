@@ -116,8 +116,8 @@ export default function Landing() {
               <span className="text-foreground/70">AI-powered test prep for students</span>
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Forge the skills that get you
-              <span className="block text-primary">hired, certified, and ahead.</span>
+              Forge the skills to ace the exam, graduate,
+              <span className="block text-primary">get hired, and stay ahead.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
               LearnForge turns any subject, college course, document, or career
