@@ -5,10 +5,17 @@ import { stripeService } from "../lib/stripeService";
 
 const router: IRouter = Router();
 
-const PLAN_KEYS = ["pro_monthly", "pro_annual"] as const;
+const PLAN_KEYS = [
+  "pro_monthly",
+  "pro_annual",
+  "junior_monthly",
+  "junior_annual",
+] as const;
 type PlanKey = (typeof PLAN_KEYS)[number];
 
-// Adults get 6 months free before the first charge (matches the pricing page).
+// Adults (Pro plans) get 6 months free before the first charge (matches the
+// pricing page). Under-18 Junior plans get NO Stripe trial here because those
+// learners already had their 9 free months before reaching checkout.
 const TRIAL_DAYS = 180;
 
 /** Public origin of the incoming request, for building redirect URLs. */
@@ -79,10 +86,12 @@ router.post("/stripe/checkout", async (req, res) => {
     const customerId = await ensureCustomerId(userId, email);
     const origin = appOrigin(req);
 
+    const trialDays = plan.startsWith("pro_") ? TRIAL_DAYS : undefined;
+
     const session = await stripeService.createCheckoutSession({
       customerId,
       priceId,
-      trialDays: TRIAL_DAYS,
+      trialDays,
       successUrl: `${origin}/?checkout=success`,
       cancelUrl: `${origin}/pricing?checkout=cancelled`,
     });

@@ -17,7 +17,11 @@ import { AltPayments } from "@/components/alt-payments";
 import { SchoolPurchase } from "@/components/school-purchase";
 import { SiteFooter } from "@/components/site-footer";
 
-type PlanKey = "pro_monthly" | "pro_annual";
+type PlanKey =
+  | "pro_monthly"
+  | "pro_annual"
+  | "junior_monthly"
+  | "junior_annual";
 
 type Plan = {
   name: string;
@@ -55,20 +59,41 @@ async function postJson<T>(url: string, body?: unknown): Promise<T> {
 
 const plans: Plan[] = [
   {
-    name: "Students",
+    name: "Junior Monthly",
     audience: "Ages 0-18",
-    price: "$0",
-    period: "free forever",
-    note: "No credit card. No trial clock. Free for every learner under 18.",
-    cta: "Start free",
+    price: "$3",
+    period: "per month",
+    note: "9 months free first. After that, just $3/month to keep going — cancel anytime.",
+    cta: "Start 9 months free",
     ctaHref: "/sign-up",
+    planKey: "junior_monthly",
     features: [
+      "9 months completely free to start",
       "Unlimited AI quizzes & full-length exams",
       "AI study guides for any topic",
       "Tailored curriculum & learning plans",
       "College / trade pathway recommendations",
       "AI mock interviews with feedback",
+    ],
+  },
+  {
+    name: "Junior Annual",
+    audience: "Ages 0-18",
+    price: "$30",
+    period: "per year",
+    note: "9 months free first, then $30/year — just $2.50/month. The best deal for students.",
+    cta: "Start 9 months free",
+    ctaHref: "/sign-up",
+    planKey: "junior_annual",
+    highlight: true,
+    badge: "Best for students",
+    features: [
+      "Everything in Junior Monthly",
+      "Just $2.50/month, billed yearly",
+      "9 months free before any charge",
       "Upload your own PDFs & notes",
+      "Earn LearnForge certificates",
+      "Cancel anytime",
     ],
   },
   {
@@ -81,7 +106,7 @@ const plans: Plan[] = [
     ctaHref: "/sign-up",
     planKey: "pro_monthly",
     features: [
-      "Everything in Students, with no age limit",
+      "Everything in Junior, with no age limit",
       "Unlimited AI quizzes & full-length exams",
       "Unlimited study guides & curricula",
       "Career & certification exam prep",
@@ -98,7 +123,6 @@ const plans: Plan[] = [
     cta: "Start 6 months free",
     ctaHref: "/sign-up",
     planKey: "pro_annual",
-    highlight: true,
     badge: "Best value",
     features: [
       "Everything in Pro Monthly",
@@ -262,13 +286,13 @@ export default function Pricing() {
             <span className="text-foreground/70">Simple, fair pricing</span>
           </div>
           <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl">
-            Free for students.
-            <span className="block text-primary">A fair price for everyone else.</span>
+            Months free to start.
+            <span className="block text-primary">A fair price to keep going.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
-            LearnForge is free for every learner under 18. If you're 18 or older,
-            you get the full app free for 6 months — then keep going for less than
-            most study apps charge.
+            Learners under 18 get 9 months completely free, then just $3/month.
+            If you're 18 or older, you get the full app free for 6 months — then
+            keep going for less than most study apps charge.
           </p>
         </section>
 
@@ -280,10 +304,10 @@ export default function Pricing() {
                 <Users className="h-5 w-5" />
               </span>
               <div>
-                <h3 className="font-semibold text-card-foreground">Under 18? It's free.</h3>
+                <h3 className="font-semibold text-card-foreground">Under 18? 9 months free.</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Full access to every feature, free forever, with no credit card
-                  required.
+                  Full access to every feature, free for 9 months. After that,
+                  keep going for just $3/month (or $30/year).
                 </p>
               </div>
             </div>
@@ -304,7 +328,7 @@ export default function Pricing() {
 
         {/* Plans */}
         <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {plans.map((plan) => (
               <div
                 key={plan.name}
@@ -350,12 +374,18 @@ export default function Pricing() {
             <h3 className="font-semibold text-foreground">Subscription terms</h3>
             <p className="mt-2">
               Paid LearnForge plans are subscriptions that renew automatically.
-              After any free trial, Pro Monthly is billed $12.99 each month and
-              Pro Annual is billed $89.99 each year, using your payment method on
-              file, until you cancel. You can cancel anytime from Manage billing in
-              your account; cancelling stops future charges and your access
-              continues until the end of the current billing period. By
+              After your free period, Junior Monthly is billed $3 each month and
+              Junior Annual $30 each year (for learners under 18); Pro Monthly is
+              billed $12.99 each month and Pro Annual $89.99 each year, using your
+              payment method on file, until you cancel. You can cancel anytime from
+              Manage billing in your account; cancelling stops future charges and
+              your access continues until the end of the current billing period. By
               subscribing you authorize these recurring charges.
+            </p>
+            <p className="mt-2">
+              To keep your data private and secure, quiz and study activity is
+              retained for 90 days. Earned certificates are valid for 90 days from
+              the date you complete a certified exam.
             </p>
             <p className="mt-2">
               See our{" "}
@@ -387,7 +417,7 @@ export default function Pricing() {
               Most study and test-prep apps charge between $13 and $40 a month —
               and you often need several of them. LearnForge puts unlimited AI
               quizzes, full-length exams, study guides, curricula, career pathways,
-              and mock interviews under one plan, and it's free for anyone under 18.
+              and mock interviews under one plan — with 9 months free for anyone under 18.
             </p>
             <p className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-foreground">
               <ShieldCheck className="h-4 w-4 text-primary" />
@@ -404,12 +434,16 @@ export default function Pricing() {
           <div className="mt-8 space-y-4">
             {[
               {
-                q: "Is it really free for people under 18?",
-                a: "Yes. If you're 18 or younger, LearnForge is free forever with full access to every feature — no credit card required.",
+                q: "What do learners under 18 get?",
+                a: "If you're under 18, you get 9 months completely free with full access to every feature — no credit card required. After that, you can keep going on the Junior plan for just $3/month or $30/year.",
               },
               {
                 q: "What happens after my 6 free months as an adult?",
                 a: "Once your six free months end, you choose Pro Monthly or Pro Annual to keep your full access. You won't be charged during the free period, and you can cancel before it ends.",
+              },
+              {
+                q: "How long is my activity and certificates kept?",
+                a: "To keep your data private, your quiz and study activity is retained for 90 days. Certificates you earn on certified exams are valid for 90 days from the day you complete them.",
               },
               {
                 q: "Can I cancel anytime?",
@@ -438,8 +472,8 @@ export default function Pricing() {
               Start learning for free today.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-              Create your account and get full access — free under 18, and free for
-              six months for everyone else.
+              Create your account and get full access — 9 months free under 18, and
+              6 months free for everyone else.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Show when="signed-out">

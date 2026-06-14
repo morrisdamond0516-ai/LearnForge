@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 type Entitlement = {
   pro: boolean;
-  source: "stripe" | "code" | "none";
+  source: "owner" | "stripe" | "code" | "junior_trial" | "none";
   until: string | null;
 };
 

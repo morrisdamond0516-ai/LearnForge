@@ -42,6 +42,7 @@ import Privacy from "@/pages/privacy";
 import Refund from "@/pages/refund";
 import Contact from "@/pages/contact";
 import SchoolCodes from "@/pages/school-codes";
+import OwnerVerifications from "@/pages/owner-verifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -166,6 +167,7 @@ function AppShell() {
         <Route path="/documents" component={Documents} />
         <Route path="/help" component={Help} />
         <Route path="/school-codes" component={SchoolCodes} />
+        <Route path="/owner/verifications" component={OwnerVerifications} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />
       </Switch>

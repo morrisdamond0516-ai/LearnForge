@@ -1,9 +1,12 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle, Tag } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle, Tag, ShieldCheck } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { WelcomeTour } from "@/components/welcome-tour";
+import { OnboardingBirthdate } from "@/components/onboarding-birthdate";
+import { AgeVerification } from "@/components/age-verification";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/logo";
+import { useMe } from "@/hooks/use-me";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -36,6 +39,7 @@ function UserMenu() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { data: me } = useMe();
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -46,6 +50,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { name: "College/Trade", href: "/pathways", icon: Compass },
     { name: "Pricing", href: "/pricing", icon: Tag },
     { name: "Help", href: "/help", icon: HelpCircle },
+    ...(me?.isOwner
+      ? [{ name: "Verifications", href: "/owner/verifications", icon: ShieldCheck }]
+      : []),
   ];
 
   return (
@@ -94,11 +101,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
               Documents
             </Link>
           </div>
+          <AgeVerification />
           {children}
         </div>
       </main>
       <SiteFooter />
       <WelcomeTour />
+      <OnboardingBirthdate />
     </div>
   );
 }
