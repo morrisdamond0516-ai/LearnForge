@@ -113,20 +113,17 @@ export default function Landing() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              <span className="text-foreground/70">From the classroom to the cutting edge</span>
+              <span className="text-foreground/70">AI-powered test prep for students</span>
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Master anything —
-              <span className="block text-primary">from algebra to aerospace.</span>
+              Forge the skills that get you
+              <span className="block text-primary">hired, certified, and ahead.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              LearnForge goes as deep as the subject demands. Whether you're a
-              high-schooler wrestling with calculus, a college student deep in
-              organic chemistry or linear algebra, or a professional preparing
-              for engineering, aerospace, or certification exams, it turns dense,
-              rigorous material into genuine understanding — adaptive practice,
-              first-principles explanations, and a plan that scales from your
-              first concept to true mastery.
+              LearnForge turns any subject, college course, document, or career
+              goal into a realistic practice exam — the real test, at full length,
+              with fresh questions every time and an instant explanation for every
+              answer.
             </p>
             <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               <Button asChild size="lg" className="gap-2">
