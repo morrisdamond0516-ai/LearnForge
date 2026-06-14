@@ -113,19 +113,20 @@ export default function Landing() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              <span className="text-foreground/70">Learning for every age</span>
+              <span className="text-foreground/70">Learning for everyone</span>
             </div>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Learning built for every child —
-              <span className="block text-primary">and everyone who needs a hand.</span>
+              Anyone can learn anything —
+              <span className="block text-primary">when it finally makes sense.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-              LearnForge began with a simple belief: every child, at every age,
-              deserves a patient guide who meets them right where they are. That
-              same help is here for everyone — students, parents, career changers,
-              and lifelong learners alike. Bring any subject, document, or goal,
-              and we'll turn it into friendly practice, clear explanations, and a
-              plan that grows with you.
+              LearnForge is built on one belief: nobody is "bad at learning" —
+              they just haven't been met where they are yet. Whatever you're
+              facing — a subject that never clicked, a high-stakes exam, a career
+              change, or simply the urge to understand something new — we turn it
+              into patient practice, clear explanations, and a plan that grows
+              with you. No judgment, no gatekeeping. Just real help, whenever you
+              need it.
             </p>
             <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               <Button asChild size="lg" className="gap-2">
