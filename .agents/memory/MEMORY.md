@@ -14,3 +14,4 @@
 - [Object storage multi-user ACL](object-storage-multiuser-acl.md) — template object storage is open by default; adding auth needs immutable owner-claim + read enforcement + fail-closed on no-ACL.
 - [Preview blank in privacy browsers](preview-blank-privacy-browsers.md) — user "no color/blank/clicks do nothing" but server screenshots fine = client browser/cache (Norton blocks Vite HMR), not the app.
 - [Codegen rewrites "interview"->"iln"](codegen-substring-rewrite.md) — codegen blanket-replaces literal substring "interview" everywhere (paths/enums/names); never use it in generated artifacts.
+- [Authenticated file downloads](download-auth.md) — plain <a download> 401s on auth-gated endpoints; fetch+blob with credentials:include instead.

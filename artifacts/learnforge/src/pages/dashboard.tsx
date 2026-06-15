@@ -42,6 +42,31 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [pendingDelete, setPendingDelete] = useState<{ type: string; rawId: string; title: string } | null>(null);
   const [activityPage, setActivityPage] = useState(0);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  // Download results through the app's authenticated fetch (cookie-based) and
+  // save via a blob. A plain <a download> link does NOT carry the session, so
+  // the server rejected it with 401 — this fixes that.
+  const downloadResults = async (url: string, filename: string, key: string) => {
+    setDownloadingId(key);
+    try {
+      const res = await fetch(url, { credentials: "include" });
+      if (!res.ok) throw new Error("download failed");
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      toast({ title: "Could not download your results", variant: "destructive" });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
   const deleteAttempt = useDeleteAttempt();
   const deleteQuiz = useDeleteQuiz();
   const deleteLearnSession = useDeleteLearnSession();
@@ -202,10 +227,25 @@ export default function Dashboard() {
               <CardTitle>Recent Activity</CardTitle>
               <CardDescription>What you've been up to</CardDescription>
             </div>
-            <Button asChild variant="outline" size="sm" className="shrink-0">
-              <a href={`${basePath}/api/me/results/export`} download>
-                <Download className="mr-2 h-4 w-4" /> Download results
-              </a>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              disabled={downloadingId === "all"}
+              onClick={() =>
+                downloadResults(
+                  `${basePath}/api/me/results/export`,
+                  "learnforge-results.csv",
+                  "all",
+                )
+              }
+            >
+              {downloadingId === "all" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Download results
             </Button>
           </CardHeader>
           <CardContent>
@@ -268,6 +308,24 @@ export default function Dashboard() {
                         </Link>
                       ) : (
                         <div className="flex flex-1 items-start py-2 min-w-0">{inner}</div>
+                      )}
+                      {item.type === "attempt" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Download this result"
+                          disabled={downloadingId === item.id}
+                          onClick={() =>
+                            downloadResults(
+                              `${basePath}/api/me/results/${rawId}/export`,
+                              `learnforge-result-${rawId}.csv`,
+                              item.id,
+                            )
+                          }
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-primary"
+                        >
+                          {downloadingId === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                        </Button>
                       )}
                       <Button
                         variant="ghost"

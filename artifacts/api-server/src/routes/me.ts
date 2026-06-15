@@ -132,56 +132,106 @@ router.post("/me/birthdate", async (req, res) => {
   }
 });
 
-// Download my results: a CSV of scores, levels, and dates only. We never
+// Results downloads are a CSV of scores, levels, and dates ONLY. We never
 // export the questions, answer choices, or which option was selected.
+const RESULT_COLUMNS = {
+  title: quizzesTable.title,
+  score: attemptsTable.score,
+  level: attemptsTable.level,
+  correctCount: attemptsTable.correctCount,
+  totalQuestions: attemptsTable.totalQuestions,
+  completedAt: attemptsTable.completedAt,
+};
+
+type ResultRow = {
+  title: string | null;
+  score: number;
+  level: string;
+  correctCount: number;
+  totalQuestions: number;
+  completedAt: Date;
+};
+
+function csvEscape(v: string | number): string {
+  let s = String(v);
+  // Neutralize CSV formula injection: a cell beginning with one of these
+  // characters can be executed as a formula by spreadsheet software.
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function resultsToCsv(rows: ResultRow[]): string {
+  const header = ["Test", "Score (%)", "Level", "Correct", "Total", "Date"];
+  const lines = [header.join(",")];
+  for (const r of rows) {
+    lines.push(
+      [
+        csvEscape(r.title ?? "Quiz"),
+        csvEscape(Math.round(r.score)),
+        csvEscape(r.level),
+        csvEscape(r.correctCount),
+        csvEscape(r.totalQuestions),
+        csvEscape(new Date(r.completedAt).toISOString().slice(0, 10)),
+      ].join(","),
+    );
+  }
+  return lines.join("\r\n");
+}
+
+// Download ALL of my results as one CSV.
 router.get("/me/results/export", async (req, res) => {
   const userId = req.userId!;
   try {
     const rows = await db
-      .select({
-        title: quizzesTable.title,
-        score: attemptsTable.score,
-        level: attemptsTable.level,
-        correctCount: attemptsTable.correctCount,
-        totalQuestions: attemptsTable.totalQuestions,
-        completedAt: attemptsTable.completedAt,
-      })
+      .select(RESULT_COLUMNS)
       .from(attemptsTable)
       .leftJoin(quizzesTable, eq(attemptsTable.quizId, quizzesTable.id))
       .where(eq(attemptsTable.userId, userId))
       .orderBy(desc(attemptsTable.completedAt));
-
-    const esc = (v: string | number): string => {
-      let s = String(v);
-      // Neutralize CSV formula injection: a cell beginning with one of these
-      // characters can be executed as a formula by spreadsheet software.
-      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
-      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
-    const header = ["Test", "Score (%)", "Level", "Correct", "Total", "Date"];
-    const lines = [header.join(",")];
-    for (const r of rows) {
-      lines.push(
-        [
-          esc(r.title ?? "Quiz"),
-          esc(Math.round(r.score)),
-          esc(r.level),
-          esc(r.correctCount),
-          esc(r.totalQuestions),
-          esc(new Date(r.completedAt).toISOString().slice(0, 10)),
-        ].join(","),
-      );
-    }
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader(
       "Content-Disposition",
       'attachment; filename="learnforge-results.csv"',
     );
-    res.send(lines.join("\r\n"));
+    res.send(resultsToCsv(rows));
   } catch (err) {
     req.log.error({ err }, "Failed to export results");
     res.status(500).json({ error: "Could not export your results" });
+  }
+});
+
+// Download a SINGLE activity's result (one attempt) as its own CSV.
+router.get("/me/results/:attemptId/export", async (req, res) => {
+  const userId = req.userId!;
+  const attemptId = Number(req.params.attemptId);
+  if (!Number.isInteger(attemptId)) {
+    res.status(400).json({ error: "Invalid result id" });
+    return;
+  }
+  try {
+    const rows = await db
+      .select(RESULT_COLUMNS)
+      .from(attemptsTable)
+      .leftJoin(quizzesTable, eq(attemptsTable.quizId, quizzesTable.id))
+      .where(
+        and(eq(attemptsTable.id, attemptId), eq(attemptsTable.userId, userId)),
+      );
+
+    if (rows.length === 0) {
+      res.status(404).json({ error: "Result not found" });
+      return;
+    }
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="learnforge-result-${attemptId}.csv"`,
+    );
+    res.send(resultsToCsv(rows));
+  } catch (err) {
+    req.log.error({ err }, "Failed to export single result");
+    res.status(500).json({ error: "Could not export this result" });
   }
 });
 
