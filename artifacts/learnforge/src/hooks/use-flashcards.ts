@@ -65,7 +65,9 @@ export function useGenerateDeck() {
       }
       return (await res.json()) as FlashcardDeck;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: DECKS_KEY }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: DECKS_KEY });
+    },
   });
 }
 
