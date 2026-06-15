@@ -86,6 +86,10 @@ app.post(
   },
 );
 
+// Snap-a-problem posts a base64 image data URL, which exceeds the default
+// 100kb JSON limit. Scope the larger parser to just that route so the global
+// default stays strict (smaller unauthenticated request-body attack surface).
+app.use("/api/snap/solve", express.json({ limit: "8mb" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

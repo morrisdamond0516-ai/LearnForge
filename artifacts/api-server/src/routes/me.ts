@@ -1,7 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { Readable } from "stream";
-import { db, usersTable, type User } from "@workspace/db";
-import { eq, and, isNull } from "drizzle-orm";
+import { db, usersTable, attemptsTable, quizzesTable, type User } from "@workspace/db";
+import { eq, and, isNull, desc } from "drizzle-orm";
 import { getClerkEmail } from "../lib/clerkUser";
 import { getEntitlement } from "../lib/entitlement";
 import { isOwnerEmail } from "../lib/ownership";
@@ -129,6 +129,59 @@ router.post("/me/birthdate", async (req, res) => {
   } catch (err) {
     req.log.error({ err }, "Failed to save birthdate");
     res.status(500).json({ error: "Could not save your date of birth" });
+  }
+});
+
+// Download my results: a CSV of scores, levels, and dates only. We never
+// export the questions, answer choices, or which option was selected.
+router.get("/me/results/export", async (req, res) => {
+  const userId = req.userId!;
+  try {
+    const rows = await db
+      .select({
+        title: quizzesTable.title,
+        score: attemptsTable.score,
+        level: attemptsTable.level,
+        correctCount: attemptsTable.correctCount,
+        totalQuestions: attemptsTable.totalQuestions,
+        completedAt: attemptsTable.completedAt,
+      })
+      .from(attemptsTable)
+      .leftJoin(quizzesTable, eq(attemptsTable.quizId, quizzesTable.id))
+      .where(eq(attemptsTable.userId, userId))
+      .orderBy(desc(attemptsTable.completedAt));
+
+    const esc = (v: string | number): string => {
+      let s = String(v);
+      // Neutralize CSV formula injection: a cell beginning with one of these
+      // characters can be executed as a formula by spreadsheet software.
+      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = ["Test", "Score (%)", "Level", "Correct", "Total", "Date"];
+    const lines = [header.join(",")];
+    for (const r of rows) {
+      lines.push(
+        [
+          esc(r.title ?? "Quiz"),
+          esc(Math.round(r.score)),
+          esc(r.level),
+          esc(r.correctCount),
+          esc(r.totalQuestions),
+          esc(new Date(r.completedAt).toISOString().slice(0, 10)),
+        ].join(","),
+      );
+    }
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="learnforge-results.csv"',
+    );
+    res.send(lines.join("\r\n"));
+  } catch (err) {
+    req.log.error({ err }, "Failed to export results");
+    res.status(500).json({ error: "Could not export your results" });
   }
 });
 

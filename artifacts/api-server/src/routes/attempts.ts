@@ -5,8 +5,11 @@ import {
   quizzesTable,
   attemptsTable,
   subjectsTable,
+  certificatesTable,
   type AttemptQuestionResult,
 } from "@workspace/db";
+import { EXAM_PASS_SCORE, CERT_VALID_DAYS } from "../lib/examCatalog";
+import { recordActivity } from "../lib/gamification";
 import {
   SubmitAttemptParams,
   SubmitAttemptBody,
@@ -84,6 +87,51 @@ router.post("/quizzes/:id/attempts", async (req, res): Promise<void> => {
       results,
     })
     .returning();
+
+  // Certified exam passed? Issue (or renew) a 90-day certificate. Best-effort:
+  // a failure here must never break recording the attempt itself.
+  if (quiz.examSlug && score >= EXAM_PASS_SCORE) {
+    try {
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + CERT_VALID_DAYS * 86400000);
+      await db
+        .insert(certificatesTable)
+        .values({
+          userId: req.userId!,
+          examSlug: quiz.examSlug,
+          examName: quiz.title,
+          attemptId: attempt.id,
+          score,
+          level,
+          expiresAt,
+        })
+        .onConflictDoUpdate({
+          target: [certificatesTable.userId, certificatesTable.examSlug],
+          set: {
+            examName: quiz.title,
+            attemptId: attempt.id,
+            score,
+            level,
+            issuedAt: now,
+            expiresAt,
+          },
+        });
+    } catch (err) {
+      req.log.error({ err }, "Certificate issuance failed");
+    }
+  }
+
+  // Award XP / update streak / grant badges. Best-effort: gamification must
+  // never block recording the attempt itself.
+  try {
+    await recordActivity(req.userId!, {
+      correctCount,
+      totalQuestions,
+      score,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Gamification update failed");
+  }
 
   let subjectName: string | null = null;
   if (quiz.subjectId != null) {

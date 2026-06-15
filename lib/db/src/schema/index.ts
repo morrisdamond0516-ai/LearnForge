@@ -28,3 +28,6 @@ export * from "./users";
 export * from "./accessCodes";
 export * from "./paypalPurchases";
 export * from "./bulkOrders";
+export * from "./certificates";
+export * from "./gamification";
+export * from "./flashcards";

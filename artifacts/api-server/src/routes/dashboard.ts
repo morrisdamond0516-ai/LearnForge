@@ -55,25 +55,25 @@ router.get("/dashboard/recent-activity", async (req, res): Promise<void> => {
       .from(attemptsTable)
       .where(eq(attemptsTable.userId, me))
       .orderBy(desc(attemptsTable.completedAt))
-      .limit(10),
+      .limit(60),
     db
       .select()
       .from(quizzesTable)
       .where(eq(quizzesTable.userId, me))
       .orderBy(desc(quizzesTable.createdAt))
-      .limit(10),
+      .limit(60),
     db
       .select()
       .from(documentsTable)
       .where(eq(documentsTable.userId, me))
       .orderBy(desc(documentsTable.createdAt))
-      .limit(10),
+      .limit(60),
     db
       .select()
       .from(learnSessionsTable)
       .where(eq(learnSessionsTable.userId, me))
       .orderBy(desc(learnSessionsTable.createdAt))
-      .limit(10),
+      .limit(60),
   ]);
 
   const quizById = new Map(quizzes.map((q) => [q.id, q]));
@@ -114,7 +114,7 @@ router.get("/dashboard/recent-activity", async (req, res): Promise<void> => {
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
 
-  res.json(GetRecentActivityResponse.parse(items.slice(0, 12)));
+  res.json(GetRecentActivityResponse.parse(items.slice(0, 60)));
 });
 
 router.get("/dashboard/subject-progress", async (req, res): Promise<void> => {

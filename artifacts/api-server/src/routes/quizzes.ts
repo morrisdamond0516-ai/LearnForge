@@ -22,6 +22,7 @@ import {
   validateLearningInput,
 } from "../lib/ai";
 import { extractDocumentText } from "../lib/documentText";
+import { getEntitlement } from "../lib/entitlement";
 
 // Quizzes can pull more source text than the career transcript path, so more of
 // the uploaded study material informs the questions.
@@ -41,6 +42,13 @@ async function subjectNameFor(
 }
 
 function toQuizResponse(quiz: Quiz, subjectName: string | null) {
+  // Certified-exam quizzes issue a real credential, so the answer key must
+  // never reach the client (it isn't used during the take — grading runs
+  // server-side against the stored quiz row, and post-submit explanations come
+  // from the attempt snapshot). Neutralize correctIndex/explanation for them.
+  const questions = quiz.examSlug
+    ? quiz.questions.map((q) => ({ ...q, correctIndex: -1, explanation: null }))
+    : quiz.questions;
   return {
     id: quiz.id,
     title: quiz.title,
@@ -53,7 +61,7 @@ function toQuizResponse(quiz: Quiz, subjectName: string | null) {
     difficulty: quiz.difficulty,
     questionCount: quiz.questionCount,
     createdAt: quiz.createdAt,
-    questions: quiz.questions,
+    questions,
   };
 }
 
@@ -275,6 +283,20 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
   if (!quiz) {
     res.status(404).json({ error: "Quiz not found" });
     return;
+  }
+
+  // Certified-exam quizzes are Pro-only on every take, not just at start, so a
+  // lapsed subscriber can't keep regenerating and re-earning a credential.
+  if (quiz.examSlug) {
+    const ent = await getEntitlement(req.userId!);
+    if (!ent.pro) {
+      res.status(403).json({
+        error:
+          "Certified exams are a Pro feature. Upgrade your plan to take them.",
+        code: "pro_required",
+      });
+      return;
+    }
   }
 
   for (const freeText of [quiz.career, quiz.topic]) {

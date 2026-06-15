@@ -1,6 +1,8 @@
 - [wouter Link anchors](wouter-link-anchors.md) — wouter v3 Link renders its own <a>; never nest <a> inside, put props on Link directly.
 - [Composite libs in monorepo](composite-libs.md) — libs in root tsconfig references must be composite:true or artifact typecheck fails.
 - [pdf-parse in Node server](pdf-parse-node.md) — use v1 via `pdf-parse/lib/pdf-parse.js`; root entry / v2 crash on DOMMatrix or debug file-read at startup.
+- [Generated image text](generated-image-text.md) — generateImage bakes unwanted titles/text into mascots/logos; instruct "no text" in the prompt and expect to regenerate.
+- [Quiz answer-key exposure](quiz-answer-key-exposure.md) — credential-issuing exams must strip correctIndex/explanation from the client payload; grading uses the DB row.
 - [Select touch scrolling](select-touch-scroll.md) — shared shadcn Select omits Radix scroll-up/down buttons so long dropdowns scroll natively on touch; don't re-add them.
 - [Clerk remount wipes state](clerk-remount-wipes-state.md) — Clerk dev flicker remounts the app shell + wipes useState; persist in-progress client-only flows to localStorage (lazy init).
 - [Drizzle partial-index upsert](drizzle-partial-index-upsert.md) — idempotent find-or-create: partial unique index + onConflictDoNothing; repeat the predicate via `where` (not `targetWhere`).

@@ -8,6 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import mascot from "@/assets/mascot.png";
 import {
   GraduationCap,
   BookOpen,
@@ -122,9 +123,17 @@ export function WelcomeTour() {
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Icon className="h-6 w-6" />
-          </div>
+          {step === 0 ? (
+            <img
+              src={mascot}
+              alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
+              className="mb-2 h-20 w-20 drop-shadow-sm"
+            />
+          ) : (
+            <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Icon className="h-6 w-6" />
+            </div>
+          )}
           <DialogTitle className="text-xl">{current.title}</DialogTitle>
           <DialogDescription className="text-base leading-relaxed text-foreground/80">
             {current.body}

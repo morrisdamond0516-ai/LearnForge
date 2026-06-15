@@ -22,13 +22,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Activity, BookOpen, GraduationCap, Upload, TrendingUp, Sparkles, BookType, ArrowRight, PlayCircle, HelpCircle, Trash2, Loader2 } from "lucide-react";
+import { Activity, BookOpen, GraduationCap, Upload, TrendingUp, Sparkles, BookType, ArrowRight, PlayCircle, HelpCircle, Trash2, Loader2, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { startTour } from "@/components/welcome-tour";
+import mascot from "@/assets/mascot.png";
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const ACTIVITY_PAGE_SIZE = 6;
 
 export default function Dashboard() {
   const { data: summary, isLoading: isLoadingSummary } = useGetDashboardSummary();
@@ -37,6 +41,7 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [pendingDelete, setPendingDelete] = useState<{ type: string; rawId: string; title: string } | null>(null);
+  const [activityPage, setActivityPage] = useState(0);
   const deleteAttempt = useDeleteAttempt();
   const deleteQuiz = useDeleteQuiz();
   const deleteLearnSession = useDeleteLearnSession();
@@ -67,12 +72,29 @@ export default function Dashboard() {
     else if (type === "document") deleteDocument.mutate({ id }, opts);
   };
 
+  const totalActivity = activity?.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalActivity / ACTIVITY_PAGE_SIZE));
+  const safePage = Math.min(activityPage, totalPages - 1);
+  const pagedActivity =
+    activity?.slice(
+      safePage * ACTIVITY_PAGE_SIZE,
+      safePage * ACTIVITY_PAGE_SIZE + ACTIVITY_PAGE_SIZE,
+    ) ?? [];
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
-          <p className="text-muted-foreground mt-1">Here is an overview of your learning journey.</p>
+        <div className="flex items-center gap-3">
+          <img
+            src={mascot}
+            alt=""
+            aria-hidden="true"
+            className="hidden h-14 w-14 shrink-0 drop-shadow-sm sm:block"
+          />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
+            <p className="text-muted-foreground mt-1">Here is an overview of your learning journey.</p>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Button variant="outline" size="sm" onClick={startTour}>
@@ -175,9 +197,16 @@ export default function Dashboard() {
         </Card>
 
         <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>What you've been up to</CardDescription>
+          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+            <div>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>What you've been up to</CardDescription>
+            </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <a href={`${basePath}/api/me/results/export`} download>
+                <Download className="mr-2 h-4 w-4" /> Download results
+              </a>
+            </Button>
           </CardHeader>
           <CardContent>
             {isLoadingActivity ? (
@@ -188,7 +217,7 @@ export default function Dashboard() {
               </div>
             ) : activity?.length ? (
               <div className="space-y-2">
-                {activity.map((item) => {
+                {pagedActivity.map((item) => {
                   const rawId = item.id.slice(item.id.indexOf("-") + 1);
                   const href =
                     item.type === "attempt" ? `/attempts/${rawId}` :
@@ -253,6 +282,35 @@ export default function Dashboard() {
                     </div>
                   );
                 })}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={safePage === 0}
+                      onClick={() => setActivityPage((p) => Math.max(0, p - 1))}
+                    >
+                      <ChevronLeft className="mr-1 h-4 w-4" /> Previous
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      Page {safePage + 1} of {totalPages}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={safePage >= totalPages - 1}
+                      onClick={() => setActivityPage((p) => Math.min(totalPages - 1, p + 1))}
+                    >
+                      Next <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                <p className="pt-3 text-xs text-muted-foreground">
+                  Activity is automatically cleared after 90 days to keep things
+                  fast. Saved items (subjects, study guides, curricula, and
+                  career plans) stay until you delete them. Download your results
+                  anytime with the button above.
+                </p>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">

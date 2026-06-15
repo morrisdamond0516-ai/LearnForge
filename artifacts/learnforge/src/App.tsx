@@ -43,6 +43,13 @@ import Refund from "@/pages/refund";
 import Contact from "@/pages/contact";
 import SchoolCodes from "@/pages/school-codes";
 import OwnerVerifications from "@/pages/owner-verifications";
+import Exams from "@/pages/exams";
+import Certificates from "@/pages/certificates";
+import Certificate from "@/pages/certificate";
+import ProgressPage from "@/pages/progress";
+import Tutor from "@/pages/tutor";
+import Flashcards from "@/pages/flashcards";
+import Snap from "@/pages/snap";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -164,6 +171,13 @@ function AppShell() {
         <Route path="/pathways/:id" component={Pathway} />
         <Route path="/curriculum" component={Curriculum} />
         <Route path="/curriculum/:id" component={CurriculumDetail} />
+        <Route path="/exams" component={Exams} />
+        <Route path="/certificates" component={Certificates} />
+        <Route path="/certificates/:id" component={Certificate} />
+        <Route path="/progress" component={ProgressPage} />
+        <Route path="/tutor" component={Tutor} />
+        <Route path="/flashcards" component={Flashcards} />
+        <Route path="/snap" component={Snap} />
         <Route path="/documents" component={Documents} />
         <Route path="/help" component={Help} />
         <Route path="/school-codes" component={SchoolCodes} />

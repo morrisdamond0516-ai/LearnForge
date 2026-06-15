@@ -40,6 +40,7 @@ export const quizzesTable = pgTable("quizzes", {
   moduleIndex: integer("module_index"),
   topic: text("topic"),
   career: text("career"),
+  examSlug: text("exam_slug"),
   difficulty: text("difficulty").notNull().default("medium"),
   questionCount: integer("question_count").notNull().default(0),
   questions: jsonb("questions").$type<QuizQuestion[]>().notNull().default([]),

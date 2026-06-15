@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/logo";
+import mascot from "@/assets/mascot.png";
 
 const features = [
   {
@@ -152,6 +153,11 @@ export default function Landing() {
                 background:
                   "radial-gradient(60% 60% at 70% 20%, hsl(38 92% 50% / 0.18), transparent), radial-gradient(60% 60% at 20% 90%, hsl(224 85% 52% / 0.18), transparent)",
               }}
+            />
+            <img
+              src={mascot}
+              alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
+              className="pointer-events-none absolute -top-24 -right-2 z-10 h-28 w-28 drop-shadow-xl sm:-top-28 sm:h-32 sm:w-32"
             />
             <div className="rounded-2xl border border-card-border bg-card p-5 shadow-lg sm:p-6">
               <div className="flex items-center justify-between">

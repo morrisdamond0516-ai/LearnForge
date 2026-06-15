@@ -2,6 +2,7 @@ import { runMigrations } from "stripe-replit-sync";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { getStripeSync } from "./lib/stripeClient";
+import { startRetentionJob } from "./lib/retention";
 
 /**
  * Initialize the Stripe schema, managed webhook, and data sync on startup.
@@ -53,6 +54,9 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 await initStripe();
+
+// Daily sweep: purge learner activity (test attempts) older than 90 days.
+startRetentionJob();
 
 app.listen(port, (err) => {
   if (err) {

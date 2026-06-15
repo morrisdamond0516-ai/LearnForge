@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle, Tag, ShieldCheck } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, Library, FileText, Compass, BookMarked, LogOut, HelpCircle, Tag, ShieldCheck, Award, Trophy, MessageCircle, Layers, Camera } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
 import { WelcomeTour } from "@/components/welcome-tour";
 import { OnboardingBirthdate } from "@/components/onboarding-birthdate";
@@ -46,7 +46,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { name: "Subjects", href: "/subjects", icon: BookOpen },
     { name: "Education/Career Test", href: "/quizzes", icon: GraduationCap },
     { name: "Study Guides", href: "/learn", icon: Library },
+    { name: "AI Tutor", href: "/tutor", icon: MessageCircle },
+    { name: "Flashcards", href: "/flashcards", icon: Layers },
+    { name: "Snap a Problem", href: "/snap", icon: Camera },
     { name: "Curriculum", href: "/curriculum", icon: BookMarked },
+    { name: "Certified Exams", href: "/exams", icon: Award },
+    { name: "Progress", href: "/progress", icon: Trophy },
     { name: "College/Trade", href: "/pathways", icon: Compass },
     { name: "Pricing", href: "/pricing", icon: Tag },
     { name: "Help", href: "/help", icon: HelpCircle },
