@@ -247,7 +247,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </main>
       <SiteFooter />
-      <WelcomeTour />
+      {me && !me.needsBirthDate && <WelcomeTour />}
       <OnboardingBirthdate />
     </div>
   );
