@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Show } from "@clerk/react";
-import { Building2, Loader2, ArrowRight, Mail, Phone } from "lucide-react";
+import { Building2, Loader2, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -260,12 +260,6 @@ export function SchoolPurchase() {
                 <a href="mailto:ebookgames@yahoo.com?subject=LearnForge%20for%20schools">
                   <Mail className="h-4 w-4" />
                   ebookgames@yahoo.com
-                </a>
-              </Button>
-              <Button asChild variant="outline" className="shrink-0 gap-2">
-                <a href="tel:+17023790396">
-                  <Phone className="h-4 w-4" />
-                  702-379-0396
                 </a>
               </Button>
             </div>

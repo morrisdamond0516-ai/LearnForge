@@ -157,8 +157,8 @@ export default function SchoolCodes() {
             <p className="font-medium">{state.message}</p>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            If you were charged, contact us at ebookgames@yahoo.com or
-            702-379-0396 and we'll sort it out right away.
+            If you were charged, contact us at ebookgames@yahoo.com and we'll
+            sort it out right away.
           </p>
           <Button asChild variant="outline" className="mt-4 gap-2">
             <Link href="/pricing">

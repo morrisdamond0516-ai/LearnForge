@@ -148,8 +148,12 @@ export default function Privacy() {
           <a href={`mailto:${COMPANY.email}`} className="text-primary">
             {COMPANY.email}
           </a>
-          <br />
-          Phone: {COMPANY.phone}
+          {COMPANY.phone && (
+            <>
+              <br />
+              Phone: {COMPANY.phone}
+            </>
+          )}
         </p>
       </LegalSection>
     </LegalLayout>

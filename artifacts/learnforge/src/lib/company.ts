@@ -6,7 +6,9 @@ export const COMPANY = {
   // Your registered legal business name (the entity that owns your Stripe account).
   legalEntity: "[LEGAL ENTITY NAME]",
   email: "ebookgames@yahoo.com",
-  phone: "702-379-0396",
+  // Phone temporarily removed from the public site. Re-add the number here to
+  // make it reappear in the footer, contact page, and legal pages.
+  phone: "" as string,
   // Your business mailing address.
   address: "[BUSINESS MAILING ADDRESS]",
   // The U.S. state whose laws govern your Terms.

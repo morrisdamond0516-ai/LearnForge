@@ -41,8 +41,8 @@ export function SiteFooter() {
             Questions?{" "}
             <a href={`mailto:${COMPANY.email}`} className="text-primary">
               {COMPANY.email}
-            </a>{" "}
-            · {COMPANY.phone}
+            </a>
+            {COMPANY.phone && <> · {COMPANY.phone}</>}
           </p>
         </div>
       </div>
