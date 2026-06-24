@@ -18,6 +18,7 @@ import {
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 import NotFound from "@/pages/not-found";
 import { Layout } from "@/components/layout";
 import Landing from "@/pages/landing";
@@ -43,6 +44,7 @@ import Refund from "@/pages/refund";
 import Contact from "@/pages/contact";
 import SchoolCodes from "@/pages/school-codes";
 import OwnerVerifications from "@/pages/owner-verifications";
+import OwnerStats from "@/pages/owner-stats";
 import Exams from "@/pages/exams";
 import Certificates from "@/pages/certificates";
 import Certificate from "@/pages/certificate";
@@ -182,6 +184,7 @@ function AppShell() {
         <Route path="/help" component={Help} />
         <Route path="/school-codes" component={SchoolCodes} />
         <Route path="/owner/verifications" component={OwnerVerifications} />
+        <Route path="/owner/stats" component={OwnerStats} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />
       </Switch>
@@ -268,6 +271,7 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <ClerkQueryClientCacheInvalidator />
+        <AnalyticsTracker />
         <TooltipProvider>
           <Switch>
             <Route path="/sign-in/*?" component={SignInPage} />

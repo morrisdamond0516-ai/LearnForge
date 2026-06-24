@@ -19,6 +19,7 @@ import {
   Camera,
   ChevronDown,
   MoreHorizontal,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
@@ -189,6 +190,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 name: "Verifications",
                 href: "/owner/verifications",
                 icon: ShieldCheck,
+              },
+              {
+                name: "Site Stats",
+                href: "/owner/stats",
+                icon: BarChart3,
               },
             ]
           : []),

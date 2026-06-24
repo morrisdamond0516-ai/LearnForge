@@ -31,3 +31,4 @@ export * from "./bulkOrders";
 export * from "./certificates";
 export * from "./gamification";
 export * from "./flashcards";
+export * from "./analytics";

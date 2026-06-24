@@ -22,6 +22,7 @@ import stripeRouter from "./stripe";
 import schoolRouter from "./school";
 import accessCodesRouter from "./access-codes";
 import paypalRouter from "./paypal";
+import { analyticsPublicRouter, analyticsRouter } from "./analytics";
 
 const router: IRouter = Router();
 
@@ -30,6 +31,10 @@ router.use(healthRouter);
 // Storage self-guards its protected endpoints (upload + private objects);
 // public objects stay open.
 router.use(storageRouter);
+// Visitor tracking must accept anonymous (signed-out) traffic, so it lives in
+// the public section. It optionally tags the Clerk user id when a session
+// exists; the owner-only stats reader is mounted behind auth below.
+router.use(analyticsPublicRouter);
 
 // Everything below requires an authenticated user.
 router.use(requireAuth);
@@ -53,5 +58,6 @@ router.use(stripeRouter);
 router.use(schoolRouter);
 router.use(accessCodesRouter);
 router.use(paypalRouter);
+router.use(analyticsRouter);
 
 export default router;

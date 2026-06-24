@@ -1,4 +1,4 @@
-import { db, attemptsTable } from "@workspace/db";
+import { db, attemptsTable, analyticsEventsTable } from "@workspace/db";
 import { lt } from "drizzle-orm";
 import { logger } from "./logger";
 
@@ -9,6 +9,13 @@ import { logger } from "./logger";
  * touched — those stay until the learner deletes them.
  */
 export const RETENTION_DAYS = 90;
+
+/**
+ * How long raw site-analytics events are kept. The owner dashboard reports over
+ * windows up to 365 days, so keep a little over a year before pruning. This
+ * caps growth of the append-only `analytics_events` table.
+ */
+export const ANALYTICS_RETENTION_DAYS = 400;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -21,6 +28,18 @@ export async function purgeExpiredActivity(
     .delete(attemptsTable)
     .where(lt(attemptsTable.completedAt, cutoff))
     .returning({ id: attemptsTable.id });
+  return deleted.length;
+}
+
+/** Delete analytics events older than the analytics retention window. */
+export async function purgeExpiredAnalytics(
+  now: Date = new Date(),
+): Promise<number> {
+  const cutoff = new Date(now.getTime() - ANALYTICS_RETENTION_DAYS * DAY_MS);
+  const deleted = await db
+    .delete(analyticsEventsTable)
+    .where(lt(analyticsEventsTable.createdAt, cutoff))
+    .returning({ id: analyticsEventsTable.id });
   return deleted.length;
 }
 
@@ -43,6 +62,16 @@ export function startRetentionJob(): void {
         }
       })
       .catch((err) => logger.error({ err }, "Retention purge failed"));
+
+    purgeExpiredAnalytics()
+      .then((count) => {
+        if (count > 0) {
+          logger.info({ count }, "Retention: purged expired analytics");
+        }
+      })
+      .catch((err) =>
+        logger.error({ err }, "Retention analytics purge failed"),
+      );
   };
 
   run();
