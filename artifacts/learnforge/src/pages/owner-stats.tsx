@@ -9,7 +9,17 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { BarChart3, Users, UserCheck, Activity, Eye } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  UserCheck,
+  Activity,
+  Eye,
+  DollarSign,
+  CreditCard,
+  Repeat,
+  Ticket,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -19,9 +29,34 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
+type RecentPayment = {
+  source: "stripe" | "paypal";
+  who: string | null;
+  description: string;
+  amountCents: number;
+  currency: string;
+  date: string;
+};
+
+type Payments = {
+  stripeAvailable: boolean;
+  currency: string;
+  totalRevenueCents: number;
+  netRevenueCents: number;
+  refundedCents: number;
+  byMethod: { stripe: number; paypal: number };
+  paidOrders: number;
+  activeSubscriptions: number;
+  subscriptionsByPlan: { plan: string; count: number }[];
+  redeemedCodes: number;
+  bulkOrders: number;
+  recent: RecentPayment[];
+};
+
 type Summary = {
   days: number;
   since: string;
+  payments: Payments;
   totals: {
     pageviews: number;
     events: number;
@@ -49,10 +84,14 @@ function StatTile({
   icon,
   label,
   value,
+  isMoney,
+  currency,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number;
+  isMoney?: boolean;
+  currency?: string;
 }) {
   return (
     <Card>
@@ -62,7 +101,9 @@ function StatTile({
         </div>
         <div>
           <p className="text-2xl font-bold text-foreground">
-            {value.toLocaleString()}
+            {isMoney
+              ? formatMoney(Math.round(value * 100), currency ?? "usd")
+              : value.toLocaleString()}
           </p>
           <p className="text-sm text-muted-foreground">{label}</p>
         </div>
@@ -77,6 +118,27 @@ function prettyEvent(type: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function formatMoney(cents: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: (currency || "usd").toUpperCase(),
+    }).format(cents / 100);
+  } catch {
+    return `$${(cents / 100).toFixed(2)}`;
+  }
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -85,6 +147,156 @@ function timeAgo(iso: string): string {
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function prettyPlan(plan: string): string {
+  const map: Record<string, string> = {
+    pro_monthly: "Pro Monthly",
+    pro_annual: "Pro Annual",
+    junior_monthly: "Junior Monthly",
+    junior_annual: "Junior Annual",
+    school_semester: "School (Semester)",
+    school_year: "School (Year)",
+  };
+  return map[plan] ?? prettyEvent(plan);
+}
+
+function PaymentsSection({ payments: p }: { payments: Payments }) {
+  const hasMoney = p.totalRevenueCents > 0 || p.paidOrders > 0;
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatTile
+          icon={<DollarSign className="h-5 w-5" />}
+          label="Total revenue (all time)"
+          value={p.totalRevenueCents / 100}
+          isMoney
+          currency={p.currency}
+        />
+        <StatTile
+          icon={<CreditCard className="h-5 w-5" />}
+          label="Paid orders"
+          value={p.paidOrders}
+        />
+        <StatTile
+          icon={<Repeat className="h-5 w-5" />}
+          label="Active subscriptions"
+          value={p.activeSubscriptions}
+        />
+        <StatTile
+          icon={<Ticket className="h-5 w-5" />}
+          label="Codes redeemed"
+          value={p.redeemedCodes}
+        />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Payments — who paid & what for</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {!hasMoney ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No payments yet. When someone subscribes, buys school seats, or
+              pays via PayPal, it will show here.
+            </p>
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-lg border border-card-border p-3">
+                  <p className="text-xs text-muted-foreground">Card (Stripe)</p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {formatMoney(p.byMethod.stripe, p.currency)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-card-border p-3">
+                  <p className="text-xs text-muted-foreground">PayPal</p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {formatMoney(p.byMethod.paypal, p.currency)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-card-border p-3">
+                  <p className="text-xs text-muted-foreground">
+                    Net after refunds
+                  </p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {formatMoney(p.netRevenueCents, p.currency)}
+                  </p>
+                </div>
+              </div>
+
+              {p.subscriptionsByPlan.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Active subscriptions by plan
+                  </p>
+                  <ul className="space-y-1.5">
+                    {p.subscriptionsByPlan.map((s) => (
+                      <li
+                        key={s.plan}
+                        className="flex items-center justify-between gap-3 text-sm"
+                      >
+                        <span className="text-foreground">
+                          {prettyPlan(s.plan)}
+                        </span>
+                        <span className="font-semibold text-muted-foreground">
+                          {s.count.toLocaleString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {p.recent.length > 0 && (
+                <div>
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Recent payments
+                  </p>
+                  <ul className="divide-y divide-card-border">
+                    {p.recent.map((r, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center justify-between gap-3 py-2 text-sm"
+                      >
+                        <span className="flex min-w-0 flex-col">
+                          <span className="truncate font-medium text-foreground">
+                            {r.who ?? "Unknown buyer"}
+                          </span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {r.description} · {r.source === "paypal" ? "PayPal" : "Card"}
+                          </span>
+                        </span>
+                        <span className="flex shrink-0 flex-col items-end">
+                          <span className="font-semibold text-foreground">
+                            {formatMoney(r.amountCents, r.currency)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDate(r.date)}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
+
+          {(p.bulkOrders > 0 || !p.stripeAvailable) && (
+            <p className="text-xs text-muted-foreground">
+              {p.bulkOrders > 0
+                ? `${p.bulkOrders.toLocaleString()} school bulk order(s) included in card revenue. `
+                : ""}
+              {!p.stripeAvailable
+                ? "Stripe data is currently unavailable, so card totals may be incomplete."
+                : ""}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 export default function OwnerStats() {
@@ -187,6 +399,8 @@ export default function OwnerStats() {
               value={data.totals.events}
             />
           </div>
+
+          <PaymentsSection payments={data.payments} />
 
           <Card>
             <CardHeader>

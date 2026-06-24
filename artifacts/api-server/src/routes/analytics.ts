@@ -13,6 +13,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { isOwnerEmail } from "../lib/ownership";
+import { getPaymentsSummary } from "../lib/paymentsSummary";
 
 /**
  * Public, unauthenticated endpoint that records site activity. Mounted BEFORE
@@ -192,7 +193,12 @@ analyticsRouter.get(
         .orderBy(desc(analyticsEventsTable.createdAt))
         .limit(25);
 
+      // Payments are all-time (not windowed): the owner wants to know total
+      // money in and what each person bought, regardless of the traffic range.
+      const payments = await getPaymentsSummary();
+
       res.json({
+        payments,
         days,
         since: since.toISOString(),
         totals: {
