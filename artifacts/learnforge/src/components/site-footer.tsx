@@ -44,6 +44,18 @@ export function SiteFooter() {
             </a>
             {COMPANY.phone && <> · {COMPANY.phone}</>}
           </p>
+          <p className="mt-1">
+            LearnForge is a product of{" "}
+            <a
+              href="https://ebookgamez.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline"
+            >
+              EbookGamez.com
+            </a>{" "}
+            — your complete gaming, reading &amp; learning hub.
+          </p>
         </div>
       </div>
     </footer>

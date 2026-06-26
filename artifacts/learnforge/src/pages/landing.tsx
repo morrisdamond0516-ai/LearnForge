@@ -112,10 +112,22 @@ export default function Landing() {
         {/* Hero */}
         <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-24">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-accent" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/8 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span className="text-foreground/70">AI-powered test prep for students</span>
             </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              From the team behind{" "}
+              <a
+                href="https://ebookgamez.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary hover:underline"
+              >
+                EbookGamez.com
+              </a>{" "}
+              — your complete gaming, reading &amp; learning hub.
+            </p>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               Forge the skills to ace the exam, graduate,
               <span className="block text-primary">get hired, and stay ahead.</span>
