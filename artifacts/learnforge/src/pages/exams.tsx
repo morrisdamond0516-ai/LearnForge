@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Award,
@@ -29,6 +29,15 @@ export default function Exams() {
   const [startingSlug, setStartingSlug] = useState<string | null>(null);
 
   const pro = data?.pro ?? false;
+
+  // Track when a signed-in user hits the Pro paywall on this page.
+  useEffect(() => {
+    if (!isLoading && !pro && data !== undefined) {
+      import("@/lib/analytics").then(({ trackEvent }) => {
+        trackEvent("paywall_hit", "/exams", { feature: "certified_exams" });
+      });
+    }
+  }, [isLoading, pro, data]);
 
   function start(slug: string) {
     setStartingSlug(slug);

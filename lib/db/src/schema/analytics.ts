@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, index, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -25,6 +25,10 @@ export const analyticsEventsTable = pgTable(
     // Clerk user id when the visitor is signed in; null for anonymous traffic.
     userId: text("user_id"),
     referrer: text("referrer"),
+    // Arbitrary structured context for the event (e.g. error endpoint + status,
+    // paywall feature name, exit-survey reason). Kept shallow and bounded by the
+    // server before insert.
+    properties: jsonb("properties").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

@@ -25,6 +25,7 @@ import {
 import { useClerk, useUser } from "@clerk/react";
 import { WelcomeTour } from "@/components/welcome-tour";
 import { OnboardingBirthdate } from "@/components/onboarding-birthdate";
+import { ExitSurvey } from "@/components/exit-survey";
 import { AgeVerification } from "@/components/age-verification";
 import { SiteFooter } from "@/components/site-footer";
 import { Logo } from "@/components/logo";
@@ -255,6 +256,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <SiteFooter />
       {me && !me.needsBirthDate && <WelcomeTour />}
       <OnboardingBirthdate />
+      <ExitSurvey />
     </div>
   );
 }

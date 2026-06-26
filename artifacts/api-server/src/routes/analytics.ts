@@ -80,6 +80,33 @@ analyticsPublicRouter.post(
     const referrer = clampStr(body.referrer, 512);
     const userId = getAuth(req)?.userId ?? null;
 
+    // Accept a shallow properties object. Cap keys and values so arbitrary
+    // payloads can't inflate the DB; values are coerced to safe primitives.
+    let properties: Record<string, unknown> | null = null;
+    const rawProps = body.properties;
+    if (
+      rawProps !== null &&
+      typeof rawProps === "object" &&
+      !Array.isArray(rawProps)
+    ) {
+      const entries = Object.entries(rawProps as Record<string, unknown>).slice(
+        0,
+        10,
+      );
+      properties = Object.fromEntries(
+        entries
+          .filter(([k]) => typeof k === "string" && k.length <= 64)
+          .map(([k, v]) => [
+            k,
+            typeof v === "string"
+              ? v.slice(0, 300)
+              : typeof v === "number" || typeof v === "boolean"
+                ? v
+                : null,
+          ]),
+      );
+    }
+
     try {
       await db.insert(analyticsEventsTable).values({
         eventType: type,
@@ -87,6 +114,7 @@ analyticsPublicRouter.post(
         referrer: referrer ?? null,
         sessionId,
         userId,
+        ...(properties ? { properties } : {}),
       });
     } catch (err) {
       req.log.warn({ err }, "analytics track insert failed");
@@ -193,12 +221,99 @@ analyticsRouter.get(
         .orderBy(desc(analyticsEventsTable.createdAt))
         .limit(25);
 
+      // --- Issues: API errors + paywall hits in the selected window ---
+      const issueRows = await db
+        .select({
+          eventType: analyticsEventsTable.eventType,
+          path: analyticsEventsTable.path,
+          properties: analyticsEventsTable.properties,
+          createdAt: analyticsEventsTable.createdAt,
+        })
+        .from(analyticsEventsTable)
+        .where(
+          and(
+            inRange,
+            sql`${analyticsEventsTable.eventType} IN ('api_error','paywall_hit')`,
+          ),
+        )
+        .orderBy(desc(analyticsEventsTable.createdAt))
+        .limit(60);
+
+      // Roll up api_error by endpoint+status for the top-errors table.
+      const errorRollup = await db
+        .select({
+          endpoint: sql<string>`${analyticsEventsTable.properties}->>'endpoint'`,
+          status: sql<string>`${analyticsEventsTable.properties}->>'status'`,
+          count: count(),
+        })
+        .from(analyticsEventsTable)
+        .where(and(inRange, eq(analyticsEventsTable.eventType, "api_error")))
+        .groupBy(
+          sql`${analyticsEventsTable.properties}->>'endpoint'`,
+          sql`${analyticsEventsTable.properties}->>'status'`,
+        )
+        .orderBy(desc(count()))
+        .limit(20);
+
+      // --- Exit surveys in the selected window ---
+      const surveyRows = await db
+        .select({
+          path: analyticsEventsTable.path,
+          properties: analyticsEventsTable.properties,
+          createdAt: analyticsEventsTable.createdAt,
+        })
+        .from(analyticsEventsTable)
+        .where(
+          and(inRange, eq(analyticsEventsTable.eventType, "exit_survey")),
+        )
+        .orderBy(desc(analyticsEventsTable.createdAt))
+        .limit(100);
+
+      // Reason breakdown
+      const surveyReasons: Record<string, number> = {};
+      for (const row of surveyRows) {
+        const r = String(
+          (row.properties as Record<string, unknown> | null)?.reason ?? "",
+        );
+        if (r) surveyReasons[r] = (surveyReasons[r] ?? 0) + 1;
+      }
+
       // Payments are all-time (not windowed): the owner wants to know total
       // money in and what each person bought, regardless of the traffic range.
       const payments = await getPaymentsSummary();
 
       res.json({
         payments,
+        issues: {
+          recent: issueRows.map((r) => ({
+            eventType: r.eventType,
+            path: r.path,
+            properties: r.properties,
+            createdAt: r.createdAt.toISOString(),
+          })),
+          errorRollup: errorRollup.map((r) => ({
+            endpoint: r.endpoint ?? "(unknown)",
+            status: r.status ?? "?",
+            count: num(r.count),
+          })),
+          total: issueRows.length,
+        },
+        exitSurveys: {
+          total: surveyRows.length,
+          reasons: Object.entries(surveyReasons)
+            .sort((a, b) => b[1] - a[1])
+            .map(([reason, n]) => ({ reason, count: n })),
+          recent: surveyRows.slice(0, 30).map((r) => ({
+            path: r.path,
+            reason: String(
+              (r.properties as Record<string, unknown> | null)?.reason ?? "",
+            ),
+            details: String(
+              (r.properties as Record<string, unknown> | null)?.details ?? "",
+            ),
+            createdAt: r.createdAt.toISOString(),
+          })),
+        },
         days,
         since: since.toISOString(),
         totals: {

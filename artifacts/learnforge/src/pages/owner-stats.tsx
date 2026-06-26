@@ -19,6 +19,8 @@ import {
   CreditCard,
   Repeat,
   Ticket,
+  AlertTriangle,
+  MessageSquare,
 } from "lucide-react";
 import {
   Card,
@@ -53,10 +55,27 @@ type Payments = {
   recent: RecentPayment[];
 };
 
+type IssueEvent = {
+  eventType: string;
+  path: string | null;
+  properties: Record<string, unknown> | null;
+  createdAt: string;
+};
+
 type Summary = {
   days: number;
   since: string;
   payments: Payments;
+  issues: {
+    total: number;
+    errorRollup: { endpoint: string; status: string; count: number }[];
+    recent: IssueEvent[];
+  };
+  exitSurveys: {
+    total: number;
+    reasons: { reason: string; count: number }[];
+    recent: { path: string | null; reason: string; details: string; createdAt: string }[];
+  };
   totals: {
     pageviews: number;
     events: number;
@@ -299,6 +318,174 @@ function PaymentsSection({ payments: p }: { payments: Payments }) {
   );
 }
 
+function IssuesSection({
+  issues,
+}: {
+  issues: Summary["issues"];
+}) {
+  const isEmpty = issues.total === 0 && issues.errorRollup.length === 0;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          Issues & blockers
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isEmpty ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No errors or paywall blocks recorded in this window.
+          </p>
+        ) : (
+          <>
+            {issues.errorRollup.length > 0 && (
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">
+                  Top API errors (by endpoint + status)
+                </p>
+                <ul className="space-y-1.5">
+                  {issues.errorRollup.map((e, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center justify-between gap-3 text-sm"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span
+                          className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-mono font-semibold ${
+                            Number(e.status) >= 500
+                              ? "bg-red-100 text-red-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {e.status}
+                        </span>
+                        <span className="truncate font-mono text-xs text-muted-foreground">
+                          {e.endpoint}
+                        </span>
+                      </span>
+                      <span className="shrink-0 font-semibold text-foreground">
+                        {e.count.toLocaleString()}x
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {issues.recent.filter((r) => r.eventType === "paywall_hit").length >
+              0 && (
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">
+                  Paywall hits
+                </p>
+                <ul className="divide-y divide-card-border">
+                  {issues.recent
+                    .filter((r) => r.eventType === "paywall_hit")
+                    .slice(0, 10)
+                    .map((r, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center justify-between gap-3 py-2 text-sm"
+                      >
+                        <span className="flex min-w-0 flex-col">
+                          <span className="truncate font-mono text-xs text-foreground">
+                            {r.path ?? "(unknown page)"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {String(r.properties?.feature ?? "")}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {timeAgo(r.createdAt)}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ExitSurveysSection({
+  surveys,
+}: {
+  surveys: Summary["exitSurveys"];
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <MessageSquare className="h-4 w-4 text-primary" />
+          Exit survey responses
+          {surveys.total > 0 && (
+            <span className="ml-auto text-sm font-normal text-muted-foreground">
+              {surveys.total} response{surveys.total !== 1 ? "s" : ""}
+            </span>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {surveys.total === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No exit survey responses yet. The survey shows to visitors after
+            they've been on the site for 12+ seconds when they move to leave.
+          </p>
+        ) : (
+          <>
+            <div>
+              <p className="mb-2 text-sm font-medium text-foreground">
+                Reasons for leaving
+              </p>
+              <ul className="space-y-1.5">
+                {surveys.reasons.map((r) => (
+                  <li
+                    key={r.reason}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
+                    <span className="truncate text-foreground">{r.reason}</span>
+                    <span className="shrink-0 font-semibold text-muted-foreground">
+                      {r.count.toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {surveys.recent.some((r) => r.details) && (
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">
+                  What they said
+                </p>
+                <ul className="divide-y divide-card-border">
+                  {surveys.recent
+                    .filter((r) => r.details)
+                    .slice(0, 15)
+                    .map((r, i) => (
+                      <li key={i} className="py-2.5 text-sm">
+                        <p className="text-foreground italic">
+                          &ldquo;{r.details}&rdquo;
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {r.reason} &middot; {r.path ?? ""} &middot;{" "}
+                          {timeAgo(r.createdAt)}
+                        </p>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function OwnerStats() {
   const [days, setDays] = useState(30);
 
@@ -401,6 +588,10 @@ export default function OwnerStats() {
           </div>
 
           <PaymentsSection payments={data.payments} />
+
+          <IssuesSection issues={data.issues} />
+
+          <ExitSurveysSection surveys={data.exitSurveys} />
 
           <Card>
             <CardHeader>
