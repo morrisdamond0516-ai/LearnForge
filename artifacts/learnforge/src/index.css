@@ -213,8 +213,8 @@
 .app-header {
   background-image: linear-gradient(
     100deg,
-    hsl(28 45% 12%) 0%,
-    hsl(32 42% 16%) 48%,
-    hsl(36 50% 20%) 100%
+    hsl(226 57% 17%) 0%,
+    hsl(230 56% 25%) 52%,
+    hsl(224 72% 33%) 100%
   );
 }
