@@ -208,9 +208,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <header className="app-header sticky top-0 z-40 flex flex-col gap-2 px-4 py-3 shadow-lg sm:px-6 lg:flex-row lg:items-center lg:gap-6 lg:py-0 lg:h-16 lg:px-8">
-        <div className="flex shrink-0 items-center gap-2 font-bold text-xl text-white tracking-tight">
+        <div className="flex shrink-0 items-center gap-2 font-bold text-xl tracking-tight">
           <Logo className="h-8 w-auto text-white" />
-          <span>LearnForge</span>
+          <span>
+            <span className="text-white">Learn</span><span style={{ color: "hsl(38 90% 62%)" }}>Forge</span>
+          </span>
         </div>
 
         <nav
