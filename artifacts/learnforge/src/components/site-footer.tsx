@@ -50,7 +50,7 @@ export function SiteFooter() {
               href="https://ebookgamez.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-primary hover:underline"
+              className="font-semibold text-accent hover:underline"
             >
               EbookGamez.com
             </a>{" "}
