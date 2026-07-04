@@ -197,8 +197,8 @@
     @apply font-sans antialiased text-foreground;
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(1100px 620px at 102% -8%, hsl(38 80% 50% / 0.10), transparent 58%),
-      radial-gradient(1000px 640px at -6% -4%, hsl(38 60% 40% / 0.07), transparent 56%);
+      radial-gradient(1100px 620px at 102% -8%, hsl(38 92% 50% / 0.08), transparent 58%),
+      radial-gradient(1000px 640px at -6% -4%, hsl(224 85% 52% / 0.09), transparent 56%);
     background-attachment: fixed;
     background-repeat: no-repeat;
   }
@@ -206,8 +206,8 @@
 
 .dark body {
   background-image:
-    radial-gradient(1100px 620px at 102% -8%, hsl(38 75% 50% / 0.12), transparent 58%),
-    radial-gradient(1000px 640px at -6% -4%, hsl(32 50% 35% / 0.10), transparent 56%);
+    radial-gradient(1100px 620px at 102% -8%, hsl(38 92% 55% / 0.10), transparent 58%),
+    radial-gradient(1000px 640px at -6% -4%, hsl(224 85% 62% / 0.12), transparent 56%);
 }
 
 .app-header {
