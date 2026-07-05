@@ -198,7 +198,8 @@
     background-color: hsl(var(--background));
     background-image:
       radial-gradient(1100px 620px at 102% -8%, hsl(38 92% 50% / 0.08), transparent 58%),
-      radial-gradient(1000px 640px at -6% -4%, hsl(224 85% 52% / 0.09), transparent 56%);
+      radial-gradient(900px 600px at -6% -4%, hsl(28 45% 22% / 0.07), transparent 56%),
+      radial-gradient(800px 500px at 50% 110%, hsl(152 55% 38% / 0.05), transparent 60%);
     background-attachment: fixed;
     background-repeat: no-repeat;
   }
@@ -207,20 +208,76 @@
 .dark body {
   background-image:
     radial-gradient(1100px 620px at 102% -8%, hsl(38 92% 55% / 0.10), transparent 58%),
-    radial-gradient(1000px 640px at -6% -4%, hsl(224 85% 62% / 0.12), transparent 56%);
+    radial-gradient(900px 600px at -6% -4%, hsl(28 45% 30% / 0.09), transparent 56%),
+    radial-gradient(800px 500px at 50% 110%, hsl(152 55% 42% / 0.07), transparent 60%);
 }
 
+/* ── Gradient text utilities ─────────────────────────────────── */
+
+/* Brown → Emerald (middle) → Gold — main diagonal sweep */
 .gradient-text-diagonal {
   background: linear-gradient(
     135deg,
-    hsl(224 85% 52%) 0%,
-    hsl(270 70% 55%) 35%,
-    hsl(20 90% 55%) 65%,
+    hsl(28 45% 26%) 0%,
+    hsl(152 55% 36%) 50%,
     hsl(38 92% 50%) 100%
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Gold → Emerald (middle) → Brown — reversed sweep */
+.gradient-text-gold-green {
+  background: linear-gradient(
+    120deg,
+    hsl(38 92% 46%) 0%,
+    hsl(152 55% 36%) 50%,
+    hsl(28 45% 26%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gold → Emerald (middle) → Gold — symmetrical shimmer */
+.gradient-text-green-gold {
+  background: linear-gradient(
+    120deg,
+    hsl(38 92% 48%) 0%,
+    hsl(152 55% 34%) 50%,
+    hsl(38 85% 44%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Brown → Emerald (middle) → Gold — warm earth sweep, CTA */
+.gradient-text-earth {
+  background: linear-gradient(
+    110deg,
+    hsl(28 50% 24%) 0%,
+    hsl(152 50% 34%) 48%,
+    hsl(38 92% 50%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Icon container color variants ───────────────────────────── */
+.icon-bg-gold {
+  background: hsl(38 92% 50% / 0.12);
+  color: hsl(32 70% 32%);
+}
+.icon-bg-green {
+  background: hsl(152 55% 38% / 0.13);
+  color: hsl(152 55% 30%);
+}
+.icon-bg-brown {
+  background: hsl(28 45% 22% / 0.13);
+  color: hsl(28 45% 30%);
 }
 
 .app-header {

@@ -22,36 +22,42 @@ import mascot from "@/assets/mascot.png";
 const features = [
   {
     icon: Compass,
+    color: "gold",
     title: "Real job & certification exams",
     description:
       "Prep for the actual hiring, civil-service, and certification tests employers use — at full length, mirroring how the real exam is built.",
   },
   {
     icon: GraduationCap,
+    color: "green",
     title: "Custom quizzes & exams",
     description:
       "Generate placement, practice, or exam tests for any subject. Scored instantly with clear explanations for every answer.",
   },
   {
     icon: RefreshCw,
+    color: "brown",
     title: "Fresh questions every time",
     description:
       "Each attempt is newly generated, so you learn the material instead of memorizing a fixed answer key.",
   },
   {
     icon: BookMarked,
+    color: "green",
     title: "Tailored curriculum",
     description:
       "Turn any assessment into an ordered learning plan built from real books, videos, courses, and tools.",
   },
   {
     icon: Library,
+    color: "gold",
     title: "AI study guides",
     description:
       "Get a clear summary, the key points that matter, and concrete next steps for any topic you want to master.",
   },
   {
     icon: FileText,
+    color: "brown",
     title: "Your own materials",
     description:
       "Upload your PDFs, transcripts, and notes and turn them straight into quizzes and study sessions.",
@@ -61,18 +67,21 @@ const features = [
 const steps = [
   {
     icon: Target,
+    color: "gold",
     title: "Pick your goal",
     description:
       "Choose a subject, a career or certification, a free-form topic, or upload your own document.",
   },
   {
     icon: Sparkles,
+    color: "green",
     title: "Generate your exam",
     description:
       "Our AI builds a realistic test — auto-matched to the real exam's length — in seconds.",
   },
   {
     icon: CheckCircle2,
+    color: "brown",
     title: "Learn from every answer",
     description:
       "Get scored results, explanations, your assessed level, and a curriculum to close the gaps.",
@@ -165,7 +174,7 @@ export default function Landing() {
               className="absolute -inset-4 -z-10 rounded-3xl opacity-60 blur-2xl"
               style={{
                 background:
-                  "radial-gradient(60% 60% at 70% 20%, hsl(38 92% 50% / 0.18), transparent), radial-gradient(60% 60% at 20% 90%, hsl(224 85% 52% / 0.18), transparent)",
+                  "radial-gradient(60% 60% at 75% 15%, hsl(38 92% 50% / 0.20), transparent), radial-gradient(55% 55% at 15% 85%, hsl(152 55% 38% / 0.18), transparent), radial-gradient(40% 40% at 50% 50%, hsl(28 45% 22% / 0.10), transparent)",
               }}
             />
             <img
@@ -231,7 +240,7 @@ export default function Landing() {
         {/* Problem */}
         <section className="border-y border-border bg-card/40">
           <div className="mx-auto max-w-5xl px-4 py-14 text-center sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-gold-green">
               Studying shouldn't feel like guessing.
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
@@ -259,17 +268,17 @@ export default function Landing() {
         {/* How it works */}
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-green-gold">
               From "I should study" to ready — in minutes.
             </h2>
           </div>
           <div className="mt-12 grid gap-8 sm:grid-cols-3">
             {steps.map((step, i) => (
               <div key={step.title} className="relative text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl icon-bg-${step.color}`}>
                   <step.icon className="h-7 w-7" />
                 </div>
-                <p className="mt-2 text-xs font-bold uppercase tracking-wider text-primary">
+                <p className={`mt-2 text-xs font-bold uppercase tracking-wider ${step.color === "gold" ? "text-amber-600" : step.color === "green" ? "text-emerald-700" : "text-amber-900"}`}>
                   Step {i + 1}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-foreground">
@@ -336,7 +345,7 @@ export default function Landing() {
         {/* Feature grid */}
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-diagonal">
               Everything you need to prepare with confidence.
             </h2>
             <p className="mt-3 text-muted-foreground">
@@ -350,7 +359,7 @@ export default function Landing() {
                 key={feature.title}
                 className="rounded-xl border border-card-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div className={`flex h-11 w-11 items-center justify-center rounded-lg icon-bg-${feature.color}`}>
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-card-foreground">
@@ -367,7 +376,7 @@ export default function Landing() {
         {/* Final CTA */}
         <section className="mx-auto max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-card-border bg-card p-10 text-center shadow-lg sm:p-14">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl gradient-text-earth">
               Your next exam starts here.
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
