@@ -152,13 +152,13 @@ export default function Landing() {
               student right where they are.
             </p>
             <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-              <Button asChild size="lg" className="gap-2">
+              <Button asChild size="lg" className="gap-2 bg-[hsl(28_45%_18%)] text-white hover:bg-[hsl(28_45%_24%)] border-0">
                 <Link href="/sign-up">
                   Start free
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button asChild size="lg" variant="outline" className="border-foreground/30 text-foreground hover:bg-foreground/5">
                 <Link href="/sign-in">I already have an account</Link>
               </Button>
             </div>
@@ -384,13 +384,13 @@ export default function Landing() {
               exam in under a minute. Your progress stays private to you.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button asChild size="lg" className="gap-2">
+              <Button asChild size="lg" className="gap-2 bg-[hsl(28_45%_18%)] text-white hover:bg-[hsl(28_45%_24%)] border-0">
                 <Link href="/sign-up">
                   Create your free account
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button asChild size="lg" variant="outline" className="border-foreground/30 text-foreground hover:bg-foreground/5">
                 <Link href="/sign-in">Sign in</Link>
               </Button>
             </div>
