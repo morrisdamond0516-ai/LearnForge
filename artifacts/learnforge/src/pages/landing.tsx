@@ -134,7 +134,7 @@ export default function Landing() {
               <span className="text-accent">Forge the skills to ace the exam, graduate,</span>
               <span className="block text-primary">get hired, and stay ahead.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+            <p className="mt-6 max-w-xl text-lg font-medium gradient-text-diagonal">
               LearnForge turns any subject, college course, document, or career
               goal into a realistic practice exam — the real test, at full length,
               with fresh questions every time and an instant explanation for every
