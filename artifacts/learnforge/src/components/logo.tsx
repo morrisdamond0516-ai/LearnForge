@@ -30,12 +30,12 @@ export function Logo({ className }: { className?: string }) {
       {/* Tassel stem */}
       <path
         d="M40 13v12"
-        stroke="hsl(152 55% 48%)"
+        stroke="hsl(var(--accent))"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
       {/* Tassel ball */}
-      <circle cx="40" cy="27" r="2.4" fill="hsl(152 55% 48%)" />
+      <circle cx="40" cy="27" r="2.4" fill="hsl(var(--accent))" />
       {/* Sparkle */}
       <path
         d="M46 4l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"
