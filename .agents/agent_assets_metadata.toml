@@ -4,7 +4,7 @@ uploads = []
 id = "Q-TFiUH7EPq7ACMTVCUfZ"
 uri = "file://artifacts/learnforge/src/assets/mascot.png"
 type = "image"
-title = "learnforge owl mascot"
+title = "generated_image"
 
 [[outputs]]
 id = "12h8NihN8XIukVeFBTaN_"
