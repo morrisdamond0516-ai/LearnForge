@@ -287,7 +287,7 @@ export default function Pricing() {
           </div>
           <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl">
             Months free to start.
-            <span className="block text-primary">A fair price to keep going.</span>
+            <span className="block text-foreground">A fair price to keep going.</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
             Learners under 18 get 9 months completely free, then just $3/month.
