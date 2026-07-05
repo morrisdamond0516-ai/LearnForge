@@ -73,7 +73,7 @@
   --foreground: 222 20% 12%;
   --border: 220 14% 88%;
   --input: 220 14% 88%;
-  --ring: 224 85% 52%;
+  --ring: 266 65% 52%;
 
   --card: 0 0% 100%;
   --card-foreground: 222 20% 12%;
@@ -83,9 +83,9 @@
   --popover-foreground: 222 20% 12%;
   --popover-border: 220 14% 91%;
 
-  --primary: 224 85% 52%;
+  --primary: 266 65% 52%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: 224 85% 42%;
+  --primary-border: 266 65% 40%;
 
   --secondary: 220 14% 91%;
   --secondary-foreground: 222 20% 22%;
@@ -106,13 +106,13 @@
   --sidebar: 220 18% 97%;
   --sidebar-foreground: 222 20% 15%;
   --sidebar-border: 220 14% 88%;
-  --sidebar-primary: 224 85% 52%;
+  --sidebar-primary: 266 65% 52%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 220 16% 92%;
   --sidebar-accent-foreground: 222 20% 15%;
-  --sidebar-ring: 224 85% 52%;
+  --sidebar-ring: 266 65% 52%;
 
-  --chart-1: 224 85% 52%;
+  --chart-1: 266 65% 52%;
   --chart-2: 38 92% 50%;
   --chart-3: 160 80% 40%;
   --chart-4: 280 70% 58%;
@@ -139,7 +139,7 @@
   --foreground: 0 0% 95%;
   --border: 222 14% 20%;
   --input: 222 14% 20%;
-  --ring: 224 85% 62%;
+  --ring: 266 65% 65%;
 
   --card: 222 20% 9%;
   --card-foreground: 0 0% 95%;
@@ -149,9 +149,9 @@
   --popover-foreground: 0 0% 95%;
   --popover-border: 222 14% 16%;
 
-  --primary: 224 85% 62%;
+  --primary: 266 65% 65%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: 224 85% 52%;
+  --primary-border: 266 65% 52%;
 
   --secondary: 222 14% 16%;
   --secondary-foreground: 0 0% 95%;
@@ -172,13 +172,13 @@
   --sidebar: 222 20% 7%;
   --sidebar-foreground: 0 0% 95%;
   --sidebar-border: 222 14% 16%;
-  --sidebar-primary: 224 85% 62%;
+  --sidebar-primary: 266 65% 65%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 222 16% 13%;
   --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-ring: 224 85% 62%;
+  --sidebar-ring: 266 65% 65%;
 
-  --chart-1: 224 85% 62%;
+  --chart-1: 266 65% 65%;
   --chart-2: 38 92% 55%;
   --chart-3: 160 80% 50%;
   --chart-4: 280 70% 65%;
