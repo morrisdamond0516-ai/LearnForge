@@ -214,7 +214,7 @@ export default function Dashboard() {
               <div className="text-center py-8 text-muted-foreground">
                 <p>No subjects studied yet.</p>
                 <Link href="/subjects">
-                  <Button variant="link" className="mt-2 text-primary">Browse subjects <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                  <Button variant="link" className="mt-2 text-foreground">Browse subjects <ArrowRight className="ml-2 h-4 w-4" /></Button>
                 </Link>
               </div>
             )}

@@ -68,7 +68,7 @@ export default function Refund() {
       <LegalSection heading="7. How to request a refund">
         <p>
           Email us at{" "}
-          <a href={`mailto:${COMPANY.email}`} className="text-primary">
+          <a href={`mailto:${COMPANY.email}`} className="text-foreground underline">
             {COMPANY.email}
           </a>{" "}
           with the email address on your account, the date and amount of the
@@ -84,7 +84,7 @@ export default function Refund() {
           {COMPANY.address}
           <br />
           Email:{" "}
-          <a href={`mailto:${COMPANY.email}`} className="text-primary">
+          <a href={`mailto:${COMPANY.email}`} className="text-foreground underline">
             {COMPANY.email}
           </a>
           {COMPANY.phone && (

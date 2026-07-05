@@ -145,7 +145,7 @@ export default function Privacy() {
           {COMPANY.address}
           <br />
           Email:{" "}
-          <a href={`mailto:${COMPANY.email}`} className="text-primary">
+          <a href={`mailto:${COMPANY.email}`} className="text-foreground underline">
             {COMPANY.email}
           </a>
           {COMPANY.phone && (

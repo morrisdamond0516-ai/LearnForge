@@ -17,7 +17,7 @@ export default function Contact() {
           <h2 className="mt-3 font-semibold text-foreground">Email</h2>
           <a
             href={`mailto:${COMPANY.email}`}
-            className="mt-1 block break-words text-sm text-primary"
+            className="mt-1 block break-words text-sm text-foreground underline"
           >
             {COMPANY.email}
           </a>
@@ -28,7 +28,7 @@ export default function Contact() {
             <h2 className="mt-3 font-semibold text-foreground">Phone</h2>
             <a
               href={`tel:${COMPANY.phone.replace(/[^0-9+]/g, "")}`}
-              className="mt-1 block text-sm text-primary"
+              className="mt-1 block text-sm text-foreground underline"
             >
               {COMPANY.phone}
             </a>

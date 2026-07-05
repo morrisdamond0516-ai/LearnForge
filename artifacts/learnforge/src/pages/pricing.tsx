@@ -389,11 +389,11 @@ export default function Pricing() {
             </p>
             <p className="mt-2">
               See our{" "}
-              <Link href="/terms" className="font-medium text-primary">
+              <Link href="/terms" className="font-medium text-foreground underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/refund" className="font-medium text-primary">
+              <Link href="/refund" className="font-medium text-foreground underline">
                 Refunds &amp; Cancellation Policy
               </Link>
               .
