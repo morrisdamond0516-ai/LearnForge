@@ -141,7 +141,7 @@ export default function Landing() {
             </p>
             <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               <span className="text-accent">Forge the skills to ace the exam, graduate,</span>
-              <span className="block text-primary">get hired, and stay ahead.</span>
+              <span className="block text-foreground">get hired, and stay ahead.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg font-medium gradient-text-diagonal">
               LearnForge turns any subject, college course, document, or career
