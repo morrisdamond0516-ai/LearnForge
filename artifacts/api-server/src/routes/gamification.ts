@@ -5,6 +5,7 @@ import {
   BADGE_CATALOG,
   levelProgress,
   handleForUser,
+  recordGameActivity,
 } from "../lib/gamification";
 
 const router: IRouter = Router();
@@ -57,6 +58,32 @@ router.get("/gamification/me", async (req, res): Promise<void> => {
       earnedAt: earnedMap.get(b.key)?.toISOString() ?? null,
     })),
   });
+});
+
+/** Record a completed learning game and award XP / badges. */
+router.post("/gamification/game-complete", async (req, res): Promise<void> => {
+  const body = req.body as { gameId?: unknown; scorePct?: unknown };
+  const gameId = typeof body.gameId === "string" ? body.gameId.trim() : "";
+  if (!gameId) {
+    res.status(400).json({ error: "gameId is required." });
+    return;
+  }
+  const scorePct =
+    typeof body.scorePct === "number" && Number.isFinite(body.scorePct)
+      ? body.scorePct
+      : undefined;
+
+  try {
+    const result = await recordGameActivity(req.userId!, { gameId, scorePct });
+    res.json({
+      xpAwarded: result.xpAwarded,
+      newBadges: result.newBadges,
+      level: levelProgress(result.stats.xp).level,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Invalid game";
+    res.status(400).json({ error: message });
+  }
 });
 
 /** Update the user's daily activity goal. */

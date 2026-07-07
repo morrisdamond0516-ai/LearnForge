@@ -52,6 +52,7 @@ import ProgressPage from "@/pages/progress";
 import Tutor from "@/pages/tutor";
 import Flashcards from "@/pages/flashcards";
 import Snap from "@/pages/snap";
+import Games from "@/pages/games";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,14 +65,22 @@ const queryClient = new QueryClient({
 });
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
-// same build serves multiple Clerk custom domains.
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
+// same build serves multiple Clerk custom domains. On localhost, use the env key
+// directly — publishableKeyFromHost maps to clerk.localhost, which only works on Replit.
+const isLocalHost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+const clerkPubKey = isLocalHost
+  ? import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  : publishableKeyFromHost(
+      window.location.hostname,
+      import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
+    );
 
 // REQUIRED — copy verbatim. Empty in dev, auto-set in prod.
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+const clerkProxyUrl = isLocalHost
+  ? undefined
+  : import.meta.env.VITE_CLERK_PROXY_URL || undefined;
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -179,6 +188,7 @@ function AppShell() {
         <Route path="/progress" component={ProgressPage} />
         <Route path="/tutor" component={Tutor} />
         <Route path="/flashcards" component={Flashcards} />
+        <Route path="/games" component={Games} />
         <Route path="/snap" component={Snap} />
         <Route path="/documents" component={Documents} />
         <Route path="/help" component={Help} />

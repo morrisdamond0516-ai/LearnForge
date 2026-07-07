@@ -96,7 +96,7 @@ export default function Progress() {
           Your Progress
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Earn XP, keep your streak alive, and collect badges as you learn.
+          Earn XP from tests and learning games, keep your streak alive, and collect badges.
         </p>
       </div>
 
@@ -145,6 +145,7 @@ export default function Progress() {
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Completed today: {data.todayCount} of {data.dailyGoal}
+              <span className="hidden sm:inline"> (tests and games count)</span>
             </p>
             {data.goalMet && (
               <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600">

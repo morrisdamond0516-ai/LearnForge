@@ -48,7 +48,43 @@ export const BADGE_CATALOG: BadgeDef[] = [
   { key: "xp_500", name: "Rising Star", description: "Earn 500 XP." },
   { key: "xp_2000", name: "Scholar", description: "Earn 2000 XP." },
   { key: "xp_5000", name: "Mastermind", description: "Earn 5000 XP." },
+  { key: "first_game", name: "Player One", description: "Complete your first learning game." },
+  { key: "boss_slayer", name: "Boss Slayer", description: "Defeat all knowledge bosses." },
+  { key: "career_explorer", name: "Career Explorer", description: "Finish a Career Life Quest story." },
+  { key: "pro_sim", name: "Pro in Training", description: "Complete a Day One on the Job simulation." },
+  { key: "lab_hero", name: "Lab Hero", description: "Escape the science lab." },
+  { key: "showtime", name: "Showtime", description: "Clear a full Jeopardy Arena board." },
 ];
+
+const VALID_GAME_IDS = new Set([
+  "math-sprint",
+  "word-scramble",
+  "memory-match",
+  "career-sorter",
+  "science-trivia",
+  "geography-capitals",
+  "boss-battle",
+  "career-quest",
+  "lab-escape",
+  "jeopardy-arena",
+  "day-on-the-job",
+]);
+
+const FEATURED_GAMES = new Set([
+  "boss-battle",
+  "career-quest",
+  "lab-escape",
+  "jeopardy-arena",
+  "day-on-the-job",
+]);
+
+const GAME_BADGE_BY_ID: Record<string, string> = {
+  "boss-battle": "boss_slayer",
+  "career-quest": "career_explorer",
+  "day-on-the-job": "pro_sim",
+  "lab-escape": "lab_hero",
+  "jeopardy-arena": "showtime",
+};
 
 const BADGE_KEYS = new Set(BADGE_CATALOG.map((b) => b.key));
 
@@ -77,22 +113,34 @@ function xpForOutcome(o: ActivityOutcome): number {
   return base + perCorrect + perfect;
 }
 
-/**
- * Record a completed learning activity: award XP, update the daily streak and
- * daily-goal counter, and grant any newly-earned badges. Atomic per user via an
- * upsert; callers should treat failures as non-fatal.
- */
-export async function recordActivity(
+export interface GameOutcome {
+  gameId: string;
+  scorePct?: number;
+}
+
+function clampPct(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/** XP for a completed learning game. Featured adventures pay more. */
+function xpForGame(outcome: GameOutcome): number {
+  if (!VALID_GAME_IDS.has(outcome.gameId)) return 0;
+  const featured = FEATURED_GAMES.has(outcome.gameId);
+  const base = featured ? 45 : 15;
+  const pct = clampPct(outcome.scorePct ?? (featured ? 70 : 50));
+  const bonusMax = featured ? 25 : 10;
+  return base + Math.round((pct / 100) * bonusMax);
+}
+
+async function upsertUserActivity(
   userId: string,
-  outcome: ActivityOutcome,
-  now: Date = new Date(),
-): Promise<ActivityResult> {
+  xpAwarded: number,
+  now: Date,
+): Promise<UserStats> {
   const today = utcDay(now);
   const yesterday = utcDay(new Date(now.getTime() - 86400000));
-  const xpAwarded = xpForOutcome(outcome);
 
-  // Derive the new streak from the EXISTING row entirely in SQL so concurrent
-  // submissions can't lose updates (read-modify-write would race).
   const streakExpr = sql<number>`CASE
       WHEN ${userStatsTable.lastActivityDate} = ${today} THEN ${userStatsTable.currentStreak}
       WHEN ${userStatsTable.lastActivityDate} = ${yesterday} THEN ${userStatsTable.currentStreak} + 1
@@ -123,18 +171,13 @@ export async function recordActivity(
     })
     .returning();
 
-  // Evaluate badge criteria against the fresh, atomically-updated stats.
-  const earnedKeys = new Set<string>();
-  earnedKeys.add("first_quiz");
-  if (stats.currentStreak >= 3) earnedKeys.add("streak_3");
-  if (stats.currentStreak >= 7) earnedKeys.add("streak_7");
-  if (stats.currentStreak >= 30) earnedKeys.add("streak_30");
-  if (outcome.totalQuestions > 0 && outcome.score >= 100) earnedKeys.add("perfect");
-  if (stats.todayCount >= stats.dailyGoal) earnedKeys.add("goal_met");
-  if (stats.xp >= 500) earnedKeys.add("xp_500");
-  if (stats.xp >= 2000) earnedKeys.add("xp_2000");
-  if (stats.xp >= 5000) earnedKeys.add("xp_5000");
+  return stats;
+}
 
+async function grantBadgeKeys(
+  userId: string,
+  earnedKeys: Set<string>,
+): Promise<BadgeDef[]> {
   const newBadges: BadgeDef[] = [];
   for (const key of earnedKeys) {
     if (!BADGE_KEYS.has(key)) continue;
@@ -150,7 +193,75 @@ export async function recordActivity(
       if (def) newBadges.push(def);
     }
   }
+  return newBadges;
+}
 
+function quizBadgeKeys(
+  stats: UserStats,
+  outcome: ActivityOutcome,
+): Set<string> {
+  const earnedKeys = new Set<string>();
+  earnedKeys.add("first_quiz");
+  if (stats.currentStreak >= 3) earnedKeys.add("streak_3");
+  if (stats.currentStreak >= 7) earnedKeys.add("streak_7");
+  if (stats.currentStreak >= 30) earnedKeys.add("streak_30");
+  if (outcome.totalQuestions > 0 && outcome.score >= 100) earnedKeys.add("perfect");
+  if (stats.todayCount >= stats.dailyGoal) earnedKeys.add("goal_met");
+  if (stats.xp >= 500) earnedKeys.add("xp_500");
+  if (stats.xp >= 2000) earnedKeys.add("xp_2000");
+  if (stats.xp >= 5000) earnedKeys.add("xp_5000");
+  return earnedKeys;
+}
+
+function gameBadgeKeys(stats: UserStats, gameId: string): Set<string> {
+  const earnedKeys = new Set<string>();
+  earnedKeys.add("first_game");
+  const gameBadge = GAME_BADGE_BY_ID[gameId];
+  if (gameBadge) earnedKeys.add(gameBadge);
+  if (stats.currentStreak >= 3) earnedKeys.add("streak_3");
+  if (stats.currentStreak >= 7) earnedKeys.add("streak_7");
+  if (stats.currentStreak >= 30) earnedKeys.add("streak_30");
+  if (stats.todayCount >= stats.dailyGoal) earnedKeys.add("goal_met");
+  if (stats.xp >= 500) earnedKeys.add("xp_500");
+  if (stats.xp >= 2000) earnedKeys.add("xp_2000");
+  if (stats.xp >= 5000) earnedKeys.add("xp_5000");
+  return earnedKeys;
+}
+
+/**
+ * Record a completed learning activity: award XP, update the daily streak and
+ * daily-goal counter, and grant any newly-earned badges. Atomic per user via an
+ * upsert; callers should treat failures as non-fatal.
+ */
+export async function recordActivity(
+  userId: string,
+  outcome: ActivityOutcome,
+  now: Date = new Date(),
+): Promise<ActivityResult> {
+  const xpAwarded = xpForOutcome(outcome);
+  const stats = await upsertUserActivity(userId, xpAwarded, now);
+  const newBadges = await grantBadgeKeys(
+    userId,
+    quizBadgeKeys(stats, outcome),
+  );
+  return { stats, xpAwarded, newBadges };
+}
+
+/** Record a completed learning game: award XP, streak credit, and game badges. */
+export async function recordGameActivity(
+  userId: string,
+  outcome: GameOutcome,
+  now: Date = new Date(),
+): Promise<ActivityResult> {
+  if (!VALID_GAME_IDS.has(outcome.gameId)) {
+    throw new Error("Unknown game id");
+  }
+  const xpAwarded = xpForGame(outcome);
+  const stats = await upsertUserActivity(userId, xpAwarded, now);
+  const newBadges = await grantBadgeKeys(
+    userId,
+    gameBadgeKeys(stats, outcome.gameId),
+  );
   return { stats, xpAwarded, newBadges };
 }
 
