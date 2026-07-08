@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { BUILT_IN_GAMES, getGameById } from "@/lib/educational-games/catalog";
 import { BuiltInGamePlayer } from "@/components/games/built-in-games";
+import { NewsletterSignup } from "@/components/newsletter-signup";
 import type { AgeBand, BuiltInGameId, GameSubject } from "@/lib/educational-games/types";
 
 const AGE_LABELS: Record<AgeBand, string> = {
@@ -242,6 +243,8 @@ export default function GamesPage() {
           </p>
         ) : null}
       </section>
+
+      <NewsletterSignup source="learnforge-games" />
     </div>
   );
 }
