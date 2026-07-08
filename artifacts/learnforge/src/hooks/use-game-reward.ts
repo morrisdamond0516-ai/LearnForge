@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { GAMIFICATION_KEY } from "@/hooks/use-gamification";
-import type { BuiltInGameId } from "@/lib/educational-games/types";
 
 export type GameReward = {
   xpAwarded: number;
@@ -14,7 +13,7 @@ export type GameReward = {
  * cycle (resets when `completed` goes false, e.g. "Play again").
  */
 export function useGameReward(
-  gameId: BuiltInGameId,
+  gameId: string,
   completed: boolean,
   scorePct?: number,
 ) {

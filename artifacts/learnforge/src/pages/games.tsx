@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Link } from "wouter";
 import {
   Gamepad2,
-  ExternalLink,
   Clock,
   Users,
   Sparkles,
   Filter,
   Star,
+  Briefcase,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +19,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  BUILT_IN_GAMES,
-  EXTERNAL_FREE_RESOURCES,
-  getGameById,
-} from "@/lib/educational-games/catalog";
+import { BUILT_IN_GAMES, getGameById } from "@/lib/educational-games/catalog";
 import { BuiltInGamePlayer } from "@/components/games/built-in-games";
-import { ExternalGamesCarousel } from "@/components/games/external-games-carousel";
 import type { AgeBand, BuiltInGameId, GameSubject } from "@/lib/educational-games/types";
 
 const AGE_LABELS: Record<AgeBand, string> = {
@@ -64,15 +60,21 @@ export default function GamesPage() {
   });
 
   const featured = filtered.filter((g) => g.depth === "featured");
+  const careerGameIds = new Set([
+    "career-skills-lab",
+    "career-match-party",
+    "skills-missions",
+    "future-path-finder",
+    "career-quest",
+    "day-on-the-job",
+  ]);
+  const schoolGameIds = new Set(["education-skills-lab"]);
+  const careerFeatured = featured.filter((g) => careerGameIds.has(g.id));
+  const schoolFeatured = featured.filter((g) => schoolGameIds.has(g.id));
+  const otherFeatured = featured.filter(
+    (g) => !careerGameIds.has(g.id) && !schoolGameIds.has(g.id),
+  );
   const quick = filtered.filter((g) => g.depth === "quick");
-
-  const filteredExternal = EXTERNAL_FREE_RESOURCES.filter((r) => {
-    const ageOk =
-      ageFilter === "any" || r.ages.includes(ageFilter) || r.ages.includes("all");
-    const subjectOk =
-      subjectFilter === "any" || r.subjects.includes(subjectFilter);
-    return ageOk && subjectOk;
-  });
 
   return (
     <div className="space-y-10">
@@ -88,9 +90,11 @@ export default function GamesPage() {
             Educational Games
           </h1>
           <p className="max-w-2xl text-muted-foreground">
-            Story adventures, boss battles, job simulators, and escape rooms —
-            plus quick drills for math and vocabulary. Built for kids, students,
-            and career explorers. Finish a game to earn XP on your Progress page.
+            Start with <strong className="font-medium text-foreground">Quiz Show</strong>,{" "}
+            <strong className="font-medium text-foreground">Survival Run</strong>, or{" "}
+            <strong className="font-medium text-foreground">Career Cash</strong> for fast quiz-game energy — or dive into{" "}
+            <strong className="font-medium text-foreground">School Skills Lab</strong> (K–12, college & trade) and{" "}
+            <strong className="font-medium text-foreground">Career Skills Lab</strong>. Boss battles, job sims, and quick drills too. Everything plays here; finish a game to earn XP.
           </p>
         </div>
         <Button variant="outline" asChild>
@@ -145,56 +149,69 @@ export default function GamesPage() {
         </CardContent>
       </Card>
 
+      {schoolFeatured.length > 0 ? (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-emerald-600" />
+            <h2 className="text-xl font-semibold">School Skills Lab</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Pick your grade — kindergarten through grade 12, plus college and trade school. Match letters, solve algebra, sequence lab reports, practice academic writing, and tackle jobsite measurement math.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {schoolFeatured.map((game) => (
+              <GameCard
+                key={game.id}
+                game={game}
+                variant="school"
+                onPlay={() => setActiveGame(game.id)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {careerFeatured.length > 0 ? (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Career & future games</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Pick your career — practice the actual skills: type addresses like a postal worker, fix code like IT support, match wires like an electrician, calculate doses like pharmacy tech, and more.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {careerFeatured.map((game) => (
+              <GameCard
+                key={game.id}
+                game={game}
+                variant="career"
+                onPlay={() => setActiveGame(game.id)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <Star className="h-5 w-5 text-amber-600" />
           <h2 className="text-xl font-semibold">Featured adventures</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          Deeper games with stories, stakes, and progression — the kind that
-          hooks kids, students, and career explorers.
+          Deeper games with stories, stakes, and progression for all ages.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((game) => (
-            <Card
+          {otherFeatured.map((game) => (
+            <GameCard
               key={game.id}
-              className="flex flex-col border-amber-500/20 bg-gradient-to-br from-amber-50/50 to-transparent transition hover:border-amber-500/40 dark:from-amber-950/10"
-            >
-              <CardHeader>
-                <Badge className="mb-2 w-fit bg-amber-600 hover:bg-amber-600">
-                  {game.hook}
-                </Badge>
-                <CardTitle className="text-lg">{game.title}</CardTitle>
-                <CardDescription className="line-clamp-3">
-                  {game.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="mt-auto space-y-4">
-                <div className="flex flex-wrap gap-1.5">
-                  {game.subjects.map((s) => (
-                    <Badge key={s} variant="secondary">
-                      {SUBJECT_LABELS[s]}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {game.duration}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" />
-                    {game.ages.map((a) => AGE_LABELS[a]).join(", ")}
-                  </span>
-                </div>
-                <Button className="w-full" onClick={() => setActiveGame(game.id)}>
-                  Play adventure
-                </Button>
-              </CardContent>
-            </Card>
+              game={game}
+              variant="featured"
+              onPlay={() => setActiveGame(game.id)}
+            />
           ))}
         </div>
-        {featured.length === 0 ? (
+        {otherFeatured.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No featured games match those filters.
           </p>
@@ -211,39 +228,12 @@ export default function GamesPage() {
         </p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {quick.map((game) => (
-            <Card
+            <GameCard
               key={game.id}
-              className="flex flex-col transition hover:border-primary/40"
-            >
-              <CardHeader>
-                <CardTitle className="text-lg">{game.title}</CardTitle>
-                <CardDescription className="line-clamp-3">
-                  {game.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="mt-auto space-y-4">
-                <div className="flex flex-wrap gap-1.5">
-                  {game.subjects.map((s) => (
-                    <Badge key={s} variant="secondary">
-                      {SUBJECT_LABELS[s]}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {game.duration}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" />
-                    {game.ages.map((a) => AGE_LABELS[a]).join(", ")}
-                  </span>
-                </div>
-                <Button className="w-full" onClick={() => setActiveGame(game.id)}>
-                  Play now
-                </Button>
-              </CardContent>
-            </Card>
+              game={game}
+              variant="quick"
+              onPlay={() => setActiveGame(game.id)}
+            />
           ))}
         </div>
         {quick.length === 0 ? (
@@ -252,17 +242,72 @@ export default function GamesPage() {
           </p>
         ) : null}
       </section>
-
-      <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <ExternalLink className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold">More free games online</h2>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          External career sims and game libraries — click a card to open in a new tab.
-        </p>
-        <ExternalGamesCarousel resources={filteredExternal} />
-      </section>
     </div>
+  );
+}
+
+function GameCard({
+  game,
+  variant,
+  onPlay,
+}: {
+  game: (typeof BUILT_IN_GAMES)[number];
+  variant: "career" | "school" | "featured" | "quick";
+  onPlay: () => void;
+}) {
+  return (
+    <Card
+      className={`flex flex-col transition ${
+        variant === "career"
+          ? "border-primary/20 bg-gradient-to-br from-primary/5 to-transparent hover:border-primary/40"
+          : variant === "school"
+            ? "border-emerald-500/20 bg-gradient-to-br from-emerald-50/50 to-transparent hover:border-emerald-500/40 dark:from-emerald-950/10"
+            : variant === "featured"
+              ? "border-amber-500/20 bg-gradient-to-br from-amber-50/50 to-transparent hover:border-amber-500/40 dark:from-amber-950/10"
+              : "hover:border-primary/40"
+      }`}
+    >
+      <CardHeader>
+        {variant !== "quick" ? (
+          <Badge
+            className={`mb-2 w-fit ${
+              variant === "career"
+                ? "bg-primary hover:bg-primary"
+                : variant === "school"
+                  ? "bg-emerald-600 hover:bg-emerald-600"
+                  : "bg-amber-600 hover:bg-amber-600"
+            }`}
+          >
+            {game.hook}
+          </Badge>
+        ) : null}
+        <CardTitle className="text-lg">{game.title}</CardTitle>
+        <CardDescription className="line-clamp-3">
+          {game.description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="mt-auto space-y-4">
+        <div className="flex flex-wrap gap-1.5">
+          {game.subjects.map((s) => (
+            <Badge key={s} variant="secondary">
+              {SUBJECT_LABELS[s]}
+            </Badge>
+          ))}
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5" />
+            {game.duration}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" />
+            {game.ages.map((a) => AGE_LABELS[a]).join(", ")}
+          </span>
+        </div>
+        <Button className="w-full" onClick={onPlay}>
+          {variant === "quick" ? "Play now" : "Play adventure"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

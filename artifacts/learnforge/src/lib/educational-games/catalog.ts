@@ -1,6 +1,66 @@
-import type { BuiltInGame, ExternalResource } from "./types";
+import type { BuiltInGame } from "./types";
 
 export const BUILT_IN_GAMES: BuiltInGame[] = [
+  {
+    id: "education-skills-lab",
+    title: "School Skills Lab",
+    description:
+      "Hands-on games for every grade — kindergarten through grade 12, plus college and trade school. Letters, math, writing, science, algebra, research skills, and more.",
+    subjects: ["mixed", "math", "science", "vocabulary", "careers", "logic"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "3–10 min each",
+    skills: ["Grade-level skills", "School readiness", "Academic practice"],
+    depth: "featured",
+    hook: "K–12 + college + trade",
+  },
+  {
+    id: "career-skills-lab",
+    title: "Career Skills Lab",
+    description:
+      "Hands-on skill games for every career we support — type like an office pro, code like IT support, wire like an electrician, calculate like pharmacy tech, build PCs, and more.",
+    subjects: ["careers"],
+    ages: ["teens", "adults", "all"],
+    duration: "3–12 min each",
+    skills: ["Job-ready skills", "Career practice", "Certification prep"],
+    depth: "featured",
+    hook: "19 careers · real skills",
+  },
+  {
+    id: "career-match-party",
+    title: "Career Match Party",
+    description:
+      "Visit six themed rooms and pick activities you would enjoy. Discover your Holland RIASEC interest profile and matching careers.",
+    subjects: ["careers"],
+    ages: ["teens", "adults", "all"],
+    duration: "8–12 min",
+    skills: ["Self-awareness", "Career exploration", "Interest mapping"],
+    depth: "featured",
+    hook: "Find your career personality",
+  },
+  {
+    id: "skills-missions",
+    title: "Skills Mission Board",
+    description:
+      "Complete real-world mission scenarios in healthcare, technology, skilled trades, or business. Learn how pros think under pressure.",
+    subjects: ["careers"],
+    ages: ["teens", "adults", "all"],
+    duration: "10–15 min",
+    skills: ["Workplace judgment", "Professional skills", "Decision-making"],
+    depth: "featured",
+    hook: "Job missions that teach",
+  },
+  {
+    id: "future-path-finder",
+    title: "Future Path Finder",
+    description:
+      "Answer preference questions about school, work style, and goals. Get your top three career pathways with study suggestions.",
+    subjects: ["careers"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "6–10 min",
+    skills: ["Career planning", "Self-reflection", "Goal setting"],
+    depth: "featured",
+    hook: "Match interests to futures",
+  },
   {
     id: "boss-battle",
     title: "Knowledge Boss Battle",
@@ -17,7 +77,7 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     id: "career-quest",
     title: "Career Life Quest",
     description:
-      "A branching life story from high school to your first big opportunity. Every choice shapes your path — inspired by STEM Career Paths and narrative career games.",
+      "A branching life story from high school to your first big opportunity. Every choice shapes your path toward a future career.",
     subjects: ["careers"],
     ages: ["teens", "adults", "all"],
     duration: "10–15 min",
@@ -29,7 +89,7 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     id: "day-on-the-job",
     title: "Day One on the Job",
     description:
-      "Simulate a real first day as a nurse, developer, teacher, or electrician. Make professional decisions and see how ready you are — inspired by job simulators like Forage.",
+      "Simulate a real first day as a nurse, developer, teacher, or electrician. Make professional decisions and see how ready you are.",
     subjects: ["careers"],
     ages: ["teens", "adults", "all"],
     duration: "8–12 min",
@@ -53,13 +113,85 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     id: "jeopardy-arena",
     title: "Jeopardy Arena",
     description:
-      "Classic game-show board across Space, Careers, Math, and Kids Science. Pick dollar values, risk wrong answers, and chase a high score.",
+      "Game-show board across Space, Careers, Math, and Kids Science. Pick dollar values, risk wrong answers, and chase a high score.",
     subjects: ["mixed", "science", "math", "careers"],
     ages: ["kids", "teens", "adults", "all"],
     duration: "10–15 min",
     skills: ["Quick recall", "Strategy", "Friendly competition"],
     depth: "featured",
     hook: "Game show energy",
+  },
+  {
+    id: "quiz-show",
+    title: "Quiz Show",
+    description:
+      "Ten questions, fifteen seconds each. Faster correct answers earn more points. Beat your personal best — game-show energy without leaving LearnForge.",
+    subjects: ["mixed", "math", "science", "careers", "geography"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "3–5 min",
+    skills: ["Speed", "Recall", "Active learning"],
+    depth: "quick",
+    hook: "Kahoot-style solo",
+  },
+  {
+    id: "survival-run",
+    title: "Survival Run",
+    description:
+      "Three lives, twelve questions. Wrong answers cost a heart — arcade-style review with explanations after every round.",
+    subjects: ["mixed", "math", "science", "careers", "geography"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "4–6 min",
+    skills: ["Recall", "Resilience", "Learning from mistakes"],
+    depth: "quick",
+    hook: "3 lives arcade quiz",
+  },
+  {
+    id: "career-cash",
+    title: "Career Cash",
+    description:
+      "Earn coins on career and workplace questions. Spend on a 50/50 power-up — strategy layered on top of real career content.",
+    subjects: ["careers"],
+    ages: ["teens", "adults", "all"],
+    duration: "5–8 min",
+    skills: ["Career knowledge", "Decision-making", "Workplace readiness"],
+    depth: "quick",
+    hook: "Earn & spend coins",
+  },
+  {
+    id: "lightning-quiz",
+    title: "Lightning Quiz",
+    description:
+      "60-second blitz across math, science, geography, and careers. Streak bonuses reward speed and accuracy.",
+    subjects: ["mixed", "math", "science", "careers", "geography"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "1–2 min",
+    skills: ["Speed", "Recall", "Competition"],
+    depth: "quick",
+    hook: "Beat the clock",
+  },
+  {
+    id: "fact-or-fiction",
+    title: "Fact or Fiction",
+    description:
+      "Quick true-or-false rounds on science, careers, and the world. Instant explanations turn guesses into learning.",
+    subjects: ["mixed", "science", "careers"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "3–5 min",
+    skills: ["Critical thinking", "Science literacy", "Curiosity"],
+    depth: "quick",
+    hook: "True or false challenge",
+  },
+  {
+    id: "step-sorter",
+    title: "Step Sorter",
+    description:
+      "Reorder shuffled steps into the correct sequence — photosynthesis, the scientific method, job hunting, and more.",
+    subjects: ["science", "careers", "logic"],
+    ages: ["kids", "teens", "adults", "all"],
+    duration: "4–8 min",
+    skills: ["Process thinking", "Sequencing", "Career readiness"],
+    depth: "quick",
+    hook: "Put steps in order",
   },
   {
     id: "math-sprint",
@@ -132,81 +264,6 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     skills: ["Geography", "World knowledge", "Memory"],
     depth: "quick",
     hook: "World capitals quiz",
-  },
-];
-
-export const EXTERNAL_FREE_RESOURCES: ExternalResource[] = [
-  {
-    name: "STEM Career Paths (open source)",
-    url: "https://stemcareerpaths.org/",
-    description:
-      "Character-driven browser RPG: high school choices shape your STEM future. Play solo or in groups.",
-    subjects: ["careers", "science"],
-    ages: ["teens", "all"],
-    free: true,
-  },
-  {
-    name: "Maker Mojo (Skillionaire)",
-    url: "https://www.skillionairegames.com/makermojo",
-    description:
-      "Exoplanet adventure with welding, CAD, robotics, and real manufacturing career pathways. Great for middle and high school.",
-    subjects: ["careers", "science"],
-    ages: ["kids", "teens", "all"],
-    free: true,
-  },
-  {
-    name: "Forage Job Simulations",
-    url: "https://www.theforage.com/",
-    description:
-      "Free virtual internships from real employers — law, finance, software, healthcare, and more.",
-    subjects: ["careers"],
-    ages: ["teens", "adults", "all"],
-    free: true,
-  },
-  {
-    name: "ExploreYou Career Sims",
-    url: "https://exploreyou.ai/",
-    description:
-      "AI-powered career test-drives with realistic profession simulations and personalized roadmaps.",
-    subjects: ["careers"],
-    ages: ["teens", "adults", "all"],
-    free: true,
-  },
-  {
-    name: "Amni-Learn",
-    url: "https://amni-scient.com/amni-learn.html",
-    description:
-      "71 browser games from pre-K through college prep: writing, math, music, and brain training.",
-    subjects: ["math", "vocabulary", "science", "mixed"],
-    ages: ["kids", "teens", "adults", "all"],
-    free: true,
-  },
-  {
-    name: "Are We There Yet? (AWTY)",
-    url: "https://awty.app/",
-    description:
-      "Free instant-play games for ages 4–16: math minute, word wizard, memory, geography. No ads.",
-    subjects: ["math", "vocabulary", "geography", "logic"],
-    ages: ["kids", "teens", "all"],
-    free: true,
-  },
-  {
-    name: "Google Career Dreamer",
-    url: "https://grow.google/career-dreamer",
-    description:
-      "Playful AI career exploration that surfaces skills from your experience.",
-    subjects: ["careers"],
-    ages: ["teens", "adults", "all"],
-    free: true,
-  },
-  {
-    name: "ExoTrex (Science Adventure)",
-    url: "https://dig-itgames.com/portfolio/exotrex-game-science-space-grade8/",
-    description:
-      "Free STEM space adventure for grades 8–10: chemistry, planetary science, puzzles.",
-    subjects: ["science"],
-    ages: ["teens", "all"],
-    free: true,
   },
 ];
 

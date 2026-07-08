@@ -35,7 +35,23 @@ import {
   JeopardyArenaGame,
   LabEscapeGame,
 } from "@/components/games/deep-games";
-
+import {
+  CareerMatchPartyGame,
+  FuturePathFinderGame,
+  SkillsMissionGame,
+} from "@/components/games/career-games";
+import { CareerSkillsLab } from "@/components/games/career-skills-lab";
+import { EducationSkillsLab } from "@/components/games/education-skills-lab";
+import {
+  FactOrFictionGame,
+  LightningQuizGame,
+  StepSorterGame,
+} from "@/components/games/more-games";
+import {
+  CareerCashGame,
+  QuizShowGame,
+  SurvivalRunGame,
+} from "@/components/games/popular-games";
 import { GameShell } from "@/components/games/game-shell";
 import { GameRewardBanner } from "@/components/games/game-reward-banner";
 import { useGameReward } from "@/hooks/use-game-reward";
@@ -729,6 +745,28 @@ export function BuiltInGamePlayer({
       return <JeopardyArenaGame onBack={onBack} />;
     case "day-on-the-job":
       return <DayOnTheJobGame onBack={onBack} />;
+    case "career-match-party":
+      return <CareerMatchPartyGame onBack={onBack} />;
+    case "skills-missions":
+      return <SkillsMissionGame onBack={onBack} />;
+    case "future-path-finder":
+      return <FuturePathFinderGame onBack={onBack} />;
+    case "fact-or-fiction":
+      return <FactOrFictionGame onBack={onBack} />;
+    case "step-sorter":
+      return <StepSorterGame onBack={onBack} />;
+    case "lightning-quiz":
+      return <LightningQuizGame onBack={onBack} />;
+    case "quiz-show":
+      return <QuizShowGame onBack={onBack} />;
+    case "survival-run":
+      return <SurvivalRunGame onBack={onBack} />;
+    case "career-cash":
+      return <CareerCashGame onBack={onBack} />;
+    case "career-skills-lab":
+      return <CareerSkillsLab onBack={onBack} />;
+    case "education-skills-lab":
+      return <EducationSkillsLab onBack={onBack} />;
     default:
       return null;
   }

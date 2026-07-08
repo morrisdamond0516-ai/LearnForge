@@ -96,7 +96,7 @@ export function BossBattleGame({ onBack }: { onBack: () => void }) {
             setBossHp(100);
           }
         } else {
-          setQIdx((n) => n + 1);
+          setQIdx((n) => (n + 1) % questions.length);
         }
       } else {
         const newPlayerHp = Math.max(0, playerHp - 16);
@@ -147,7 +147,7 @@ export function BossBattleGame({ onBack }: { onBack: () => void }) {
   return (
     <GameShell
       title="Knowledge Boss Battle"
-      subtitle={`${boss.name} · Combo ×${combo}`}
+      subtitle={`${boss.name} · Question ${(qIdx % questions.length) + 1} · Combo ×${combo}`}
       onBack={onBack}
     >
       <motion.div animate={shake ? { x: [0, -8, 8, -4, 4, 0] } : {}}>
@@ -189,7 +189,10 @@ export function BossBattleGame({ onBack }: { onBack: () => void }) {
         <Card className="mt-4">
           <CardHeader>
             <CardTitle className="text-lg">{q.prompt}</CardTitle>
-            <CardDescription>Correct answers deal extra damage at high combo.</CardDescription>
+            <CardDescription>
+              Answer correctly to damage the boss. Wrong answers hurt you. Questions
+              cycle until the boss is defeated.
+            </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2">
             {q.options.map((opt, i) => {
@@ -213,7 +216,13 @@ export function BossBattleGame({ onBack }: { onBack: () => void }) {
             })}
           </CardContent>
         </Card>
-      ) : null}
+      ) : (
+        <Card className="mt-4">
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">
+            Loading the next question…
+          </CardContent>
+        </Card>
+      )}
     </GameShell>
   );
 }

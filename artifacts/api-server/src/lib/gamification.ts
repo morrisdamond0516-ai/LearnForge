@@ -54,7 +54,33 @@ export const BADGE_CATALOG: BadgeDef[] = [
   { key: "pro_sim", name: "Pro in Training", description: "Complete a Day One on the Job simulation." },
   { key: "lab_hero", name: "Lab Hero", description: "Escape the science lab." },
   { key: "showtime", name: "Showtime", description: "Clear a full Jeopardy Arena board." },
+  { key: "career_match", name: "Party Planner", description: "Complete Career Match Party." },
+  { key: "mission_ace", name: "Mission Ace", description: "Finish a Skills Mission track." },
+  { key: "path_finder", name: "Path Finder", description: "Complete Future Path Finder." },
+  { key: "fact_checker", name: "Fact Checker", description: "Finish a Fact or Fiction round." },
+  { key: "step_master", name: "Step Master", description: "Complete Step Sorter." },
+  { key: "lightning_brain", name: "Lightning Brain", description: "Finish a Lightning Quiz round." },
+  { key: "quiz_star", name: "Quiz Star", description: "Complete a Quiz Show round." },
+  { key: "survivor", name: "Survivor", description: "Clear Survival Run without losing all lives." },
+  { key: "career_tycoon", name: "Career Tycoon", description: "Finish a Career Cash round." },
+  { key: "skill_builder", name: "Skill Builder", description: "Complete a Career Skills Lab game." },
+  { key: "school_skills", name: "School Skills", description: "Complete a School Skills Lab game." },
 ];
+
+const CAREER_SKILL_PREFIX = "career-skill-";
+const EDU_SKILL_PREFIX = "edu-skill-";
+
+function isCareerSkillGame(gameId: string): boolean {
+  return gameId.startsWith(CAREER_SKILL_PREFIX) && gameId.length > CAREER_SKILL_PREFIX.length;
+}
+
+function isEduSkillGame(gameId: string): boolean {
+  return gameId.startsWith(EDU_SKILL_PREFIX) && gameId.length > EDU_SKILL_PREFIX.length;
+}
+
+function isSkillLabGame(gameId: string): boolean {
+  return isCareerSkillGame(gameId) || isEduSkillGame(gameId);
+}
 
 const VALID_GAME_IDS = new Set([
   "math-sprint",
@@ -68,14 +94,30 @@ const VALID_GAME_IDS = new Set([
   "lab-escape",
   "jeopardy-arena",
   "day-on-the-job",
+  "career-match-party",
+  "skills-missions",
+  "future-path-finder",
+  "fact-or-fiction",
+  "step-sorter",
+  "lightning-quiz",
+  "quiz-show",
+  "survival-run",
+  "career-cash",
+  "career-skills-lab",
+  "education-skills-lab",
 ]);
 
 const FEATURED_GAMES = new Set([
+  "education-skills-lab",
+  "career-skills-lab",
   "boss-battle",
   "career-quest",
   "lab-escape",
   "jeopardy-arena",
   "day-on-the-job",
+  "career-match-party",
+  "skills-missions",
+  "future-path-finder",
 ]);
 
 const GAME_BADGE_BY_ID: Record<string, string> = {
@@ -84,7 +126,19 @@ const GAME_BADGE_BY_ID: Record<string, string> = {
   "day-on-the-job": "pro_sim",
   "lab-escape": "lab_hero",
   "jeopardy-arena": "showtime",
+  "career-match-party": "career_match",
+  "skills-missions": "mission_ace",
+  "future-path-finder": "path_finder",
+  "fact-or-fiction": "fact_checker",
+  "step-sorter": "step_master",
+  "lightning-quiz": "lightning_brain",
+  "quiz-show": "quiz_star",
+  "career-cash": "career_tycoon",
 };
+
+function isValidGameId(gameId: string): boolean {
+  return VALID_GAME_IDS.has(gameId) || isSkillLabGame(gameId);
+}
 
 const BADGE_KEYS = new Set(BADGE_CATALOG.map((b) => b.key));
 
@@ -125,8 +179,9 @@ function clampPct(n: number): number {
 
 /** XP for a completed learning game. Featured adventures pay more. */
 function xpForGame(outcome: GameOutcome): number {
-  if (!VALID_GAME_IDS.has(outcome.gameId)) return 0;
-  const featured = FEATURED_GAMES.has(outcome.gameId);
+  if (!isValidGameId(outcome.gameId)) return 0;
+  const featured =
+    FEATURED_GAMES.has(outcome.gameId) || isSkillLabGame(outcome.gameId);
   const base = featured ? 45 : 15;
   const pct = clampPct(outcome.scorePct ?? (featured ? 70 : 50));
   const bonusMax = featured ? 25 : 10;
@@ -213,11 +268,20 @@ function quizBadgeKeys(
   return earnedKeys;
 }
 
-function gameBadgeKeys(stats: UserStats, gameId: string): Set<string> {
+function gameBadgeKeys(
+  stats: UserStats,
+  gameId: string,
+  scorePct?: number,
+): Set<string> {
   const earnedKeys = new Set<string>();
   earnedKeys.add("first_game");
   const gameBadge = GAME_BADGE_BY_ID[gameId];
   if (gameBadge) earnedKeys.add(gameBadge);
+  if (gameId === "survival-run" && (scorePct ?? 0) >= 100) {
+    earnedKeys.add("survivor");
+  }
+  if (isCareerSkillGame(gameId)) earnedKeys.add("skill_builder");
+  if (isEduSkillGame(gameId)) earnedKeys.add("school_skills");
   if (stats.currentStreak >= 3) earnedKeys.add("streak_3");
   if (stats.currentStreak >= 7) earnedKeys.add("streak_7");
   if (stats.currentStreak >= 30) earnedKeys.add("streak_30");
@@ -253,14 +317,14 @@ export async function recordGameActivity(
   outcome: GameOutcome,
   now: Date = new Date(),
 ): Promise<ActivityResult> {
-  if (!VALID_GAME_IDS.has(outcome.gameId)) {
+  if (!isValidGameId(outcome.gameId)) {
     throw new Error("Unknown game id");
   }
   const xpAwarded = xpForGame(outcome);
   const stats = await upsertUserActivity(userId, xpAwarded, now);
   const newBadges = await grantBadgeKeys(
     userId,
-    gameBadgeKeys(stats, outcome.gameId),
+    gameBadgeKeys(stats, outcome.gameId, outcome.scorePct),
   );
   return { stats, xpAwarded, newBadges };
 }
