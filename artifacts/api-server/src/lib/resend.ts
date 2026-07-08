@@ -22,7 +22,9 @@ export function getResendConfig(): ResendConfig | null {
     apiKey,
     from,
     audienceId: process.env.RESEND_AUDIENCE_ID?.trim() || undefined,
-    replyTo: process.env.RESEND_REPLY_TO?.trim() || undefined,
+    replyTo:
+      process.env.RESEND_REPLY_TO?.trim() ||
+      "ebookgames@yahoo.com",
     learnforgeUrl:
       process.env.PUBLIC_SITE_URL?.trim() ||
       process.env.LEARNFORGE_PUBLIC_URL?.trim() ||
@@ -99,6 +101,60 @@ export async function sendWelcomeEmail(
     to: [email],
     subject: "Welcome — free games & learning from LearnForge",
     html: welcomeEmailHtml(config),
+  };
+  if (config.replyTo) payload.reply_to = config.replyTo;
+
+  const result = await resendFetch(config, "/emails", payload);
+  if (!result.ok) {
+    const err =
+      typeof result.data === "object" &&
+      result.data &&
+      "message" in result.data &&
+      typeof (result.data as { message: unknown }).message === "string"
+        ? (result.data as { message: string }).message
+        : `Resend error (${result.status})`;
+    return { ok: false, error: err };
+  }
+  return { ok: true };
+}
+
+function ownerNotifyEmail(): string {
+  return (
+    process.env.OWNER_NOTIFY_EMAIL?.trim() ||
+    process.env.RESEND_REPLY_TO?.trim() ||
+    "ebookgames@yahoo.com"
+  );
+}
+
+function weeklyDigestHtml(config: ResendConfig): string {
+  const games = `${config.learnforgeUrl.replace(/\/$/, "")}/games`;
+  return `<!DOCTYPE html>
+<html>
+<body style="font-family:system-ui,sans-serif;line-height:1.5;color:#111;max-width:560px;margin:0 auto;padding:24px">
+  <h1 style="font-size:20px">LearnForge weekly picks (draft)</h1>
+  <p>Use this as a starting point for your Literary Club / Resend broadcast.</p>
+  <ul>
+    <li><strong>School Skills Lab</strong> — K–12, college &amp; trade school</li>
+    <li><strong>Career Skills Lab</strong> — 19 careers</li>
+    <li><strong>Quiz Show, Survival Run, Career Cash</strong></li>
+  </ul>
+  <p>
+    <a href="${games}">Play games</a> ·
+    <a href="${config.ebookgamezUrl}">EbookGamez</a>
+  </p>
+  <p style="font-size:13px;color:#555">Partnership outreach: send from Gmail and CC ebookgames@yahoo.com.</p>
+</body>
+</html>`;
+}
+
+export async function sendOwnerDigestEmail(
+  config: ResendConfig,
+): Promise<{ ok: boolean; error?: string }> {
+  const payload: Record<string, unknown> = {
+    from: config.from,
+    to: [ownerNotifyEmail()],
+    subject: "LearnForge weekly picks — games & learning updates",
+    html: weeklyDigestHtml(config),
   };
   if (config.replyTo) payload.reply_to = config.replyTo;
 
