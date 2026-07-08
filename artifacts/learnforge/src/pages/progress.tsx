@@ -24,6 +24,7 @@ import {
   useLeaderboard,
   useSetDailyGoal,
 } from "@/hooks/use-gamification";
+import { NewsletterSignup } from "@/components/newsletter-signup";
 
 function StatTile({
   icon,
@@ -266,6 +267,12 @@ export default function Progress() {
           </CardContent>
         </Card>
       </div>
+
+      <NewsletterSignup
+        source="learnforge-progress"
+        title="Weekly learning picks"
+        description="Get notified when we add new games, career labs, and study features. Free — powered by your EbookGamez Resend account."
+      />
     </div>
   );
 }

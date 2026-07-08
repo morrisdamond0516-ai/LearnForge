@@ -45,6 +45,7 @@ import Contact from "@/pages/contact";
 import SchoolCodes from "@/pages/school-codes";
 import OwnerVerifications from "@/pages/owner-verifications";
 import OwnerStats from "@/pages/owner-stats";
+import OwnerOutreach from "@/pages/owner-outreach";
 import Exams from "@/pages/exams";
 import Certificates from "@/pages/certificates";
 import Certificate from "@/pages/certificate";
@@ -195,6 +196,7 @@ function AppShell() {
         <Route path="/school-codes" component={SchoolCodes} />
         <Route path="/owner/verifications" component={OwnerVerifications} />
         <Route path="/owner/stats" component={OwnerStats} />
+        <Route path="/owner/outreach" component={OwnerOutreach} />
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />
       </Switch>

@@ -1,0 +1,46 @@
+---
+description: Partnership email defaults — Gmail draft-only, CC Yahoo, signature
+alwaysApply: true
+---
+
+# Outreach & email (LearnForge / EbookGamez)
+
+## Partnership mail (SCORE, SBDC, nonprofits)
+
+- **Never auto-send** partnership or mentorship emails without explicit user approval.
+- Default workflow: **create a Gmail draft** (via Gmail MCP when available), not send.
+- Always **CC `ebookgames@yahoo.com`** on partnership outreach.
+- Optional Reply-To: `ebookgames@yahoo.com`.
+
+## Signature block (use on all outreach)
+
+```
+Damond Morris
+702-379-0396
+ebookgames@yahoo.com
+```
+
+## Links in templates
+
+- LearnForge games: `{PUBLIC_SITE_URL}/games` (use live origin when drafting)
+- EbookGamez: `https://ebookgamez.com`
+
+## Channel split
+
+| Task | Tool |
+|------|------|
+| SCORE / SBDC / partner outreach | Gmail (draft → user sends) |
+| Subscriber welcome & digests | Resend (server) |
+| Replies & CC archive | Yahoo inbox |
+
+## Reference files
+
+- `docs/partnership-outreach-emails.md` — full templates
+- `docs/email-setup-guide.md` — Resend env + Gmail MCP setup
+- `artifacts/learnforge/src/pages/owner-outreach.tsx` — in-app copy hub
+
+## Constraints
+
+- No paid per-email APIs for games or bulk marketing beyond Resend free tier.
+- Do not recommend licensing Kahoot/Blooket; build similar mechanics in-app.
+- User sends partnership emails manually; AI drafts and copies only.

@@ -8,7 +8,7 @@ export const COMPANY = {
   email: "ebookgames@yahoo.com",
   // Phone temporarily removed from the public site. Re-add the number here to
   // make it reappear in the footer, contact page, and legal pages.
-  phone: "" as string,
+  phone: "702-379-0396",
   // Your business mailing address.
   address: "[BUSINESS MAILING ADDRESS]",
   // The U.S. state whose laws govern your Terms.

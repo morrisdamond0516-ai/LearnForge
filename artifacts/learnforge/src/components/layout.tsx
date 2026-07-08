@@ -21,6 +21,7 @@ import {
   ChevronDown,
   MoreHorizontal,
   BarChart3,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 import { useClerk, useUser } from "@clerk/react";
@@ -198,6 +199,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 name: "Site Stats",
                 href: "/owner/stats",
                 icon: BarChart3,
+              },
+              {
+                name: "Outreach",
+                href: "/owner/outreach",
+                icon: Mail,
               },
             ]
           : []),

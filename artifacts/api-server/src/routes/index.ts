@@ -23,6 +23,8 @@ import schoolRouter from "./school";
 import accessCodesRouter from "./access-codes";
 import paypalRouter from "./paypal";
 import { analyticsPublicRouter, analyticsRouter } from "./analytics";
+import { newsletterPublicRouter } from "./newsletter";
+import { ownerOutreachRouter } from "./owner-outreach";
 
 const router: IRouter = Router();
 
@@ -35,6 +37,7 @@ router.use(storageRouter);
 // the public section. It optionally tags the Clerk user id when a session
 // exists; the owner-only stats reader is mounted behind auth below.
 router.use(analyticsPublicRouter);
+router.use(newsletterPublicRouter);
 
 // Everything below requires an authenticated user.
 router.use(requireAuth);
@@ -59,5 +62,6 @@ router.use(schoolRouter);
 router.use(accessCodesRouter);
 router.use(paypalRouter);
 router.use(analyticsRouter);
+router.use(ownerOutreachRouter);
 
 export default router;
