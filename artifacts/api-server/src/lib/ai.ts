@@ -585,24 +585,58 @@ export async function generateLesson(
   const primaryExerciseInstruction =
     exerciseType === "spreadsheet"
       ? `SPREADSHEET EXERCISES (primary — use on 2 data-focused sections):
-Add "spreadsheetExercise" to sections that involve calculations or working with data:
+Add "spreadsheetExercise" with REAL Excel/Google Sheets formulas the learner types into highlighted cells:
 {
   "spreadsheetExercise": {
-    "title": "brief exercise title",
-    "description": "1-2 sentences explaining what the learner will do",
-    "headers": ["", "A", "B", "C", "D"],
+    "title": "brief exercise title — e.g. 'Monthly Revenue Tracker' or 'Employee Pay Calculator'",
+    "description": "1-2 sentences telling the learner what dataset they are working with and what they will calculate",
+    "headers": ["", "A", "B", "C", "D", "E"],
     "rows": [
-      ["1", "Month", "Units Sold", "Unit Price", "Revenue"],
-      ["2", "January", "120", "25.00", ""],
-      ["3", "February", "145", "25.00", ""],
-      ["4", "TOTAL", "", "", ""]
+      ["1", "Employee", "Hours Worked", "Hourly Rate", "Gross Pay", "Tax (15%)"],
+      ["2", "Marcus Hill", "40", "22.50", "", ""],
+      ["3", "Priya Sharma", "35", "28.00", "", ""],
+      ["4", "Jordan Lee", "42", "19.75", "", ""],
+      ["5", "TOTALS", "", "", "", ""]
     ],
     "tasks": [
-      { "instruction": "Calculate January revenue (Units Sold × Unit Price).", "targetCell": "D2", "expectedValue": "3000", "formulaHint": "=B2*C2 → 120 × 25.00 = 3000" }
+      {
+        "instruction": "Calculate Marcus Hill's Gross Pay (Hours Worked × Hourly Rate). Click cell D2 and type the formula.",
+        "targetCell": "D2",
+        "expectedValue": "900",
+        "formulaHint": "=B2*C2"
+      },
+      {
+        "instruction": "Calculate Marcus's Tax (Gross Pay × 15%). Click cell E2 and type the formula.",
+        "targetCell": "E2",
+        "expectedValue": "135",
+        "formulaHint": "=D2*0.15"
+      },
+      {
+        "instruction": "Use SUM to total all Gross Pay in column D (rows 2–4). Click cell D5.",
+        "targetCell": "D5",
+        "expectedValue": "2648.5",
+        "formulaHint": "=SUM(D2:D4)"
+      },
+      {
+        "instruction": "Calculate the average hourly rate across all employees. Click cell C5.",
+        "targetCell": "C5",
+        "expectedValue": "23.42",
+        "formulaHint": "=AVERAGE(C2:C4)"
+      }
     ]
   }
 }
-Rules: headers[0]=""; rows[0] is label row; leave answer cells as ""; expectedValue is exact numeric string; 2-4 progressive tasks.`
+
+CRITICAL RULES for spreadsheet exercises:
+- formulaHint MUST be a valid Excel formula starting with = (e.g. =SUM(B2:B5), =B2*C2, =AVERAGE(C2:C4), =D2*0.15, =MAX(C2:C5))
+- Use real Excel functions: SUM, AVERAGE, MAX, MIN, COUNT, ROUND, IF (simple ones)
+- formulaHint is EXACTLY what the learner types — nothing else, no arrows, no explanations in it
+- expectedValue is the numeric result of evaluating that formula (a plain number string like "900" or "23.42")
+- instruction tells the learner what business question the formula answers
+- Use realistic names, amounts, and business data (payroll, sales, inventory, budgets, grades, lab results) that match the topic
+- Build tasks progressively: first compute individual cells, then use those results in summary formulas (SUM, AVERAGE)
+- Leave answer cells blank ("") in rows; non-blank cells provide the source data
+- 3-5 tasks per exercise; each task should teach a different formula or concept`
       : exerciseType === "code"
         ? `CODE EXERCISES (primary — use on 2 coding-focused sections):
 Add "codeExercise" to sections where writing code deepens understanding:

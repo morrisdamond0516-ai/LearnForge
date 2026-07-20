@@ -113,65 +113,160 @@ function CheckQuestion({
 
 type TaskState = { value: string; checked: boolean; correct: boolean | null };
 
+// Lightweight Excel formula evaluator
+function evalFormula(
+  formula: string,
+  headers: string[],
+  rows: string[][],
+  taskOverrides: Record<string, string>,
+): number | null {
+  const cellMap: Record<string, number> = {};
+  rows.forEach((row) => {
+    const rowNum = row[0];
+    headers.forEach((col, ci) => {
+      if (ci > 0 && col) {
+        const ref = `${col}${rowNum}`.toUpperCase();
+        const raw = taskOverrides[ref] ?? row[ci];
+        const n = parseFloat((raw ?? "").replace(/[$,]/g, ""));
+        if (!isNaN(n)) cellMap[ref] = n;
+      }
+    });
+  });
+
+  const f = (formula.startsWith("=") ? formula.slice(1) : formula).toUpperCase().trim();
+
+  const expandRange = (r: string): number[] => {
+    const m = r.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/);
+    if (!m) return [];
+    const [, c1, r1, c2, r2] = m;
+    const vals: number[] = [];
+    if (c1 === c2) {
+      for (let i = parseInt(r1); i <= parseInt(r2); i++) {
+        const v = cellMap[`${c1}${i}`];
+        if (v !== undefined) vals.push(v);
+      }
+    } else {
+      // cross-column range — collect by row
+      const startCol = c1.charCodeAt(0);
+      const endCol = c2.charCodeAt(0);
+      for (let row = parseInt(r1); row <= parseInt(r2); row++) {
+        for (let col = startCol; col <= endCol; col++) {
+          const v = cellMap[`${String.fromCharCode(col)}${row}`];
+          if (v !== undefined) vals.push(v);
+        }
+      }
+    }
+    return vals;
+  };
+
+  try {
+    let m: RegExpMatchArray | null;
+    if ((m = f.match(/^SUM\(([A-Z]+\d+:[A-Z]+\d+)\)$/))) return expandRange(m[1]).reduce((a, b) => a + b, 0);
+    if ((m = f.match(/^AVERAGE\(([A-Z]+\d+:[A-Z]+\d+)\)$/))) { const v = expandRange(m[1]); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
+    if ((m = f.match(/^COUNT\(([A-Z]+\d+:[A-Z]+\d+)\)$/))) return expandRange(m[1]).length;
+    if ((m = f.match(/^MAX\(([A-Z]+\d+:[A-Z]+\d+)\)$/))) { const v = expandRange(m[1]); return v.length ? Math.max(...v) : null; }
+    if ((m = f.match(/^MIN\(([A-Z]+\d+:[A-Z]+\d+)\)$/))) { const v = expandRange(m[1]); return v.length ? Math.min(...v) : null; }
+    if ((m = f.match(/^ROUND\((.+),\s*(\d+)\)$/))) {
+      const inner = evalFormula("=" + m[1], headers, rows, taskOverrides);
+      return inner !== null ? Math.round(inner * 10 ** parseInt(m[2])) / 10 ** parseInt(m[2]) : null;
+    }
+    // Simple arithmetic with cell refs
+    const withVals = f.replace(/[A-Z]+\d+/g, (ref) => String(cellMap[ref] ?? 0));
+    if (/^[\d\s+\-*/.()\s]+$/.test(withVals)) {
+      // eslint-disable-next-line no-new-func
+      return Function(`"use strict"; return (${withVals})`)() as number;
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
 function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise }) {
-  const [tasks, setTasks] = useState<TaskState[]>(
+  const [taskStates, setTaskStates] = useState<TaskState[]>(
     exercise.tasks.map(() => ({ value: "", checked: false, correct: null })),
   );
+  const [activeTask, setActiveTask] = useState<number | null>(null);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const inputRefs = useState<Record<number, HTMLInputElement | null>>(() => ({}))[0];
 
-  const allChecked = tasks.every((t) => t.checked);
+  const allDone = taskStates.every((t) => t.checked);
+  const allCorrect = taskStates.every((t) => t.correct);
+
+  const normalize = (v: string) => {
+    const n = parseFloat(v.replace(/[$,%]/g, "").trim());
+    return isNaN(n) ? v.toLowerCase().trim() : Math.round(n * 100) / 100;
+  };
 
   const handleCheck = (i: number) => {
-    const expected = exercise.tasks[i].expectedValue.trim();
-    const raw = tasks[i].value.trim();
-    // Accept numeric equivalence (e.g. "3000" == "3,000" or "3000.00")
-    const normalize = (v: string) => {
-      const n = parseFloat(v.replace(/,/g, ""));
-      return isNaN(n) ? v.toLowerCase() : n;
-    };
-    const correct =
-      raw.toLowerCase() === expected.toLowerCase() ||
-      normalize(raw) === normalize(expected);
-    setTasks((prev) =>
-      prev.map((t, idx) => (idx === i ? { ...t, checked: true, correct } : t)),
-    );
+    const task = exercise.tasks[i];
+    const input = taskStates[i].value.trim();
+    const expected = task.expectedValue.trim();
+    let correct = normalize(input) === normalize(expected);
+    if (!correct && input.startsWith("=")) {
+      const overrides: Record<string, string> = {};
+      exercise.tasks.forEach((t, ti) => {
+        if (taskStates[ti].value && t.targetCell) overrides[t.targetCell.toUpperCase()] = taskStates[ti].value;
+      });
+      const result = evalFormula(input, exercise.headers, exercise.rows, overrides);
+      if (result !== null) correct = normalize(String(result)) === normalize(expected);
+    }
+    setTaskStates((prev) => prev.map((t, idx) => idx === i ? { ...t, checked: true, correct } : t));
   };
 
   const handleReset = (i: number) => {
-    setTasks((prev) =>
-      prev.map((t, idx) =>
-        idx === i ? { value: "", checked: false, correct: null } : t,
-      ),
-    );
+    setTaskStates((prev) => prev.map((t, idx) => idx === i ? { value: "", checked: false, correct: null } : t));
+    setTimeout(() => inputRefs[i]?.focus(), 50);
   };
 
+  const copyFormula = (formula: string, i: number) => {
+    navigator.clipboard.writeText(formula).catch(() => {});
+    setCopiedIdx(i);
+    setTimeout(() => setCopiedIdx(null), 1500);
+  };
+
+  const activeRef = activeTask !== null ? exercise.tasks[activeTask]?.targetCell ?? "" : "";
+  const activeFormula = activeTask !== null ? (taskStates[activeTask].value || (exercise.tasks[activeTask]?.formulaHint ?? "")) : "";
+
   return (
-    <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20 overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-green-200 dark:border-green-800 flex items-center gap-2">
-        <span className="text-green-700 dark:text-green-400 font-semibold text-sm uppercase tracking-wider flex items-center gap-2">
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <path d="M3 9h18M3 15h18M9 3v18" />
-          </svg>
-          {exercise.title}
-        </span>
+    <div className="rounded-xl border-2 border-[#217346]/40 bg-white dark:bg-card overflow-hidden shadow-sm">
+      {/* Excel-style app bar */}
+      <div className="bg-[#217346] px-4 py-2 flex items-center gap-3">
+        <svg className="h-5 w-5 text-white flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/>
+          <path d="M8 12.5h2.5l1.5 2.5 1.5-2.5H16l-2.5 4 2.5 4h-2.5L12 18l-1.5 2.5H8l2.5-4L8 12.5z" fill="white" opacity="0.9"/>
+        </svg>
+        <span className="text-white font-semibold text-sm tracking-wide">{exercise.title}</span>
+        <span className="ml-auto text-white/70 text-xs">{exercise.tasks.filter((_, i) => taskStates[i].correct).length}/{exercise.tasks.length} tasks complete</span>
       </div>
 
-      <div className="p-4 space-y-4">
+      {/* Formula bar */}
+      <div className="flex items-center border-b border-gray-300 dark:border-border bg-gray-50 dark:bg-muted/50 px-2 py-1 gap-2">
+        <div className="w-14 border border-gray-300 dark:border-border rounded px-2 py-0.5 text-xs font-mono text-center bg-white dark:bg-card text-gray-700 dark:text-foreground flex-shrink-0">
+          {activeRef || "—"}
+        </div>
+        <div className="w-px h-4 bg-gray-300 dark:bg-border flex-shrink-0" />
+        <span className="text-[#217346] dark:text-green-400 font-bold text-sm flex-shrink-0 select-none">fx</span>
+        <div className="flex-1 border border-gray-300 dark:border-border rounded px-2 py-0.5 text-xs font-mono bg-white dark:bg-card text-gray-800 dark:text-foreground min-h-[22px]">
+          {activeTask !== null ? (
+            <span className={activeFormula.startsWith("=") ? "text-[#217346] dark:text-green-400" : ""}>
+              {activeFormula || <span className="text-gray-400 italic">click a highlighted cell or type below</span>}
+            </span>
+          ) : (
+            <span className="text-gray-400 italic text-xs">select a cell to begin</span>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4 space-y-4 bg-gray-50 dark:bg-background">
         <p className="text-sm text-muted-foreground">{exercise.description}</p>
 
         {/* Spreadsheet grid */}
-        <div className="overflow-x-auto rounded-lg border border-green-200 dark:border-green-800 bg-white dark:bg-card">
+        <div className="overflow-x-auto rounded-lg border border-gray-300 dark:border-border bg-white dark:bg-card shadow-sm">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-gray-100 dark:bg-muted">
+              <tr className="bg-[#d0e4c8] dark:bg-muted/80">
                 {exercise.headers.map((h, ci) => (
-                  <th
-                    key={ci}
-                    className={`border border-gray-300 dark:border-border px-2 py-1 font-semibold text-center min-w-[80px] ${
-                      ci === 0 ? "w-8 bg-gray-200 dark:bg-muted text-muted-foreground" : "text-gray-600 dark:text-muted-foreground"
-                    }`}
-                  >
+                  <th key={ci} className={`border border-gray-300 dark:border-border px-2 py-1.5 font-bold text-center select-none
+                    ${ci === 0 ? "w-10 bg-[#c4dbb8] dark:bg-muted text-gray-500 dark:text-muted-foreground text-[10px]" : "text-[#217346] dark:text-green-400 text-xs min-w-[90px]"}`}>
                     {h}
                   </th>
                 ))}
@@ -179,64 +274,58 @@ function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise 
             </thead>
             <tbody>
               {exercise.rows.map((row, ri) => {
-                // Find tasks targeting cells in this row
-                const rowNum = row[0]; // first cell is the row number
+                const rowNum = row[0];
+                const isLabelRow = ri === 0;
                 return (
-                  <tr
-                    key={ri}
-                    className={ri % 2 === 0 ? "bg-white dark:bg-background" : "bg-gray-50 dark:bg-muted/30"}
-                  >
+                  <tr key={ri} className={isLabelRow ? "bg-[#e8f4e8] dark:bg-muted/40" : ri % 2 === 0 ? "bg-white dark:bg-background" : "bg-gray-50/60 dark:bg-muted/20"}>
                     {row.map((cell, ci) => {
                       if (ci === 0) {
                         return (
-                          <td
-                            key={ci}
-                            className="border border-gray-300 dark:border-border px-2 py-1 text-center text-muted-foreground bg-gray-100 dark:bg-muted font-medium"
-                          >
+                          <td key={ci} className="border border-gray-300 dark:border-border px-2 py-1.5 text-center text-gray-400 dark:text-muted-foreground bg-[#e8f4e8] dark:bg-muted/40 font-medium text-[10px] select-none">
                             {cell}
                           </td>
                         );
                       }
-                      // Determine column letter from headers
                       const colLetter = exercise.headers[ci] ?? "";
                       const cellRef = `${colLetter}${rowNum}`;
-                      const taskIdx = exercise.tasks.findIndex(
-                        (t) => t.targetCell === cellRef,
-                      );
+                      const taskIdx = exercise.tasks.findIndex((t) => t.targetCell?.toUpperCase() === cellRef.toUpperCase());
                       const isEmpty = cell === "";
+                      const isActive = taskIdx >= 0 && taskIdx === activeTask;
 
                       if (isEmpty && taskIdx >= 0) {
-                        const ts = tasks[taskIdx];
+                        const ts = taskStates[taskIdx];
                         return (
-                          <td
-                            key={ci}
-                            className="border border-blue-400 dark:border-blue-500 px-1 py-0.5 bg-blue-50 dark:bg-blue-950/30"
-                          >
+                          <td key={ci} onClick={() => setActiveTask(taskIdx)}
+                            className={`border px-0.5 py-0.5 cursor-pointer transition-colors
+                              ${ts.correct === true ? "border-[#217346] bg-green-50 dark:bg-green-950/30" :
+                                ts.correct === false ? "border-red-400 bg-red-50 dark:bg-red-950/30" :
+                                isActive ? "border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/30 shadow-inner" :
+                                "border-blue-400 dark:border-blue-600 bg-blue-50/60 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-950/30"}`}>
                             {ts.checked ? (
-                              <span
-                                className={`font-semibold px-1 ${
-                                  ts.correct
-                                    ? "text-green-700 dark:text-green-400"
-                                    : "text-red-600 dark:text-red-400 line-through"
-                                }`}
-                              >
+                              <div className={`px-1 py-0.5 text-center font-mono font-semibold ${ts.correct ? "text-[#217346] dark:text-green-400" : "text-red-600 dark:text-red-400 line-through"}`}>
                                 {ts.value || "—"}
-                              </span>
+                                {ts.correct && <span className="ml-1 text-[10px]">✓</span>}
+                              </div>
                             ) : (
                               <input
+                                ref={(el) => { inputRefs[taskIdx] = el; }}
                                 type="text"
                                 value={ts.value}
-                                onChange={(e) =>
-                                  setTasks((prev) =>
-                                    prev.map((t, idx) =>
-                                      idx === taskIdx
-                                        ? { ...t, value: e.target.value }
-                                        : t,
-                                    ),
-                                  )
-                                }
-                                placeholder="?"
-                                className="w-full bg-transparent text-center outline-none placeholder-blue-400 font-mono"
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setTaskStates((prev) => prev.map((t, idx) => idx === taskIdx ? { ...t, value: val } : t));
+                                }}
+                                onFocus={() => setActiveTask(taskIdx)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" && taskStates[taskIdx].value.trim()) { e.preventDefault(); handleCheck(taskIdx); }
+                                  if (e.key === "Tab") {
+                                    e.preventDefault();
+                                    const next = exercise.tasks.findIndex((_, ti) => ti > taskIdx && !taskStates[ti].checked);
+                                    if (next >= 0) { setActiveTask(next); setTimeout(() => inputRefs[next]?.focus(), 10); }
+                                  }
+                                }}
+                                placeholder="type formula…"
+                                className="w-full bg-transparent text-center outline-none placeholder-blue-300 font-mono text-xs py-0.5"
                               />
                             )}
                           </td>
@@ -244,12 +333,8 @@ function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise 
                       }
 
                       return (
-                        <td
-                          key={ci}
-                          className={`border border-gray-300 dark:border-border px-2 py-1 ${
-                            ri === 0 ? "font-semibold text-gray-700 dark:text-foreground bg-gray-50 dark:bg-muted/50" : "font-mono text-gray-700 dark:text-foreground"
-                          }`}
-                        >
+                        <td key={ci} className={`border border-gray-300 dark:border-border px-2 py-1.5 font-mono text-gray-700 dark:text-foreground
+                          ${isLabelRow ? "font-bold text-gray-800 dark:text-foreground bg-[#e8f4e8] dark:bg-muted/40 font-sans" : ""}`}>
                           {cell}
                         </td>
                       );
@@ -261,98 +346,112 @@ function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise 
           </table>
         </div>
 
-        {/* Task cards */}
-        <div className="space-y-3">
+        {/* Step-by-step task panel */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Tasks — complete in order
+          </p>
           {exercise.tasks.map((task, i) => {
-            const ts = tasks[i];
+            const ts = taskStates[i];
+            const isActive = i === activeTask;
+            const formula = task.formulaHint ?? "";
             return (
-              <div
-                key={i}
-                className={`rounded-lg border p-3 space-y-2 ${
-                  ts.correct === true
-                    ? "border-green-400 bg-green-50 dark:bg-green-950/30"
-                    : ts.correct === false
-                      ? "border-red-400 bg-red-50 dark:bg-red-950/30"
-                      : "border-gray-200 dark:border-border bg-white dark:bg-card"
-                }`}
+              <div key={i}
+                className={`rounded-lg border transition-all cursor-pointer
+                  ${ts.correct === true ? "border-[#217346] bg-green-50 dark:bg-green-950/30" :
+                    ts.correct === false ? "border-red-400 bg-red-50 dark:bg-red-950/30" :
+                    isActive ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20 shadow-sm" :
+                    "border-gray-200 dark:border-border bg-white dark:bg-card hover:border-gray-300"}`}
+                onClick={() => { setActiveTask(i); setTimeout(() => inputRefs[i]?.focus(), 50); }}
               >
-                <div className="flex items-start gap-2">
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center mt-0.5">
-                    {i + 1}
+                <div className="flex items-start gap-3 p-3">
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5
+                    ${ts.correct === true ? "bg-[#217346] text-white" : ts.correct === false ? "bg-red-500 text-white" : isActive ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-muted text-gray-700 dark:text-foreground"}`}>
+                    {ts.correct === true ? "✓" : ts.correct === false ? "✗" : i + 1}
                   </span>
-                  <p className="text-sm font-medium leading-snug">{task.instruction}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium leading-snug">{task.instruction}</p>
+
+                    {/* Formula guidance */}
+                    {formula && !ts.checked && (
+                      <div className="mt-2 flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 bg-[#217346]/10 dark:bg-green-950/30 border border-[#217346]/30 dark:border-green-800 rounded px-2.5 py-1">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#217346] dark:text-green-400">Type in {task.targetCell}:</span>
+                          <code className="text-xs font-mono font-bold text-[#217346] dark:text-green-300">{formula}</code>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); copyFormula(formula, i); }}
+                            className="ml-1 text-[#217346]/70 hover:text-[#217346] dark:text-green-500 dark:hover:text-green-300 transition-colors"
+                            title="Copy formula"
+                          >
+                            {copiedIdx === i ? (
+                              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6L9 17l-5-5"/></svg>
+                            ) : (
+                              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            )}
+                          </button>
+                        </div>
+                        {!ts.checked && (
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              ref={(el) => { inputRefs[i] = el; }}
+                              type="text"
+                              value={ts.value}
+                              onChange={(e) => setTaskStates((prev) => prev.map((t, idx) => idx === i ? { ...t, value: e.target.value } : t))}
+                              onFocus={() => setActiveTask(i)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && ts.value.trim()) { e.preventDefault(); handleCheck(i); }
+                                if (e.key === "Tab") {
+                                  e.preventDefault();
+                                  const next = exercise.tasks.findIndex((_, ti) => ti > i && !taskStates[ti].checked);
+                                  if (next >= 0) { setActiveTask(next); setTimeout(() => inputRefs[next]?.focus(), 10); }
+                                }
+                              }}
+                              placeholder={formula || "type formula or value…"}
+                              className="border border-gray-300 dark:border-border rounded px-2 py-1 text-xs font-mono bg-white dark:bg-muted outline-none focus:ring-2 focus:ring-blue-400 w-36"
+                            />
+                            <Button size="sm" variant="outline" disabled={!ts.value.trim()} onClick={(e) => { e.stopPropagation(); handleCheck(i); }}
+                              className="text-xs h-7 px-2.5">
+                              ↵ Check
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Result feedback */}
+                    {ts.checked && (
+                      <div className="mt-2 space-y-1">
+                        <div className={`flex items-center gap-2 text-sm font-semibold ${ts.correct ? "text-[#217346] dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                          {ts.correct ? <><CheckCircle2 className="h-4 w-4" /> Correct! Cell {task.targetCell} = {task.expectedValue}</> : <><XCircle className="h-4 w-4" /> Expected {task.expectedValue} — formula: <code className="font-mono text-xs">{formula}</code></>}
+                        </div>
+                        {!ts.correct && (
+                          <button onClick={(e) => { e.stopPropagation(); handleReset(i); }} className="text-xs text-blue-600 dark:text-blue-400 underline">
+                            Try again
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-
-                {!ts.checked && (
-                  <div className="flex items-center gap-2 pl-7">
-                    {task.targetCell && (
-                      <span className="text-xs font-mono bg-gray-100 dark:bg-muted px-2 py-0.5 rounded border border-gray-300 dark:border-border text-muted-foreground">
-                        {task.targetCell}
-                      </span>
-                    )}
-                    <input
-                      type="text"
-                      value={ts.value}
-                      onChange={(e) =>
-                        setTasks((prev) =>
-                          prev.map((t, idx) =>
-                            idx === i ? { ...t, value: e.target.value } : t,
-                          )
-                        )
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && ts.value.trim()) handleCheck(i);
-                      }}
-                      placeholder="Your answer…"
-                      className="flex-1 text-sm border rounded px-2 py-1 bg-white dark:bg-muted border-gray-300 dark:border-border outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleCheck(i)}
-                      disabled={!ts.value.trim()}
-                    >
-                      Check
-                    </Button>
-                  </div>
-                )}
-
-                {ts.checked && (
-                  <div className="pl-7 space-y-1">
-                    <div
-                      className={`flex items-center gap-2 text-sm font-medium ${
-                        ts.correct
-                          ? "text-green-700 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      }`}
-                    >
-                      {ts.correct ? (
-                        <><CheckCircle2 className="h-4 w-4" /> Correct!</>
-                      ) : (
-                        <><XCircle className="h-4 w-4" /> Not quite — expected {exercise.tasks[i].expectedValue}</>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
-                      {task.formulaHint}
-                    </p>
-                    {!ts.correct && (
-                      <button
-                        onClick={() => handleReset(i)}
-                        className="text-xs text-blue-600 dark:text-blue-400 underline"
-                      >
-                        Try again
-                      </button>
-                    )}
-                  </div>
-                )}
               </div>
             );
           })}
         </div>
 
-        {allChecked && tasks.every((t) => t.correct) && (
-          <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-semibold text-sm">
-            <Trophy className="h-4 w-4" /> All tasks complete — great work!
+        {allDone && allCorrect && (
+          <div className="flex items-center gap-2 bg-[#217346]/10 border border-[#217346]/30 rounded-lg px-4 py-3">
+            <Trophy className="h-5 w-5 text-[#217346] dark:text-green-400" />
+            <div>
+              <p className="font-semibold text-sm text-[#217346] dark:text-green-400">All formulas correct!</p>
+              <p className="text-xs text-muted-foreground">You can now apply these formulas in a real spreadsheet.</p>
+            </div>
+          </div>
+        )}
+        {allDone && !allCorrect && (
+          <div className="text-sm text-muted-foreground">
+            {taskStates.filter((t) => t.correct).length}/{exercise.tasks.length} correct.{" "}
+            <button onClick={() => setTaskStates(exercise.tasks.map(() => ({ value: "", checked: false, correct: null })))} className="text-blue-600 dark:text-blue-400 underline">Reset all</button>
           </div>
         )}
       </div>
