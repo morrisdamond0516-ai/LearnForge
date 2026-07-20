@@ -457,6 +457,186 @@ Include 4-6 sections, 4-6 keyPoints, and 3-4 nextSteps.`;
   };
 }
 
+export type LessonCheckQuestion = {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+};
+
+export type LessonSectionData = {
+  heading: string;
+  content: string;
+  example: string;
+  checkQuestion: LessonCheckQuestion;
+};
+
+export type LessonKeyTermData = {
+  term: string;
+  definition: string;
+};
+
+export type GeneratedLesson = {
+  title: string;
+  summary: string;
+  sections: LessonSectionData[];
+  keyTerms: LessonKeyTermData[];
+};
+
+export type GenerateLessonArgs = {
+  topic: string;
+  subjectName?: string;
+  level: "Beginner" | "Intermediate" | "Advanced";
+  focusAreas?: string[];
+};
+
+export async function generateLesson(
+  args: GenerateLessonArgs,
+): Promise<GeneratedLesson> {
+  const { topic, subjectName, level, focusAreas } = args;
+
+  const levelGuidance =
+    level === "Beginner"
+      ? "Assume no prior knowledge. Define every term. Use everyday analogies and simple language."
+      : level === "Intermediate"
+        ? "Assume basic familiarity. Build on fundamentals. Introduce more precise terminology."
+        : "Assume solid foundational knowledge. Cover nuance, edge cases, and real-world application.";
+
+  const focusBlock =
+    focusAreas && focusAreas.length > 0
+      ? `The learner especially needs help with: ${focusAreas.join(", ")}. Weight your sections toward these areas.`
+      : "";
+
+  const system =
+    "You are an expert instructional designer who creates interactive, engaging lessons for self-learners. " +
+    "Each lesson section teaches one concept clearly, shows a concrete worked example, and ends with a single comprehension question " +
+    "that has exactly one correct answer and a helpful explanation. " +
+    "Write in a warm, encouraging, plain-spoken voice. " +
+    "Return ONLY valid JSON, no prose, no markdown fences.";
+
+  const user = `Create an interactive lesson about "${topic}".
+${subjectName ? `Subject area: ${subjectName}.` : ""}
+Level: ${level}. ${levelGuidance}
+${focusBlock}
+
+Return JSON with this exact shape:
+{
+  "title": "a clear, engaging lesson title",
+  "summary": "2-3 sentences describing what the learner will be able to do after this lesson",
+  "sections": [
+    {
+      "heading": "concept heading",
+      "content": "2-3 paragraphs clearly explaining the concept in plain language, using analogies where helpful",
+      "example": "a concrete, fully worked example that shows the concept in action step by step — include the steps, the reasoning, and the answer",
+      "checkQuestion": {
+        "prompt": "a question that tests understanding of this section",
+        "options": ["option A", "option B", "option C", "option D"],
+        "correctIndex": 0,
+        "explanation": "why the correct answer is right and why common wrong answers are wrong"
+      }
+    }
+  ],
+  "keyTerms": [
+    { "term": "term", "definition": "a clear, one-sentence definition" }
+  ]
+}
+
+Include 4-6 sections that build on each other logically.
+Include 5-8 key terms covering the essential vocabulary for this topic.
+Each checkQuestion must have exactly 4 options with exactly one correct answer.
+Make the examples concrete and specific — use real numbers, real tool names, real scenarios rather than abstract placeholders.`;
+
+  const response = await openai.chat.completions.create({
+    model: MODEL,
+    max_completion_tokens: 12000,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+  });
+
+  const content = response.choices[0]?.message?.content ?? "";
+  const parsed = extractJson(content) as {
+    title?: string;
+    summary?: string;
+    sections?: Array<{
+      heading?: string;
+      content?: string;
+      example?: string;
+      checkQuestion?: {
+        prompt?: string;
+        options?: unknown[];
+        correctIndex?: unknown;
+        explanation?: string;
+      };
+    }>;
+    keyTerms?: Array<{ term?: string; definition?: string }>;
+  };
+
+  const sections: LessonSectionData[] = (
+    Array.isArray(parsed.sections) ? parsed.sections : []
+  )
+    .filter((s) => typeof s.content === "string" && s.content.trim().length > 0)
+    .map((s) => {
+      const opts = Array.isArray(s.checkQuestion?.options)
+        ? (s.checkQuestion.options as unknown[])
+            .slice(0, 4)
+            .map((o) => (typeof o === "string" ? o : String(o)))
+        : ["True", "False", "Not mentioned", "Cannot determine"];
+
+      const rawIdx = s.checkQuestion?.correctIndex;
+      let cidx = typeof rawIdx === "number" ? rawIdx : 0;
+      if (cidx < 0 || cidx >= opts.length) cidx = 0;
+
+      return {
+        heading:
+          typeof s.heading === "string" && s.heading.trim().length > 0
+            ? s.heading.trim()
+            : "Concept",
+        content: String(s.content),
+        example:
+          typeof s.example === "string" && s.example.trim().length > 0
+            ? s.example.trim()
+            : "See the explanation above for a worked example.",
+        checkQuestion: {
+          prompt:
+            typeof s.checkQuestion?.prompt === "string"
+              ? s.checkQuestion.prompt.trim()
+              : "What is the main idea of this section?",
+          options: opts,
+          correctIndex: cidx,
+          explanation:
+            typeof s.checkQuestion?.explanation === "string"
+              ? s.checkQuestion.explanation.trim()
+              : "Review the section above for the answer.",
+        },
+      };
+    });
+
+  const keyTerms: LessonKeyTermData[] = (
+    Array.isArray(parsed.keyTerms) ? parsed.keyTerms : []
+  )
+    .filter(
+      (k) =>
+        typeof k.term === "string" && typeof k.definition === "string",
+    )
+    .map((k) => ({
+      term: String(k.term).trim(),
+      definition: String(k.definition).trim(),
+    }));
+
+  return {
+    title:
+      typeof parsed.title === "string" && parsed.title.trim().length > 0
+        ? parsed.title.trim()
+        : topic,
+    summary: typeof parsed.summary === "string" ? parsed.summary.trim() : "",
+    sections,
+    keyTerms,
+  };
+}
+
 export type CareerPreferences = {
   degreeLevel?: string;
   studyMode?: string;

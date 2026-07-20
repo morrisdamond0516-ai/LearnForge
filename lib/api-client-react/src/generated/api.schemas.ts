@@ -272,6 +272,69 @@ export interface AttemptSummary {
   completedAt: string;
 }
 
+export interface LessonCheckQuestion {
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface LessonSection {
+  heading: string;
+  content: string;
+  example: string;
+  checkQuestion: LessonCheckQuestion;
+}
+
+export interface LessonKeyTerm {
+  term: string;
+  definition: string;
+}
+
+export interface LessonResponse {
+  id: number;
+  /** @nullable */
+  subjectId?: number | null;
+  /** @nullable */
+  subjectName?: string | null;
+  topic: string;
+  level: string;
+  title: string;
+  summary: string;
+  sections: LessonSection[];
+  keyTerms: LessonKeyTerm[];
+  createdAt: string;
+}
+
+export interface LessonSummary {
+  id: number;
+  /** @nullable */
+  subjectId?: number | null;
+  /** @nullable */
+  subjectName?: string | null;
+  topic: string;
+  level: string;
+  title: string;
+  createdAt: string;
+}
+
+export type LessonInputLevel = typeof LessonInputLevel[keyof typeof LessonInputLevel];
+
+
+export const LessonInputLevel = {
+  Beginner: 'Beginner',
+  Intermediate: 'Intermediate',
+  Advanced: 'Advanced',
+} as const;
+
+export interface LessonInput {
+  /** @minLength 1 */
+  topic: string;
+  level: LessonInputLevel;
+  subjectId?: number;
+  focusAreas?: string[];
+}
+
 export interface LearnSection {
   heading: string;
   content: string;

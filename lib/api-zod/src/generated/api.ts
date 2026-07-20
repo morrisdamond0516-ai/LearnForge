@@ -522,6 +522,81 @@ export const DeleteLearnSessionParams = zod.object({
 
 
 /**
+ * Produces a structured interactive lesson (sections with explanations,
+worked examples, and inline comprehension checks) for a topic at the
+specified level. Persists the lesson so the learner can return to it.
+
+ * @summary Generate an interactive lesson with embedded check questions
+ */
+
+
+
+export const GenerateLessonBody = zod.object({
+  "topic": zod.string().min(1),
+  "level": zod.enum(['Beginner', 'Intermediate', 'Advanced']),
+  "subjectId": zod.number().optional(),
+  "focusAreas": zod.array(zod.string()).optional()
+})
+
+
+/**
+ * @summary List saved interactive lessons
+ */
+export const ListLessonsResponseItem = zod.object({
+  "id": zod.number(),
+  "subjectId": zod.number().nullish(),
+  "subjectName": zod.string().nullish(),
+  "topic": zod.string(),
+  "level": zod.string(),
+  "title": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListLessonsResponse = zod.array(ListLessonsResponseItem)
+
+
+/**
+ * @summary Get a saved interactive lesson
+ */
+export const GetLessonByIdParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetLessonByIdResponse = zod.object({
+  "id": zod.number(),
+  "subjectId": zod.number().nullish(),
+  "subjectName": zod.string().nullish(),
+  "topic": zod.string(),
+  "level": zod.string(),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "sections": zod.array(zod.object({
+  "heading": zod.string(),
+  "content": zod.string(),
+  "example": zod.string(),
+  "checkQuestion": zod.object({
+  "prompt": zod.string(),
+  "options": zod.array(zod.string()),
+  "correctIndex": zod.number(),
+  "explanation": zod.string()
+})
+})),
+  "keyTerms": zod.array(zod.object({
+  "term": zod.string(),
+  "definition": zod.string()
+})),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a saved interactive lesson
+ */
+export const DeleteLessonByIdParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
  * Uses AI to analyze a career goal (optionally informed by an uploaded
 transcript and stated preferences/filters) and returns recommended
 schools and programs, skill gaps to close, and suggested next steps.

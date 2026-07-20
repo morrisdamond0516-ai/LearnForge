@@ -32,3 +32,4 @@ export * from "./certificates";
 export * from "./gamification";
 export * from "./flashcards";
 export * from "./analytics";
+export * from "./lessons";

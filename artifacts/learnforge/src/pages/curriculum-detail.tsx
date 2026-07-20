@@ -4,7 +4,9 @@ import {
   useGetCurriculumProgress,
   getGetCurriculumProgressQueryKey,
   usePracticeCurriculumModule,
+  useGenerateLesson,
 } from "@workspace/api-client-react";
+import { useState } from "react";
 import { useParams, Link, useLocation } from "wouter";
 import {
   Card,
@@ -31,6 +33,7 @@ import {
   CheckCircle2,
   Trophy,
   Dumbbell,
+  Brain,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -69,6 +72,43 @@ export default function CurriculumDetail() {
   });
 
   const practice = usePracticeCurriculumModule();
+  const studyLesson = useGenerateLesson();
+  const [studyingIndex, setStudyingIndex] = useState<number | null>(null);
+
+  const startStudy = (index: number) => {
+    if (!plan) return;
+    const mod = plan.modules[index];
+    if (!mod) return;
+    const levelMap: Record<string, "Beginner" | "Intermediate" | "Advanced"> = {
+      Beginner: "Beginner",
+      Intermediate: "Intermediate",
+      Advanced: "Advanced",
+    };
+    const level = levelMap[plan.level] ?? "Beginner";
+    setStudyingIndex(index);
+    studyLesson.mutate(
+      {
+        data: {
+          topic: mod.title,
+          level,
+          focusAreas: mod.skills ?? [],
+        },
+      },
+      {
+        onSuccess: (lesson) => {
+          setLocation(`/learn/lesson/${lesson.id}`);
+        },
+        onError: () => {
+          setStudyingIndex(null);
+          toast({
+            title: "Could not generate lesson",
+            description: "Please try again.",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
 
   const startPractice = (index: number) => {
     practice.mutate(
@@ -215,10 +255,24 @@ export default function CurriculumDetail() {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-4 pt-1">
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    <Button
+                      variant="outline"
+                      onClick={() => startStudy(idx)}
+                      disabled={studyLesson.isPending || practice.isPending}
+                    >
+                      {studyingIndex === idx && studyLesson.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Brain className="mr-2 h-4 w-4" />
+                      )}
+                      {studyingIndex === idx && studyLesson.isPending
+                        ? "Building lesson…"
+                        : "Study this module"}
+                    </Button>
                     <Button
                       onClick={() => startPractice(idx)}
-                      disabled={practice.isPending}
+                      disabled={practice.isPending || studyLesson.isPending}
                     >
                       {isPending ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

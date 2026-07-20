@@ -1,14 +1,19 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq, isNull, or } from "drizzle-orm";
-import { db, learnSessionsTable, subjectsTable } from "@workspace/db";
+import { db, learnSessionsTable, lessonsTable, subjectsTable } from "@workspace/db";
 import {
   ResearchTopicBody,
   ListLearnSessionsResponse,
   GetLearnSessionParams,
   GetLearnSessionResponse,
   DeleteLearnSessionParams,
+  GenerateLessonBody,
+  ListLessonsResponse,
+  GetLessonByIdParams,
+  GetLessonByIdResponse,
+  DeleteLessonByIdParams,
 } from "@workspace/api-zod";
-import { generateStudyGuide, validateLearningInput } from "../lib/ai";
+import { generateStudyGuide, generateLesson, validateLearningInput } from "../lib/ai";
 
 const router: IRouter = Router();
 
@@ -191,6 +196,178 @@ router.delete("/learn/sessions/:id", async (req, res): Promise<void> => {
 
   if (!session) {
     res.status(404).json({ error: "Study guide not found" });
+    return;
+  }
+
+  res.sendStatus(204);
+});
+
+// ── Interactive Lessons ──────────────────────────────────────────────────────
+
+router.post("/learn/lesson", async (req, res): Promise<void> => {
+  const parsed = GenerateLessonBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const { topic, level, subjectId, focusAreas } = parsed.data;
+
+  const topicCheck = await validateLearningInput(topic);
+  if (!topicCheck.valid) {
+    res.status(400).json({ error: topicCheck.reason });
+    return;
+  }
+
+  let subjectName: string | null = null;
+  if (subjectId != null) {
+    const [subject] = await db
+      .select()
+      .from(subjectsTable)
+      .where(
+        and(
+          eq(subjectsTable.id, subjectId),
+          or(
+            isNull(subjectsTable.userId),
+            eq(subjectsTable.userId, req.userId!),
+          ),
+        ),
+      );
+    if (!subject) {
+      res.status(404).json({ error: "Subject not found" });
+      return;
+    }
+    subjectName = subject.name;
+  }
+
+  let lesson;
+  try {
+    lesson = await generateLesson({
+      topic,
+      subjectName: subjectName ?? undefined,
+      level: level as "Beginner" | "Intermediate" | "Advanced",
+      focusAreas: focusAreas ?? [],
+    });
+  } catch (err) {
+    req.log.error({ err }, "Lesson generation failed");
+    res.status(500).json({ error: "Failed to generate lesson. Please try again." });
+    return;
+  }
+
+  const [row] = await db
+    .insert(lessonsTable)
+    .values({
+      userId: req.userId!,
+      subjectId: subjectId ?? null,
+      topic,
+      level,
+      title: lesson.title,
+      summary: lesson.summary,
+      sections: lesson.sections,
+      keyTerms: lesson.keyTerms,
+    })
+    .returning();
+
+  res.status(201).json(
+    GetLessonByIdResponse.parse({
+      id: row.id,
+      subjectId: row.subjectId,
+      subjectName,
+      topic: row.topic,
+      level: row.level,
+      title: row.title,
+      summary: row.summary,
+      sections: row.sections,
+      keyTerms: row.keyTerms,
+      createdAt: row.createdAt,
+    }),
+  );
+});
+
+router.get("/learn/lessons", async (req, res): Promise<void> => {
+  const rows = await db
+    .select()
+    .from(lessonsTable)
+    .where(eq(lessonsTable.userId, req.userId!))
+    .orderBy(desc(lessonsTable.createdAt));
+
+  const subjects = await db.select().from(subjectsTable);
+  const nameById = new Map(subjects.map((s) => [s.id, s.name]));
+
+  const summaries = rows.map((r) => ({
+    id: r.id,
+    subjectId: r.subjectId,
+    subjectName: r.subjectId != null ? (nameById.get(r.subjectId) ?? null) : null,
+    topic: r.topic,
+    level: r.level,
+    title: r.title,
+    createdAt: r.createdAt,
+  }));
+
+  res.json(ListLessonsResponse.parse(summaries));
+});
+
+router.get("/learn/lessons/:id", async (req, res): Promise<void> => {
+  const params = GetLessonByIdParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [row] = await db
+    .select()
+    .from(lessonsTable)
+    .where(
+      and(
+        eq(lessonsTable.id, params.data.id),
+        eq(lessonsTable.userId, req.userId!),
+      ),
+    );
+
+  if (!row) {
+    res.status(404).json({ error: "Lesson not found" });
+    return;
+  }
+
+  const subjectName = row.subjectId
+    ? (await db.select().from(subjectsTable).where(eq(subjectsTable.id, row.subjectId)))[0]?.name ?? null
+    : null;
+
+  res.json(
+    GetLessonByIdResponse.parse({
+      id: row.id,
+      subjectId: row.subjectId,
+      subjectName,
+      topic: row.topic,
+      level: row.level,
+      title: row.title,
+      summary: row.summary,
+      sections: row.sections,
+      keyTerms: row.keyTerms,
+      createdAt: row.createdAt,
+    }),
+  );
+});
+
+router.delete("/learn/lessons/:id", async (req, res): Promise<void> => {
+  const params = DeleteLessonByIdParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [row] = await db
+    .delete(lessonsTable)
+    .where(
+      and(
+        eq(lessonsTable.id, params.data.id),
+        eq(lessonsTable.userId, req.userId!),
+      ),
+    )
+    .returning();
+
+  if (!row) {
+    res.status(404).json({ error: "Lesson not found" });
     return;
   }
 
