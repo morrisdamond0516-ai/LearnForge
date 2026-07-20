@@ -276,6 +276,21 @@ export default function LessonPage() {
             </CardContent>
           </Card>
 
+          {section.practicalTip && (
+            <Card className="border-l-4 border-l-blue-400 bg-blue-50/50 dark:bg-blue-950/20 shadow-none">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-sm font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400 flex items-center gap-2">
+                  <Zap className="h-4 w-4" /> Pro Tip
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pb-4">
+                <p className="text-sm leading-relaxed text-foreground/90">
+                  {section.practicalTip}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
           <CheckQuestion
             question={section.checkQuestion}
             answer={currentAnswer}

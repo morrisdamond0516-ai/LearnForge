@@ -1463,6 +1463,8 @@ components:
           type: string
         example:
           type: string
+        practicalTip:
+          type: string
         checkQuestion:
           $ref: "#/components/schemas/LessonCheckQuestion"
     LessonKeyTerm:

@@ -52,9 +52,20 @@ export default function Quizzes() {
   useEffect(() => {
     const params = new URLSearchParams(search);
     const subjectParam = params.get("subject");
+    const topicParam = params.get("topic");
+    const levelParam = params.get("level");
     if (subjectParam) {
       setSourceType("subject");
       setSubjectId(subjectParam);
+      setIsOpen(true);
+    } else if (topicParam) {
+      setSourceType("topic");
+      setTopic(topicParam);
+      if (levelParam === "Advanced" || levelParam === "Intermediate" || levelParam === "Beginner") {
+        setDifficulty(
+          levelParam === "Advanced" ? "hard" : levelParam === "Intermediate" ? "medium" : "easy"
+        );
+      }
       setIsOpen(true);
     }
   }, [search]);

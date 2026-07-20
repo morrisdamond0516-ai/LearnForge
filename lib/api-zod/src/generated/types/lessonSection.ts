@@ -11,5 +11,6 @@ export interface LessonSection {
   heading: string;
   content: string;
   example: string;
+  practicalTip?: string;
   checkQuestion: LessonCheckQuestion;
 }

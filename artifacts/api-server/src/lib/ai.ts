@@ -468,6 +468,7 @@ export type LessonSectionData = {
   heading: string;
   content: string;
   example: string;
+  practicalTip?: string;
   checkQuestion: LessonCheckQuestion;
 };
 
@@ -508,13 +509,14 @@ export async function generateLesson(
       : "";
 
   const system =
-    "You are an expert instructional designer who creates interactive, engaging lessons for self-learners. " +
-    "Each lesson section teaches one concept clearly, shows a concrete worked example, and ends with a single comprehension question " +
-    "that has exactly one correct answer and a helpful explanation. " +
+    "You are an expert instructional designer who creates deep, interactive lessons for self-learners. " +
+    "Each section thoroughly explains one concept, walks through a detailed real-world worked example, includes a practical tip, " +
+    "and ends with a comprehension question. " +
+    "IMPORTANT: Vary where the correct answer appears in every question — spread correct answers across positions A (index 0), B (index 1), C (index 2), and D (index 3). Never put the correct answer in the same position more than once in a row. " +
     "Write in a warm, encouraging, plain-spoken voice. " +
     "Return ONLY valid JSON, no prose, no markdown fences.";
 
-  const user = `Create an interactive lesson about "${topic}".
+  const user = `Create a thorough, in-depth interactive lesson about "${topic}".
 ${subjectName ? `Subject area: ${subjectName}.` : ""}
 Level: ${level}. ${levelGuidance}
 ${focusBlock}
@@ -522,29 +524,33 @@ ${focusBlock}
 Return JSON with this exact shape:
 {
   "title": "a clear, engaging lesson title",
-  "summary": "2-3 sentences describing what the learner will be able to do after this lesson",
+  "summary": "3-4 sentences describing what the learner will learn and be able to do after this lesson",
   "sections": [
     {
       "heading": "concept heading",
-      "content": "2-3 paragraphs clearly explaining the concept in plain language, using analogies where helpful",
-      "example": "a concrete, fully worked example that shows the concept in action step by step — include the steps, the reasoning, and the answer",
+      "content": "3-5 paragraphs thoroughly explaining the concept: start with WHY it matters and a real-world context, then explain HOW it works in plain language with analogies, then cover important nuances or edge cases",
+      "example": "a fully worked, step-by-step example using real tool names, real data, real numbers — number each step, show intermediate results, and explain the reasoning at each step",
+      "practicalTip": "one concrete pro tip or common mistake to avoid — something a beginner would not know",
       "checkQuestion": {
-        "prompt": "a question that tests understanding of this section",
-        "options": ["option A", "option B", "option C", "option D"],
-        "correctIndex": 0,
-        "explanation": "why the correct answer is right and why common wrong answers are wrong"
+        "prompt": "a specific question testing understanding of this section — not a definition lookup but applied understanding",
+        "options": ["option text", "option text", "option text", "option text"],
+        "correctIndex": 2,
+        "correctAnswer": "exact verbatim text of the correct option from the options array",
+        "explanation": "explain why the correct answer is right, AND briefly explain why each wrong option is incorrect"
       }
     }
   ],
   "keyTerms": [
-    { "term": "term", "definition": "a clear, one-sentence definition" }
+    { "term": "term", "definition": "a precise, one-to-two sentence definition with a usage example" }
   ]
 }
 
-Include 4-6 sections that build on each other logically.
-Include 5-8 key terms covering the essential vocabulary for this topic.
+Include 5-7 sections that build on each other logically — start with fundamentals and progress to application.
+Include 6-10 key terms covering essential vocabulary for this topic.
 Each checkQuestion must have exactly 4 options with exactly one correct answer.
-Make the examples concrete and specific — use real numbers, real tool names, real scenarios rather than abstract placeholders.`;
+CRITICAL: Vary correctIndex across sections — use 0, 1, 2, and 3 in different sections, never the same index twice in a row.
+correctAnswer must be copied verbatim from the options array.
+Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real numbers, real job scenarios — no abstract placeholders.`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -564,10 +570,12 @@ Make the examples concrete and specific — use real numbers, real tool names, r
       heading?: string;
       content?: string;
       example?: string;
+      practicalTip?: string;
       checkQuestion?: {
         prompt?: string;
         options?: unknown[];
         correctIndex?: unknown;
+        correctAnswer?: unknown;
         explanation?: string;
       };
     }>;
@@ -579,15 +587,26 @@ Make the examples concrete and specific — use real numbers, real tool names, r
   )
     .filter((s) => typeof s.content === "string" && s.content.trim().length > 0)
     .map((s) => {
-      const opts = Array.isArray(s.checkQuestion?.options)
+      let opts = Array.isArray(s.checkQuestion?.options)
         ? (s.checkQuestion.options as unknown[])
             .slice(0, 4)
             .map((o) => (typeof o === "string" ? o : String(o)))
         : ["True", "False", "Not mentioned", "Cannot determine"];
 
-      const rawIdx = s.checkQuestion?.correctIndex;
-      let cidx = typeof rawIdx === "number" ? rawIdx : 0;
-      if (cidx < 0 || cidx >= opts.length) cidx = 0;
+      // Resolve correct index using text match first (same as quiz system)
+      let cidx = resolveCorrectIndex(
+        opts,
+        s.checkQuestion?.correctAnswer,
+        s.checkQuestion?.correctIndex,
+      );
+
+      // Shuffle options so the correct answer position is randomized server-side,
+      // guaranteeing no systematic bias regardless of what the model outputs.
+      const correctText = opts[cidx];
+      const shuffled = [...opts].sort(() => Math.random() - 0.5);
+      const newCidx = shuffled.indexOf(correctText);
+      opts = shuffled;
+      cidx = newCidx >= 0 ? newCidx : 0;
 
       return {
         heading:
@@ -599,6 +618,10 @@ Make the examples concrete and specific — use real numbers, real tool names, r
           typeof s.example === "string" && s.example.trim().length > 0
             ? s.example.trim()
             : "See the explanation above for a worked example.",
+        practicalTip:
+          typeof s.practicalTip === "string" && s.practicalTip.trim().length > 0
+            ? s.practicalTip.trim()
+            : undefined,
         checkQuestion: {
           prompt:
             typeof s.checkQuestion?.prompt === "string"

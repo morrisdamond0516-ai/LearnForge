@@ -573,6 +573,7 @@ export const GetLessonByIdResponse = zod.object({
   "heading": zod.string(),
   "content": zod.string(),
   "example": zod.string(),
+  "practicalTip": zod.string().optional(),
   "checkQuestion": zod.object({
   "prompt": zod.string(),
   "options": zod.array(zod.string()),
