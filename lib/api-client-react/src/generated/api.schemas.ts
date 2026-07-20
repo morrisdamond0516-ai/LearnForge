@@ -279,11 +279,27 @@ export interface LessonCheckQuestion {
   explanation: string;
 }
 
+export interface SpreadsheetTask {
+  instruction: string;
+  targetCell?: string;
+  expectedValue: string;
+  formulaHint: string;
+}
+
+export interface SpreadsheetExercise {
+  title: string;
+  description: string;
+  headers: string[];
+  rows: string[][];
+  tasks: SpreadsheetTask[];
+}
+
 export interface LessonSection {
   heading: string;
   content: string;
   example: string;
   practicalTip?: string;
+  spreadsheetExercise?: SpreadsheetExercise;
   checkQuestion: LessonCheckQuestion;
 }
 

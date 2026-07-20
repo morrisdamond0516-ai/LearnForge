@@ -587,6 +587,18 @@ export const GetLessonByIdResponse = zod.object({
   "content": zod.string(),
   "example": zod.string(),
   "practicalTip": zod.string().optional(),
+  "spreadsheetExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "headers": zod.array(zod.string()),
+  "rows": zod.array(zod.array(zod.string())),
+  "tasks": zod.array(zod.object({
+  "instruction": zod.string(),
+  "targetCell": zod.string().optional(),
+  "expectedValue": zod.string(),
+  "formulaHint": zod.string()
+}))
+}).optional(),
   "checkQuestion": zod.object({
   "prompt": zod.string(),
   "options": zod.array(zod.string()),

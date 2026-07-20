@@ -58,6 +58,8 @@ export * from './roleplayMessage200';
 export * from './roleplayMessageRole';
 export * from './roleplayQuestionReview';
 export * from './schoolRecommendation';
+export * from './spreadsheetExercise';
+export * from './spreadsheetTask';
 export * from './subject';
 export * from './subjectInput';
 export * from './subjectProgress';

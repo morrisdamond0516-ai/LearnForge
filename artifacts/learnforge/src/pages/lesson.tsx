@@ -20,7 +20,11 @@ import {
   Zap,
   Loader2,
 } from "lucide-react";
-import type { LessonSection, LessonKeyTerm } from "@workspace/api-client-react";
+import type {
+  LessonSection,
+  LessonKeyTerm,
+  SpreadsheetExercise,
+} from "@workspace/api-client-react";
 
 type AnswerState = {
   selected: number;
@@ -97,6 +101,255 @@ function CheckQuestion({
           <span>{question.explanation}</span>
         </div>
       )}
+    </div>
+  );
+}
+
+type TaskState = { value: string; checked: boolean; correct: boolean | null };
+
+function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise }) {
+  const [tasks, setTasks] = useState<TaskState[]>(
+    exercise.tasks.map(() => ({ value: "", checked: false, correct: null })),
+  );
+
+  const allChecked = tasks.every((t) => t.checked);
+
+  const handleCheck = (i: number) => {
+    const expected = exercise.tasks[i].expectedValue.trim();
+    const raw = tasks[i].value.trim();
+    // Accept numeric equivalence (e.g. "3000" == "3,000" or "3000.00")
+    const normalize = (v: string) => {
+      const n = parseFloat(v.replace(/,/g, ""));
+      return isNaN(n) ? v.toLowerCase() : n;
+    };
+    const correct =
+      raw.toLowerCase() === expected.toLowerCase() ||
+      normalize(raw) === normalize(expected);
+    setTasks((prev) =>
+      prev.map((t, idx) => (idx === i ? { ...t, checked: true, correct } : t)),
+    );
+  };
+
+  const handleReset = (i: number) => {
+    setTasks((prev) =>
+      prev.map((t, idx) =>
+        idx === i ? { value: "", checked: false, correct: null } : t,
+      ),
+    );
+  };
+
+  return (
+    <div className="rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20 overflow-hidden">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-green-200 dark:border-green-800 flex items-center gap-2">
+        <span className="text-green-700 dark:text-green-400 font-semibold text-sm uppercase tracking-wider flex items-center gap-2">
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M3 9h18M3 15h18M9 3v18" />
+          </svg>
+          {exercise.title}
+        </span>
+      </div>
+
+      <div className="p-4 space-y-4">
+        <p className="text-sm text-muted-foreground">{exercise.description}</p>
+
+        {/* Spreadsheet grid */}
+        <div className="overflow-x-auto rounded-lg border border-green-200 dark:border-green-800 bg-white dark:bg-card">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-gray-100 dark:bg-muted">
+                {exercise.headers.map((h, ci) => (
+                  <th
+                    key={ci}
+                    className={`border border-gray-300 dark:border-border px-2 py-1 font-semibold text-center min-w-[80px] ${
+                      ci === 0 ? "w-8 bg-gray-200 dark:bg-muted text-muted-foreground" : "text-gray-600 dark:text-muted-foreground"
+                    }`}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {exercise.rows.map((row, ri) => {
+                // Find tasks targeting cells in this row
+                const rowNum = row[0]; // first cell is the row number
+                return (
+                  <tr
+                    key={ri}
+                    className={ri % 2 === 0 ? "bg-white dark:bg-background" : "bg-gray-50 dark:bg-muted/30"}
+                  >
+                    {row.map((cell, ci) => {
+                      if (ci === 0) {
+                        return (
+                          <td
+                            key={ci}
+                            className="border border-gray-300 dark:border-border px-2 py-1 text-center text-muted-foreground bg-gray-100 dark:bg-muted font-medium"
+                          >
+                            {cell}
+                          </td>
+                        );
+                      }
+                      // Determine column letter from headers
+                      const colLetter = exercise.headers[ci] ?? "";
+                      const cellRef = `${colLetter}${rowNum}`;
+                      const taskIdx = exercise.tasks.findIndex(
+                        (t) => t.targetCell === cellRef,
+                      );
+                      const isEmpty = cell === "";
+
+                      if (isEmpty && taskIdx >= 0) {
+                        const ts = tasks[taskIdx];
+                        return (
+                          <td
+                            key={ci}
+                            className="border border-blue-400 dark:border-blue-500 px-1 py-0.5 bg-blue-50 dark:bg-blue-950/30"
+                          >
+                            {ts.checked ? (
+                              <span
+                                className={`font-semibold px-1 ${
+                                  ts.correct
+                                    ? "text-green-700 dark:text-green-400"
+                                    : "text-red-600 dark:text-red-400 line-through"
+                                }`}
+                              >
+                                {ts.value || "—"}
+                              </span>
+                            ) : (
+                              <input
+                                type="text"
+                                value={ts.value}
+                                onChange={(e) =>
+                                  setTasks((prev) =>
+                                    prev.map((t, idx) =>
+                                      idx === taskIdx
+                                        ? { ...t, value: e.target.value }
+                                        : t,
+                                    ),
+                                  )
+                                }
+                                placeholder="?"
+                                className="w-full bg-transparent text-center outline-none placeholder-blue-400 font-mono"
+                              />
+                            )}
+                          </td>
+                        );
+                      }
+
+                      return (
+                        <td
+                          key={ci}
+                          className={`border border-gray-300 dark:border-border px-2 py-1 ${
+                            ri === 0 ? "font-semibold text-gray-700 dark:text-foreground bg-gray-50 dark:bg-muted/50" : "font-mono text-gray-700 dark:text-foreground"
+                          }`}
+                        >
+                          {cell}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Task cards */}
+        <div className="space-y-3">
+          {exercise.tasks.map((task, i) => {
+            const ts = tasks[i];
+            return (
+              <div
+                key={i}
+                className={`rounded-lg border p-3 space-y-2 ${
+                  ts.correct === true
+                    ? "border-green-400 bg-green-50 dark:bg-green-950/30"
+                    : ts.correct === false
+                      ? "border-red-400 bg-red-50 dark:bg-red-950/30"
+                      : "border-gray-200 dark:border-border bg-white dark:bg-card"
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <p className="text-sm font-medium leading-snug">{task.instruction}</p>
+                </div>
+
+                {!ts.checked && (
+                  <div className="flex items-center gap-2 pl-7">
+                    {task.targetCell && (
+                      <span className="text-xs font-mono bg-gray-100 dark:bg-muted px-2 py-0.5 rounded border border-gray-300 dark:border-border text-muted-foreground">
+                        {task.targetCell}
+                      </span>
+                    )}
+                    <input
+                      type="text"
+                      value={ts.value}
+                      onChange={(e) =>
+                        setTasks((prev) =>
+                          prev.map((t, idx) =>
+                            idx === i ? { ...t, value: e.target.value } : t,
+                          )
+                        )
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && ts.value.trim()) handleCheck(i);
+                      }}
+                      placeholder="Your answer…"
+                      className="flex-1 text-sm border rounded px-2 py-1 bg-white dark:bg-muted border-gray-300 dark:border-border outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCheck(i)}
+                      disabled={!ts.value.trim()}
+                    >
+                      Check
+                    </Button>
+                  </div>
+                )}
+
+                {ts.checked && (
+                  <div className="pl-7 space-y-1">
+                    <div
+                      className={`flex items-center gap-2 text-sm font-medium ${
+                        ts.correct
+                          ? "text-green-700 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
+                      }`}
+                    >
+                      {ts.correct ? (
+                        <><CheckCircle2 className="h-4 w-4" /> Correct!</>
+                      ) : (
+                        <><XCircle className="h-4 w-4" /> Not quite — expected {exercise.tasks[i].expectedValue}</>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
+                      {task.formulaHint}
+                    </p>
+                    {!ts.correct && (
+                      <button
+                        onClick={() => handleReset(i)}
+                        className="text-xs text-blue-600 dark:text-blue-400 underline"
+                      >
+                        Try again
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {allChecked && tasks.every((t) => t.correct) && (
+          <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-semibold text-sm">
+            <Trophy className="h-4 w-4" /> All tasks complete — great work!
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -293,6 +546,10 @@ export default function LessonPage() {
                 </p>
               </CardContent>
             </Card>
+          )}
+
+          {section.spreadsheetExercise && (
+            <SpreadsheetExerciseBlock exercise={section.spreadsheetExercise} />
           )}
 
           <CheckQuestion

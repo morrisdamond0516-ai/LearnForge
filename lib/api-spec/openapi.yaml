@@ -1488,6 +1488,40 @@ components:
           type: integer
         explanation:
           type: string
+    SpreadsheetTask:
+      type: object
+      required: [instruction, expectedValue, formulaHint]
+      properties:
+        instruction:
+          type: string
+        targetCell:
+          type: string
+        expectedValue:
+          type: string
+        formulaHint:
+          type: string
+    SpreadsheetExercise:
+      type: object
+      required: [title, description, headers, rows, tasks]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        headers:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpreadsheetTask"
     LessonSection:
       type: object
       required: [heading, content, example, checkQuestion]
@@ -1500,6 +1534,8 @@ components:
           type: string
         practicalTip:
           type: string
+        spreadsheetExercise:
+          $ref: "#/components/schemas/SpreadsheetExercise"
         checkQuestion:
           $ref: "#/components/schemas/LessonCheckQuestion"
     LessonKeyTerm:

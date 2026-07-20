@@ -464,11 +464,27 @@ export type LessonCheckQuestion = {
   explanation: string;
 };
 
+export type SpreadsheetTaskData = {
+  instruction: string;
+  targetCell: string;
+  expectedValue: string;
+  formulaHint: string;
+};
+
+export type SpreadsheetExerciseData = {
+  title: string;
+  description: string;
+  headers: string[];
+  rows: string[][];
+  tasks: SpreadsheetTaskData[];
+};
+
 export type LessonSectionData = {
   heading: string;
   content: string;
   example: string;
   practicalTip?: string;
+  spreadsheetExercise?: SpreadsheetExerciseData;
   checkQuestion: LessonCheckQuestion;
 };
 
@@ -508,10 +524,56 @@ export async function generateLesson(
       ? `The learner especially needs help with: ${focusAreas.join(", ")}. Weight your sections toward these areas.`
       : "";
 
+  // Detect if the topic warrants interactive spreadsheet exercises
+  const dataKeywords =
+    /excel|spreadsheet|formula|pivot|vlookup|sql|python|pandas|numpy|statistics|regression|data|analyst|analysis|aggregat|sum|average|count|chart|visualization|tableau|power bi|r language|descriptive|correlation/i;
+  const isDataTopic = dataKeywords.test(topic) || dataKeywords.test(subjectName ?? "");
+
+  const spreadsheetInstruction = isDataTopic
+    ? `For sections that involve calculations, formulas, or working with data, include a "spreadsheetExercise" field with a hands-on mini spreadsheet the learner can interact with. Shape:
+{
+  "spreadsheetExercise": {
+    "title": "brief exercise title",
+    "description": "1-2 sentences explaining what the learner will do",
+    "headers": ["", "A", "B", "C", "D"],
+    "rows": [
+      ["1", "Month", "Units Sold", "Unit Price", "Revenue"],
+      ["2", "January", "120", "25.00", ""],
+      ["3", "February", "145", "25.00", ""],
+      ["4", "March", "98", "27.50", ""],
+      ["5", "April", "210", "27.50", ""],
+      ["6", "May", "175", "30.00", ""],
+      ["7", "June", "230", "30.00", ""],
+      ["8", "TOTAL", "", "", ""]
+    ],
+    "tasks": [
+      {
+        "instruction": "In cell D2, calculate revenue for January (Units Sold × Unit Price). What is the result?",
+        "targetCell": "D2",
+        "expectedValue": "3000",
+        "formulaHint": "=B2*C2 → 120 × 25.00 = 3000"
+      }
+    ]
+  }
+}
+Rules for spreadsheetExercise:
+- Use realistic business/data scenarios with real numbers (not placeholder text)
+- headers[0] is always "" (empty, for the row-number column); remaining headers are column letters
+- rows[0] is always the column label row (Month, Units Sold, etc.); subsequent rows are data
+- Leave answer cells as "" in the rows array — the learner fills these in
+- tasks[].expectedValue must be the exact numeric string result (e.g. "3000" not "3,000")
+- tasks[].formulaHint shows the Excel/Python formula AND the worked calculation
+- Include 2-4 tasks per exercise that build progressively (individual cells first, then totals/averages)
+- Only include spreadsheetExercise for sections where hands-on data work is natural; omit it for conceptual sections`
+    : "";
+
   const system =
     "You are an expert instructional designer who creates deep, interactive lessons for self-learners. " +
     "Each section thoroughly explains one concept, walks through a detailed real-world worked example, includes a practical tip, " +
     "and ends with a comprehension question. " +
+    (isDataTopic
+      ? "For data/calculation sections, also include an interactive spreadsheet exercise so learners practice with real data. "
+      : "") +
     "IMPORTANT: Vary where the correct answer appears in every question — spread correct answers across positions A (index 0), B (index 1), C (index 2), and D (index 3). Never put the correct answer in the same position more than once in a row. " +
     "Write in a warm, encouraging, plain-spoken voice. " +
     "Return ONLY valid JSON, no prose, no markdown fences.";
@@ -531,6 +593,7 @@ Return JSON with this exact shape:
       "content": "3-5 paragraphs thoroughly explaining the concept: start with WHY it matters and a real-world context, then explain HOW it works in plain language with analogies, then cover important nuances or edge cases",
       "example": "a fully worked, step-by-step example using real tool names, real data, real numbers — number each step, show intermediate results, and explain the reasoning at each step",
       "practicalTip": "one concrete pro tip or common mistake to avoid — something a beginner would not know",
+      ${isDataTopic ? `"spreadsheetExercise": null,` : ""}
       "checkQuestion": {
         "prompt": "a specific question testing understanding of this section — not a definition lookup but applied understanding",
         "options": ["option text", "option text", "option text", "option text"],
@@ -544,6 +607,8 @@ Return JSON with this exact shape:
     { "term": "term", "definition": "a precise, one-to-two sentence definition with a usage example" }
   ]
 }
+
+${spreadsheetInstruction}
 
 Include 5-7 sections that build on each other logically — start with fundamentals and progress to application.
 Include 6-10 key terms covering essential vocabulary for this topic.
@@ -571,6 +636,18 @@ Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real num
       content?: string;
       example?: string;
       practicalTip?: string;
+      spreadsheetExercise?: {
+        title?: string;
+        description?: string;
+        headers?: unknown[];
+        rows?: unknown[][];
+        tasks?: Array<{
+          instruction?: string;
+          targetCell?: string;
+          expectedValue?: string;
+          formulaHint?: string;
+        }>;
+      } | null;
       checkQuestion?: {
         prompt?: string;
         options?: unknown[];
@@ -608,6 +685,52 @@ Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real num
       opts = shuffled;
       cidx = newCidx >= 0 ? newCidx : 0;
 
+      // Parse spreadsheet exercise if present
+      let spreadsheetExercise: SpreadsheetExerciseData | undefined;
+      const se = s.spreadsheetExercise;
+      if (se && typeof se === "object") {
+        const headers = Array.isArray(se.headers)
+          ? se.headers.map((h) => (typeof h === "string" ? h : String(h)))
+          : [];
+        const rows = Array.isArray(se.rows)
+          ? se.rows
+              .filter(Array.isArray)
+              .map((row) =>
+                (row as unknown[]).map((cell) =>
+                  typeof cell === "string" ? cell : String(cell ?? ""),
+                ),
+              )
+          : [];
+        const tasks = Array.isArray(se.tasks)
+          ? se.tasks
+              .filter(
+                (t) =>
+                  typeof t?.instruction === "string" &&
+                  typeof t?.expectedValue === "string" &&
+                  typeof t?.formulaHint === "string",
+              )
+              .map((t) => ({
+                instruction: String(t.instruction).trim(),
+                targetCell: typeof t.targetCell === "string" ? t.targetCell.trim() : "",
+                expectedValue: String(t.expectedValue).trim(),
+                formulaHint: String(t.formulaHint).trim(),
+              }))
+          : [];
+        if (headers.length > 0 && rows.length > 0 && tasks.length > 0) {
+          spreadsheetExercise = {
+            title:
+              typeof se.title === "string" && se.title.trim().length > 0
+                ? se.title.trim()
+                : "Spreadsheet Exercise",
+            description:
+              typeof se.description === "string" ? se.description.trim() : "",
+            headers,
+            rows,
+            tasks,
+          };
+        }
+      }
+
       return {
         heading:
           typeof s.heading === "string" && s.heading.trim().length > 0
@@ -622,6 +745,7 @@ Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real num
           typeof s.practicalTip === "string" && s.practicalTip.trim().length > 0
             ? s.practicalTip.trim()
             : undefined,
+        spreadsheetExercise,
         checkQuestion: {
           prompt:
             typeof s.checkQuestion?.prompt === "string"

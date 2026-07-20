@@ -6,11 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { LessonCheckQuestion } from './lessonCheckQuestion';
+import type { SpreadsheetExercise } from './spreadsheetExercise';
 
 export interface LessonSection {
   heading: string;
   content: string;
   example: string;
   practicalTip?: string;
+  spreadsheetExercise?: SpreadsheetExercise;
   checkQuestion: LessonCheckQuestion;
 }
