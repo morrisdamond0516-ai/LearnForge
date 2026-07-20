@@ -21,6 +21,7 @@ import {
   GetLessonByIdResponse,
   DeleteLessonByIdParams,
   StartLessonPracticeParams,
+  RegenerateLessonParams,
 } from "@workspace/api-zod";
 import {
   generateStudyGuide,
@@ -376,6 +377,72 @@ router.get("/learn/lessons/:id", async (req, res): Promise<void> => {
       sections: row.sections,
       keyTerms: row.keyTerms,
       createdAt: row.createdAt,
+    }),
+  );
+});
+
+router.post("/learn/lessons/:id/regenerate", async (req, res): Promise<void> => {
+  const params = RegenerateLessonParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(lessonsTable)
+    .where(
+      and(
+        eq(lessonsTable.id, params.data.id),
+        eq(lessonsTable.userId, req.userId!),
+      ),
+    );
+
+  if (!existing) {
+    res.status(404).json({ error: "Lesson not found" });
+    return;
+  }
+
+  const subjectName = existing.subjectId
+    ? (await db.select().from(subjectsTable).where(eq(subjectsTable.id, existing.subjectId)))[0]?.name ?? undefined
+    : undefined;
+
+  let lesson;
+  try {
+    lesson = await generateLesson({
+      topic: existing.topic,
+      subjectName,
+      level: existing.level as "Beginner" | "Intermediate" | "Advanced",
+    });
+  } catch (err) {
+    req.log.error({ err }, "Lesson regeneration failed");
+    res.status(500).json({ error: "Failed to regenerate lesson. Please try again." });
+    return;
+  }
+
+  const [updated] = await db
+    .update(lessonsTable)
+    .set({
+      title: lesson.title,
+      summary: lesson.summary,
+      sections: lesson.sections,
+      keyTerms: lesson.keyTerms,
+    })
+    .where(eq(lessonsTable.id, existing.id))
+    .returning();
+
+  res.json(
+    GetLessonByIdResponse.parse({
+      id: updated.id,
+      subjectId: updated.subjectId,
+      subjectName: subjectName ?? null,
+      topic: updated.topic,
+      level: updated.level,
+      title: updated.title,
+      summary: updated.summary,
+      sections: updated.sections,
+      keyTerms: updated.keyTerms,
+      createdAt: updated.createdAt,
     }),
   );
 });

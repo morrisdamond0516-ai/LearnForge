@@ -553,6 +553,76 @@ export const StartLessonPracticeParams = zod.object({
 
 
 /**
+ * Regenerates the lesson's sections using the latest AI prompt (including
+spreadsheet, scenario, and code exercises). Updates the stored lesson in
+place and returns the refreshed version.
+
+ * @summary Regenerate a lesson with fresh interactive exercises
+ */
+export const RegenerateLessonParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RegenerateLessonResponse = zod.object({
+  "id": zod.number(),
+  "subjectId": zod.number().nullish(),
+  "subjectName": zod.string().nullish(),
+  "topic": zod.string(),
+  "level": zod.string(),
+  "title": zod.string(),
+  "summary": zod.string(),
+  "sections": zod.array(zod.object({
+  "heading": zod.string(),
+  "content": zod.string(),
+  "example": zod.string(),
+  "practicalTip": zod.string().optional(),
+  "spreadsheetExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "headers": zod.array(zod.string()),
+  "rows": zod.array(zod.array(zod.string())),
+  "tasks": zod.array(zod.object({
+  "instruction": zod.string(),
+  "targetCell": zod.string().optional(),
+  "expectedValue": zod.string(),
+  "formulaHint": zod.string()
+}))
+}).optional(),
+  "scenarioExercise": zod.object({
+  "title": zod.string(),
+  "role": zod.string(),
+  "situation": zod.string(),
+  "choices": zod.array(zod.object({
+  "label": zod.string(),
+  "outcome": zod.string(),
+  "isOptimal": zod.boolean()
+}))
+}).optional(),
+  "codeExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "language": zod.string(),
+  "starterCode": zod.string(),
+  "expectedOutput": zod.string(),
+  "solutionCode": zod.string(),
+  "hints": zod.array(zod.string()).optional()
+}).optional(),
+  "checkQuestion": zod.object({
+  "prompt": zod.string(),
+  "options": zod.array(zod.string()),
+  "correctIndex": zod.number(),
+  "explanation": zod.string()
+})
+})),
+  "keyTerms": zod.array(zod.object({
+  "term": zod.string(),
+  "definition": zod.string()
+})),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * @summary List saved interactive lessons
  */
 export const ListLessonsResponseItem = zod.object({

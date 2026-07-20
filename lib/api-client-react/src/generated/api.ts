@@ -2396,6 +2396,80 @@ export const useStartLessonPractice = <TError = ErrorType<ErrorEnvelope>,
       return useMutation(getStartLessonPracticeMutationOptions(options));
     }
 
+export const getRegenerateLessonUrl = (id: number,) => {
+
+
+
+
+  return `/api/learn/lessons/${id}/regenerate`
+}
+
+/**
+ * Regenerates the lesson's sections using the latest AI prompt (including
+spreadsheet, scenario, and code exercises). Updates the stored lesson in
+place and returns the refreshed version.
+
+ * @summary Regenerate a lesson with fresh interactive exercises
+ */
+export const regenerateLesson = async (id: number, options?: RequestInit): Promise<LessonResponse> => {
+
+  return customFetch<LessonResponse>(getRegenerateLessonUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRegenerateLessonMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateLesson>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof regenerateLesson>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['regenerateLesson'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateLesson>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  regenerateLesson(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegenerateLessonMutationResult = NonNullable<Awaited<ReturnType<typeof regenerateLesson>>>
+
+    export type RegenerateLessonMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Regenerate a lesson with fresh interactive exercises
+ */
+export const useRegenerateLesson = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateLesson>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof regenerateLesson>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRegenerateLessonMutationOptions(options));
+    }
+
 export const getListLessonsUrl = () => {
 
 

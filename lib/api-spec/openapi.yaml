@@ -818,6 +818,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+  /learn/lessons/{id}/regenerate:
+    post:
+      operationId: regenerateLesson
+      tags: [learn]
+      summary: Regenerate a lesson with fresh interactive exercises
+      description: |
+        Regenerates the lesson's sections using the latest AI prompt (including
+        spreadsheet, scenario, and code exercises). Updates the stored lesson in
+        place and returns the refreshed version.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Refreshed lesson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LessonResponse"
+        "404":
+          description: Lesson not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
   /learn/lessons:
     get:
       operationId: listLessons

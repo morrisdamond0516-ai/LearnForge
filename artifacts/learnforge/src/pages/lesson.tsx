@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation, Link } from "wouter";
 import {
   useGetLessonById,
   getGetLessonByIdQueryKey,
   useStartLessonPractice,
+  useRegenerateLesson,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +21,7 @@ import {
   Trophy,
   Zap,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import type {
   LessonSection,
@@ -696,7 +699,18 @@ export default function LessonPage() {
   const [answers, setAnswers] = useState<Map<number, AnswerState>>(new Map());
   const [done, setDone] = useState(false);
 
+  const queryClient = useQueryClient();
   const startPractice = useStartLessonPractice();
+  const regenerate = useRegenerateLesson({
+    mutation: {
+      onSuccess: (updated) => {
+        queryClient.setQueryData(getGetLessonByIdQueryKey(lessonId), updated);
+        setCurrentSection(0);
+        setAnswers(new Map());
+        setDone(false);
+      },
+    },
+  });
 
   const { data: lesson, isLoading, error } = useGetLessonById(lessonId, {
     query: {
@@ -761,11 +775,23 @@ export default function LessonPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500 pb-16">
       <div className="space-y-4">
-        <Link href="/learn">
-          <Button variant="ghost" className="-ml-4 text-muted-foreground">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Learn
+        <div className="flex items-center justify-between">
+          <Link href="/learn">
+            <Button variant="ghost" className="-ml-4 text-muted-foreground">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Learn
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={regenerate.isPending}
+            onClick={() => regenerate.mutate({ id: lessonId })}
+            title="Regenerate this lesson with fresh interactive exercises"
+          >
+            <RefreshCw className={`mr-2 h-3.5 w-3.5 ${regenerate.isPending ? "animate-spin" : ""}`} />
+            {regenerate.isPending ? "Regenerating…" : "Refresh Exercises"}
           </Button>
-        </Link>
+        </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${levelClass}`}>
