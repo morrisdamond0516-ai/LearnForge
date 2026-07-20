@@ -1600,6 +1600,39 @@ components:
           type: array
           items:
             type: string
+    DragDropItem:
+      type: object
+      required: [id, label]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        match:
+          type: string
+        correctPosition:
+          type: integer
+        category:
+          type: string
+    DragDropExercise:
+      type: object
+      required: [title, description, variant, items]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        variant:
+          type: string
+          enum: [order, match, categorize]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DragDropItem"
+        targets:
+          type: array
+          items:
+            type: string
     LessonSection:
       type: object
       required: [heading, content, example, checkQuestion]
@@ -1618,6 +1651,8 @@ components:
           $ref: "#/components/schemas/ScenarioExercise"
         codeExercise:
           $ref: "#/components/schemas/CodeExercise"
+        dragDropExercise:
+          $ref: "#/components/schemas/DragDropExercise"
         checkQuestion:
           $ref: "#/components/schemas/LessonCheckQuestion"
     LessonKeyTerm:

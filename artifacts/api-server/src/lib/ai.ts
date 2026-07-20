@@ -502,6 +502,22 @@ export type CodeExerciseData = {
   hints: string[];
 };
 
+export type DragDropItemData = {
+  id: string;
+  label: string;
+  match?: string;
+  correctPosition?: number;
+  category?: string;
+};
+
+export type DragDropExerciseData = {
+  title: string;
+  description: string;
+  variant: "order" | "match" | "categorize";
+  items: DragDropItemData[];
+  targets?: string[];
+};
+
 export type LessonSectionData = {
   heading: string;
   content: string;
@@ -510,6 +526,7 @@ export type LessonSectionData = {
   spreadsheetExercise?: SpreadsheetExerciseData;
   scenarioExercise?: ScenarioExerciseData;
   codeExercise?: CodeExerciseData;
+  dragDropExercise?: DragDropExerciseData;
   checkQuestion: LessonCheckQuestion;
 };
 
@@ -565,9 +582,10 @@ export async function generateLesson(
         ? "scenario"
         : "scenario"; // default to scenario — it works for any subject
 
-  const exerciseInstruction =
+  const primaryExerciseInstruction =
     exerciseType === "spreadsheet"
-      ? `SPREADSHEET EXERCISES: For sections involving calculations or data work, add a "spreadsheetExercise" field:
+      ? `SPREADSHEET EXERCISES (primary — use on 2 data-focused sections):
+Add "spreadsheetExercise" to sections that involve calculations or working with data:
 {
   "spreadsheetExercise": {
     "title": "brief exercise title",
@@ -584,9 +602,10 @@ export async function generateLesson(
     ]
   }
 }
-Rules: headers[0]=""; rows[0] is label row; leave answer cells as ""; expectedValue is exact numeric string; 2-4 progressive tasks; only include where data work is natural.`
+Rules: headers[0]=""; rows[0] is label row; leave answer cells as ""; expectedValue is exact numeric string; 2-4 progressive tasks.`
       : exerciseType === "code"
-        ? `CODE EXERCISES: For sections where writing code deepens understanding, add a "codeExercise" field:
+        ? `CODE EXERCISES (primary — use on 2 coding-focused sections):
+Add "codeExercise" to sections where writing code deepens understanding:
 {
   "codeExercise": {
     "title": "brief exercise title",
@@ -598,38 +617,91 @@ Rules: headers[0]=""; rows[0] is label row; leave answer cells as ""; expectedVa
     "hints": ["Use the built-in sum() function", "Divide by len(numbers)"]
   }
 }
-Rules: use the language most natural for the topic (python/javascript/sql); starterCode must be runnable with the solution filled in; expectedOutput is exactly what stdout should show; 2-3 short hints; only include for sections where coding practice makes sense.`
-        : `SCENARIO EXERCISES: For sections covering judgment, decision-making, or professional practice, add a "scenarioExercise" field that puts the learner in a realistic workplace situation:
+Rules: use the natural language for the topic; starterCode must be complete with solution filled in; expectedOutput is exactly stdout; 2-3 hints.`
+        : `SCENARIO EXERCISES (primary — use on 2 judgment-focused sections):
+Add "scenarioExercise" to sections covering decision-making or professional practice:
 {
   "scenarioExercise": {
     "title": "brief scenario title",
-    "role": "Your role here — e.g. 'You are the charge nurse on a busy ER floor' or 'You are an HR manager at a mid-size tech company'",
-    "situation": "2-4 sentences describing the specific situation, with realistic details — names, numbers, context. What just happened that requires your action right now?",
+    "role": "Your role — e.g. 'You are the charge nurse on a busy ER floor'",
+    "situation": "2-4 sentences with specific details, real names, numbers — what just happened?",
     "choices": [
-      { "label": "Action A — specific, realistic thing you could do", "outcome": "2-3 sentences describing what actually happens when you take this action. Be realistic — include both immediate and downstream effects.", "isOptimal": false },
-      { "label": "Action B — the best professional response", "outcome": "2-3 sentences on why this works well — the immediate result, why it aligns with best practice, and what it signals to others.", "isOptimal": true },
-      { "label": "Action C — plausible but flawed approach", "outcome": "2-3 sentences on what goes wrong — not catastrophic, but describe the real consequence and what it teaches.", "isOptimal": false }
+      { "label": "Action A — specific plausible action", "outcome": "2-3 sentences on what actually happens — realistic consequences.", "isOptimal": false },
+      { "label": "Action B — the best professional response", "outcome": "2-3 sentences on why this works well.", "isOptimal": true },
+      { "label": "Action C — plausible but flawed approach", "outcome": "2-3 sentences on the real consequence.", "isOptimal": false }
     ]
   }
 }
-Rules: role must be vivid and job-specific; situation must have real stakes and concrete details; choices must all be plausible (no obviously wrong option); exactly one isOptimal:true; outcomes must be realistic job consequences, not textbook answers; include for sections where professional judgment matters most.`;
+Rules: role must be vivid; exactly one isOptimal:true; outcomes must be realistic job consequences.`;
 
-  const exerciseJsonField =
-    exerciseType === "spreadsheet"
-      ? `"spreadsheetExercise": null,`
-      : exerciseType === "code"
-        ? `"codeExercise": null,`
-        : `"scenarioExercise": null,`;
+  const dragDropInstruction = `
+DRAG-AND-DROP LABS (secondary — use on 1-2 DIFFERENT sections than the primary exercise):
+Add "dragDropExercise" to sections where ordering, matching, or categorizing reinforces understanding.
+Choose the most fitting variant for each section:
+
+VARIANT "order" — learner drags steps into the correct sequence:
+{
+  "dragDropExercise": {
+    "title": "Put the steps in order",
+    "description": "Drag the steps into the correct sequence for [process name]",
+    "variant": "order",
+    "items": [
+      { "id": "1", "label": "Step description", "correctPosition": 0 },
+      { "id": "2", "label": "Step description", "correctPosition": 1 },
+      { "id": "3", "label": "Step description", "correctPosition": 2 },
+      { "id": "4", "label": "Step description", "correctPosition": 3 }
+    ]
+  }
+}
+
+VARIANT "match" — learner matches terms to definitions/descriptions:
+{
+  "dragDropExercise": {
+    "title": "Match each term to its definition",
+    "description": "Drag each term on the left to its correct match on the right",
+    "variant": "match",
+    "items": [
+      { "id": "1", "label": "Term A", "match": "Definition of Term A" },
+      { "id": "2", "label": "Term B", "match": "Definition of Term B" },
+      { "id": "3", "label": "Term C", "match": "Definition of Term C" },
+      { "id": "4", "label": "Term D", "match": "Definition of Term D" }
+    ],
+    "targets": ["Definition of Term A", "Definition of Term B", "Definition of Term C", "Definition of Term D"]
+  }
+}
+
+VARIANT "categorize" — learner sorts items into labeled buckets:
+{
+  "dragDropExercise": {
+    "title": "Categorize each item",
+    "description": "Drag each item into the correct category",
+    "variant": "categorize",
+    "items": [
+      { "id": "1", "label": "Item description", "category": "Category Name" },
+      { "id": "2", "label": "Item description", "category": "Category Name" },
+      { "id": "3", "label": "Item description", "category": "Other Category" },
+      { "id": "4", "label": "Item description", "category": "Other Category" }
+    ],
+    "targets": ["Category Name", "Other Category"]
+  }
+}
+
+Rules: 4-6 items per exercise; items must be shuffled (not already in correct order); use realistic terminology for the topic; only include where the activity directly tests the section's concept.`;
+
+  const primaryFieldName =
+    exerciseType === "spreadsheet" ? `"spreadsheetExercise": null,`
+    : exerciseType === "code" ? `"codeExercise": null,`
+    : `"scenarioExercise": null,`;
 
   const system =
-    "You are an expert instructional designer who creates immersive, job-realistic lessons. " +
-    "Each section explains a concept deeply, walks through a detailed worked example, includes a practical tip, " +
-    "an interactive hands-on exercise (spreadsheet, code, or scenario), and ends with a comprehension check. " +
-    "IMPORTANT: Vary where the correct answer appears — spread across positions 0, 1, 2, 3. Never repeat the same index in a row. " +
+    "You are an expert instructional designer building CompTIA/LabSim-quality interactive lessons. " +
+    "Each section teaches a concept deeply with real worked examples, then gives the learner hands-on practice via interactive exercises. " +
+    "Use TWO exercise types per lesson: a primary exercise (spreadsheet/code/scenario) on 2 sections, and a drag-and-drop lab (order/match/categorize) on 1-2 other sections. " +
+    "IMPORTANT: Vary where the correct answer appears in check questions — spread across positions 0, 1, 2, 3. Never repeat the same index twice in a row. " +
     "Write in a warm, encouraging, plain-spoken voice. " +
     "Return ONLY valid JSON, no prose, no markdown fences.";
 
-  const user = `Create a thorough, job-realistic interactive lesson about "${topic}".
+  const user = `Create a thorough, CompTIA/LabSim-quality interactive lesson about "${topic}".
 ${subjectName ? `Subject area: ${subjectName}.` : ""}
 Level: ${level}. ${levelGuidance}
 ${focusBlock}
@@ -641,36 +713,41 @@ Return JSON with this exact shape:
   "sections": [
     {
       "heading": "concept heading",
-      "content": "3-5 paragraphs thoroughly explaining the concept: start with WHY it matters in the real job, then explain HOW it works with analogies, then cover edge cases professionals actually encounter",
-      "example": "a fully worked, step-by-step example using real names, real data, real numbers — number each step, show intermediate results, explain reasoning at each step",
-      "practicalTip": "one concrete pro tip or common mistake to avoid — something a beginner would not know but an experienced professional would",
-      ${exerciseJsonField}
+      "content": "3-5 paragraphs: start with WHY it matters in the real job, explain HOW it works with analogies, cover edge cases professionals encounter",
+      "example": "fully worked step-by-step example with real names, data, numbers — numbered steps, intermediate results, reasoning at each step",
+      "practicalTip": "one concrete pro tip a beginner would not know but an experienced professional would",
+      ${primaryFieldName}
+      "dragDropExercise": null,
       "checkQuestion": {
-        "prompt": "a specific applied question testing professional judgment, not just recall",
+        "prompt": "applied question testing professional judgment, not just recall",
         "options": ["option text", "option text", "option text", "option text"],
         "correctIndex": 2,
         "correctAnswer": "exact verbatim text of the correct option",
-        "explanation": "explain why the correct answer is right AND briefly why each wrong answer is incorrect"
+        "explanation": "why the correct answer is right AND briefly why each wrong answer is incorrect"
       }
     }
   ],
   "keyTerms": [
-    { "term": "term", "definition": "a precise, one-to-two sentence definition with a real-world usage example" }
+    { "term": "term", "definition": "precise one-to-two sentence definition with real-world usage example" }
   ]
 }
 
-${exerciseInstruction}
+${primaryExerciseInstruction}
 
-INTERACTIVE EXERCISE RULES:
-- Include an exercise in 2-3 of the most applicable sections (not all sections — choose the most hands-on ones)
-- For sections without an exercise, set the field to null (keep the key, value null)
-- Make every exercise feel like real on-the-job work — not a textbook drill
+${dragDropInstruction}
 
-Include 5-7 sections that build on each other logically — start with fundamentals and progress to application.
-Include 6-10 key terms covering essential vocabulary for this topic.
+EXERCISE DISTRIBUTION RULES:
+- Primary exercise (${exerciseType}): include in 2 sections where it is most hands-on and natural; set to null in other sections
+- Drag-and-drop: include in 1-2 DIFFERENT sections (not the same sections as the primary exercise); set to null in other sections
+- Each section should have AT MOST one exercise type filled in (primary OR drag-drop, not both)
+- For sections with no exercise, both fields must be null
+- Total exercises across all sections: 3-4 interactive exercises
+
+Include 5-7 sections that build on each other logically.
+Include 6-10 key terms covering essential vocabulary.
 Each checkQuestion must have exactly 4 options with exactly one correct answer.
-CRITICAL: Vary correctIndex across sections — use 0, 1, 2, and 3 in different sections, never the same index twice in a row.
-correctAnswer must be copied verbatim from the options array.`;
+CRITICAL: Vary correctIndex — use 0, 1, 2, and 3 in different sections, never the same index twice in a row.
+correctAnswer must be verbatim from the options array.`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -721,6 +798,19 @@ correctAnswer must be copied verbatim from the options array.`;
         expectedOutput?: string;
         solutionCode?: string;
         hints?: unknown[];
+      } | null;
+      dragDropExercise?: {
+        title?: string;
+        description?: string;
+        variant?: unknown;
+        items?: Array<{
+          id?: unknown;
+          label?: unknown;
+          match?: unknown;
+          correctPosition?: unknown;
+          category?: unknown;
+        }>;
+        targets?: unknown[];
       } | null;
       checkQuestion?: {
         prompt?: string;
@@ -839,6 +929,43 @@ correctAnswer must be copied verbatim from the options array.`;
         }
       }
 
+      // Parse drag-and-drop exercise if present
+      let dragDropExercise: DragDropExerciseData | undefined;
+      const dd = s.dragDropExercise;
+      if (dd && typeof dd === "object") {
+        const validVariants = ["order", "match", "categorize"] as const;
+        const variant = validVariants.includes(dd.variant as (typeof validVariants)[number])
+          ? (dd.variant as "order" | "match" | "categorize")
+          : null;
+        const items = Array.isArray(dd.items)
+          ? dd.items
+              .filter((it) => typeof it?.label === "string" && it.label.trim().length > 0)
+              .map((it, idx) => ({
+                id: typeof it.id === "string" ? it.id : String(idx + 1),
+                label: String(it.label).trim(),
+                match: typeof it.match === "string" ? it.match.trim() : undefined,
+                correctPosition: typeof it.correctPosition === "number" ? it.correctPosition : undefined,
+                category: typeof it.category === "string" ? it.category.trim() : undefined,
+              }))
+          : [];
+        const targets = Array.isArray(dd.targets)
+          ? dd.targets.filter((t) => typeof t === "string").map((t) => String(t).trim())
+          : undefined;
+        if (variant && items.length >= 3) {
+          dragDropExercise = {
+            title:
+              typeof dd.title === "string" && dd.title.trim().length > 0
+                ? dd.title.trim()
+                : "Drag and Drop Lab",
+            description:
+              typeof dd.description === "string" ? dd.description.trim() : "",
+            variant,
+            items,
+            targets,
+          };
+        }
+      }
+
       // Parse code exercise if present
       let codeExercise: CodeExerciseData | undefined;
       const ce = s.codeExercise;
@@ -888,6 +1015,7 @@ correctAnswer must be copied verbatim from the options array.`;
             : undefined,
         spreadsheetExercise,
         scenarioExercise,
+        dragDropExercise,
         codeExercise,
         checkQuestion: {
           prompt:

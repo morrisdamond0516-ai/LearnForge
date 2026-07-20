@@ -29,6 +29,7 @@ import type {
   SpreadsheetExercise,
   ScenarioExercise,
   CodeExercise,
+  DragDropExercise,
 } from "@workspace/api-client-react";
 
 type AnswerState = {
@@ -472,6 +473,291 @@ function ScenarioExerciseBlock({ exercise }: { exercise: ScenarioExercise }) {
   );
 }
 
+// ─── Drag-and-Drop Exercise ───────────────────────────────────────────────────
+
+function DragDropExerciseBlock({ exercise }: { exercise: DragDropExercise }) {
+  const [order, setOrder] = useState<string[]>(() =>
+    [...exercise.items].sort(() => Math.random() - 0.5).map((it) => it.id),
+  );
+  const [matches, setMatches] = useState<Record<string, string>>({});
+  const [buckets, setBuckets] = useState<Record<string, string[]>>({});
+  const [selected, setSelected] = useState<string | null>(null);
+  const [checked, setChecked] = useState(false);
+  const [score, setScore] = useState(0);
+
+  const itemsById = Object.fromEntries(exercise.items.map((it) => [it.id, it]));
+  const targets = exercise.targets ?? [];
+
+  function handleCheck() {
+    let correct = 0;
+    if (exercise.variant === "order") {
+      order.forEach((id, idx) => {
+        const it = itemsById[id];
+        if (it.correctPosition === idx) correct++;
+      });
+    } else if (exercise.variant === "match") {
+      exercise.items.forEach((it) => {
+        if (matches[it.id] === it.match) correct++;
+      });
+    } else {
+      exercise.items.forEach((it) => {
+        const bucket = Object.entries(buckets).find(([, ids]) => ids.includes(it.id))?.[0];
+        if (bucket === it.category) correct++;
+      });
+    }
+    setScore(correct);
+    setChecked(true);
+  }
+
+  function handleReset() {
+    setOrder([...exercise.items].sort(() => Math.random() - 0.5).map((it) => it.id));
+    setMatches({});
+    setBuckets({});
+    setSelected(null);
+    setChecked(false);
+    setScore(0);
+  }
+
+  const total = exercise.items.length;
+  const allDone =
+    exercise.variant === "order"
+      ? true
+      : exercise.variant === "match"
+        ? Object.keys(matches).length === total
+        : exercise.items.every((it) =>
+            Object.values(buckets).some((ids) => ids.includes(it.id)),
+          );
+
+  return (
+    <div className="rounded-2xl border-2 border-purple-300 dark:border-purple-700 bg-purple-50/40 dark:bg-purple-950/20 overflow-hidden">
+      <div className="flex items-center gap-2 bg-purple-100/70 dark:bg-purple-900/40 px-5 py-3 border-b border-purple-200 dark:border-purple-700">
+        <svg className="h-4 w-4 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="3" width="18" height="4" rx="1" />
+          <rect x="3" y="10" width="18" height="4" rx="1" />
+          <rect x="3" y="17" width="18" height="4" rx="1" />
+        </svg>
+        <span className="text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
+          Interactive Lab — {exercise.variant === "order" ? "Sequence" : exercise.variant === "match" ? "Match" : "Categorize"}
+        </span>
+      </div>
+
+      <div className="p-5 space-y-4">
+        <div>
+          <p className="font-semibold text-sm text-purple-800 dark:text-purple-300">{exercise.title}</p>
+          {exercise.description && (
+            <p className="text-sm text-muted-foreground mt-0.5">{exercise.description}</p>
+          )}
+        </div>
+
+        {/* ORDER variant */}
+        {exercise.variant === "order" && (
+          <div className="space-y-2">
+            {order.map((id, idx) => {
+              const it = itemsById[id];
+              const isCorrect = checked && it.correctPosition === idx;
+              const isWrong = checked && it.correctPosition !== idx;
+              return (
+                <div key={id}
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer select-none transition-all
+                    ${selected === id ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 ring-2 ring-purple-400" : "border-border bg-background hover:border-purple-300"}
+                    ${isCorrect ? "border-green-500 bg-green-50 dark:bg-green-950/30" : ""}
+                    ${isWrong ? "border-red-400 bg-red-50 dark:bg-red-950/30" : ""}`}
+                  onClick={() => {
+                    if (checked) return;
+                    if (selected && selected !== id) {
+                      const a = order.indexOf(selected);
+                      const b = order.indexOf(id);
+                      const next = [...order];
+                      [next[a], next[b]] = [next[b], next[a]];
+                      setOrder(next);
+                      setSelected(null);
+                    } else {
+                      setSelected(selected === id ? null : id);
+                    }
+                  }}
+                >
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center
+                    ${isCorrect ? "bg-green-500 text-white" : isWrong ? "bg-red-400 text-white" : "bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200"}`}>
+                    {idx + 1}
+                  </span>
+                  <span className="text-sm leading-snug">{it.label}</span>
+                  {checked && isWrong && (
+                    <span className="ml-auto text-xs text-muted-foreground">→ pos {(it.correctPosition ?? 0) + 1}</span>
+                  )}
+                </div>
+              );
+            })}
+            {!checked && (
+              <p className="text-xs text-muted-foreground mt-1">Click an item to select it, then click another to swap their positions.</p>
+            )}
+          </div>
+        )}
+
+        {/* MATCH variant */}
+        {exercise.variant === "match" && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Terms</p>
+                {exercise.items.map((it) => {
+                  const isMatched = !!matches[it.id];
+                  const isCorrect = checked && matches[it.id] === it.match;
+                  const isWrong = checked && matches[it.id] && matches[it.id] !== it.match;
+                  return (
+                    <div key={it.id}
+                      className={`rounded-lg border px-3 py-2.5 text-sm cursor-pointer transition-all select-none
+                        ${selected === it.id ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 ring-2 ring-purple-400" : isMatched ? "border-purple-300 bg-purple-50 dark:bg-purple-950/30" : "border-border hover:border-purple-300"}
+                        ${isCorrect ? "border-green-500 bg-green-50 dark:bg-green-950/30" : ""}
+                        ${isWrong ? "border-red-400 bg-red-50 dark:bg-red-950/30" : ""}`}
+                      onClick={() => {
+                        if (checked) return;
+                        setSelected(selected === it.id ? null : it.id);
+                      }}
+                    >
+                      <span className="font-medium">{it.label}</span>
+                      {isMatched && !checked && (
+                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{matches[it.id]}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Definitions</p>
+                {targets.map((target) => {
+                  const assignedId = Object.entries(matches).find(([, v]) => v === target)?.[0];
+                  const isSelected = selected && !matches[selected];
+                  const isCorrect = checked && assignedId && itemsById[assignedId]?.match === target;
+                  const isWrong = checked && assignedId && itemsById[assignedId]?.match !== target;
+                  return (
+                    <div key={target}
+                      className={`rounded-lg border px-3 py-2.5 text-sm transition-all select-none
+                        ${isSelected && !assignedId ? "cursor-pointer hover:border-purple-400 border-dashed border-purple-300" : ""}
+                        ${assignedId ? "border-purple-300 bg-purple-50/60 dark:bg-purple-950/20" : "border-border"}
+                        ${isCorrect ? "border-green-500 bg-green-50 dark:bg-green-950/30" : ""}
+                        ${isWrong ? "border-red-400 bg-red-50 dark:bg-red-950/30" : ""}`}
+                      onClick={() => {
+                        if (checked || !selected) return;
+                        const prev = Object.entries(matches).find(([, v]) => v === target)?.[0];
+                        if (prev) {
+                          const m = { ...matches };
+                          delete m[prev];
+                          if (selected !== prev) m[selected] = target;
+                          setMatches(m);
+                        } else if (!matches[selected]) {
+                          setMatches({ ...matches, [selected]: target });
+                        }
+                        setSelected(null);
+                      }}
+                    >
+                      <span className="leading-snug">{target}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Click a term, then click its matching definition.</p>
+          </div>
+        )}
+
+        {/* CATEGORIZE variant */}
+        {exercise.variant === "categorize" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <p className="w-full text-xs font-semibold uppercase tracking-wider text-muted-foreground">Items — click to select</p>
+              {exercise.items.filter((it) => !Object.values(buckets).flat().includes(it.id)).map((it) => (
+                <button key={it.id}
+                  className={`rounded-lg border px-3 py-2 text-sm transition-all
+                    ${selected === it.id ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 ring-2 ring-purple-400" : "border-border hover:border-purple-300 bg-background"}`}
+                  onClick={() => setSelected(selected === it.id ? null : it.id)}
+                  disabled={checked}
+                >
+                  {it.label}
+                </button>
+              ))}
+              {exercise.items.every((it) => Object.values(buckets).flat().includes(it.id)) && !checked && (
+                <p className="text-xs text-muted-foreground w-full">All items placed.</p>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {targets.map((cat) => {
+                const inBucket = (buckets[cat] ?? []);
+                return (
+                  <div key={cat}
+                    className={`rounded-xl border-2 border-dashed px-4 py-3 min-h-[80px] transition-all
+                      ${selected ? "cursor-pointer border-purple-400 bg-purple-50/40 dark:bg-purple-950/10" : "border-border"}`}
+                    onClick={() => {
+                      if (!selected || checked) return;
+                      const prev = Object.entries(buckets).find(([, ids]) => ids.includes(selected))?.[0];
+                      const newBuckets = { ...buckets };
+                      if (prev) newBuckets[prev] = newBuckets[prev].filter((id) => id !== selected);
+                      newBuckets[cat] = [...(newBuckets[cat] ?? []), selected];
+                      setBuckets(newBuckets);
+                      setSelected(null);
+                    }}
+                  >
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">{cat}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {inBucket.map((id) => {
+                        const it = itemsById[id];
+                        const isCorrect = checked && it.category === cat;
+                        const isWrong = checked && it.category !== cat;
+                        return (
+                          <span key={id}
+                            className={`rounded-md px-2 py-1 text-xs font-medium border cursor-pointer
+                              ${isCorrect ? "bg-green-100 border-green-400 text-green-800" : isWrong ? "bg-red-100 border-red-400 text-red-800" : "bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-900/40 dark:border-purple-600 dark:text-purple-200"}`}
+                            onClick={(e) => {
+                              if (checked) return;
+                              e.stopPropagation();
+                              const newBuckets = { ...buckets };
+                              newBuckets[cat] = newBuckets[cat].filter((bid) => bid !== id);
+                              setBuckets(newBuckets);
+                            }}
+                          >
+                            {it.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">Click an item to select it, then click a category bucket to place it.</p>
+          </div>
+        )}
+
+        {/* Result banner */}
+        {checked && (
+          <div className={`rounded-xl border px-4 py-3 flex items-center justify-between gap-4
+            ${score === total ? "border-green-400 bg-green-50 dark:bg-green-950/30" : score >= total * 0.6 ? "border-yellow-400 bg-yellow-50 dark:bg-yellow-950/30" : "border-red-400 bg-red-50 dark:bg-red-950/30"}`}>
+            <p className="font-semibold text-sm">
+              {score === total ? "🎉 Perfect! All correct." : `${score} / ${total} correct — try again!`}
+            </p>
+            <button onClick={handleReset} className="text-xs underline text-muted-foreground hover:text-foreground">Reset</button>
+          </div>
+        )}
+
+        {!checked && (
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              disabled={exercise.variant !== "order" && !allDone}
+              onClick={handleCheck}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Check My Answers
+            </Button>
+            {exercise.variant !== "order" && !allDone && (
+              <span className="text-xs text-muted-foreground">Place all items first</span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 type CodeRunState = { stdout: string; stderr: string; exitCode: number } | null;
 
 function CodeExerciseBlock({ exercise }: { exercise: CodeExercise }) {
@@ -719,6 +1005,14 @@ export default function LessonPage() {
     },
   });
 
+  // Auto-detect old lessons that have no exercises in any section
+  const hasNoExercises =
+    lesson &&
+    !regenerate.isPending &&
+    lesson.sections.every(
+      (s) => !s.spreadsheetExercise && !s.scenarioExercise && !s.codeExercise && !s.dragDropExercise,
+    );
+
   if (isLoading) {
     return (
       <div className="max-w-3xl mx-auto space-y-6 py-8">
@@ -792,6 +1086,28 @@ export default function LessonPage() {
             {regenerate.isPending ? "Regenerating…" : "Refresh Exercises"}
           </Button>
         </div>
+
+        {hasNoExercises && (
+          <div className="rounded-xl border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                This lesson was saved before interactive labs were added.
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                Refresh it to get drag-and-drop labs, scenarios, and hands-on exercises.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              disabled={regenerate.isPending}
+              onClick={() => regenerate.mutate({ id: lessonId })}
+              className="flex-shrink-0 bg-amber-500 hover:bg-amber-600 text-white"
+            >
+              <RefreshCw className={`mr-2 h-3.5 w-3.5 ${regenerate.isPending ? "animate-spin" : ""}`} />
+              {regenerate.isPending ? "Upgrading…" : "Add Exercises"}
+            </Button>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-3">
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${levelClass}`}>
@@ -893,6 +1209,10 @@ export default function LessonPage() {
 
           {section.codeExercise && (
             <CodeExerciseBlock exercise={section.codeExercise} />
+          )}
+
+          {section.dragDropExercise && (
+            <DragDropExerciseBlock exercise={section.dragDropExercise} />
           )}
 
           <CheckQuestion

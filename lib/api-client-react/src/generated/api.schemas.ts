@@ -317,6 +317,31 @@ export interface CodeExercise {
   hints?: string[];
 }
 
+export interface DragDropItem {
+  id: string;
+  label: string;
+  match?: string;
+  correctPosition?: number;
+  category?: string;
+}
+
+export type DragDropExerciseVariant = typeof DragDropExerciseVariant[keyof typeof DragDropExerciseVariant];
+
+
+export const DragDropExerciseVariant = {
+  order: 'order',
+  match: 'match',
+  categorize: 'categorize',
+} as const;
+
+export interface DragDropExercise {
+  title: string;
+  description: string;
+  variant: DragDropExerciseVariant;
+  items: DragDropItem[];
+  targets?: string[];
+}
+
 export interface LessonSection {
   heading: string;
   content: string;
@@ -325,6 +350,7 @@ export interface LessonSection {
   spreadsheetExercise?: SpreadsheetExercise;
   scenarioExercise?: ScenarioExercise;
   codeExercise?: CodeExercise;
+  dragDropExercise?: DragDropExercise;
   checkQuestion: LessonCheckQuestion;
 }
 

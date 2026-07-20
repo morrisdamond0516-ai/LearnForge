@@ -607,6 +607,19 @@ export const RegenerateLessonResponse = zod.object({
   "solutionCode": zod.string(),
   "hints": zod.array(zod.string()).optional()
 }).optional(),
+  "dragDropExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "variant": zod.enum(['order', 'match', 'categorize']),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "match": zod.string().optional(),
+  "correctPosition": zod.number().optional(),
+  "category": zod.string().optional()
+})),
+  "targets": zod.array(zod.string()).optional()
+}).optional(),
   "checkQuestion": zod.object({
   "prompt": zod.string(),
   "options": zod.array(zod.string()),
@@ -687,6 +700,19 @@ export const GetLessonByIdResponse = zod.object({
   "expectedOutput": zod.string(),
   "solutionCode": zod.string(),
   "hints": zod.array(zod.string()).optional()
+}).optional(),
+  "dragDropExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "variant": zod.enum(['order', 'match', 'categorize']),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "match": zod.string().optional(),
+  "correctPosition": zod.number().optional(),
+  "category": zod.string().optional()
+})),
+  "targets": zod.array(zod.string()).optional()
 }).optional(),
   "checkQuestion": zod.object({
   "prompt": zod.string(),

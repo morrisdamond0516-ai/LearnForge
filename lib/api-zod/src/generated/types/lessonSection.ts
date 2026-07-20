@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CodeExercise } from './codeExercise';
+import type { DragDropExercise } from './dragDropExercise';
 import type { LessonCheckQuestion } from './lessonCheckQuestion';
 import type { ScenarioExercise } from './scenarioExercise';
 import type { SpreadsheetExercise } from './spreadsheetExercise';
@@ -18,5 +19,6 @@ export interface LessonSection {
   spreadsheetExercise?: SpreadsheetExercise;
   scenarioExercise?: ScenarioExercise;
   codeExercise?: CodeExercise;
+  dragDropExercise?: DragDropExercise;
   checkQuestion: LessonCheckQuestion;
 }
