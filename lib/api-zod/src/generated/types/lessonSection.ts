@@ -8,6 +8,7 @@
 import type { CodeExercise } from './codeExercise';
 import type { DragDropExercise } from './dragDropExercise';
 import type { LessonCheckQuestion } from './lessonCheckQuestion';
+import type { MultiStepLabExercise } from './multiStepLabExercise';
 import type { ScenarioExercise } from './scenarioExercise';
 import type { SpreadsheetExercise } from './spreadsheetExercise';
 
@@ -20,5 +21,6 @@ export interface LessonSection {
   scenarioExercise?: ScenarioExercise;
   codeExercise?: CodeExercise;
   dragDropExercise?: DragDropExercise;
+  labExercise?: MultiStepLabExercise;
   checkQuestion: LessonCheckQuestion;
 }

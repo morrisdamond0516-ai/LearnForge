@@ -620,6 +620,23 @@ export const RegenerateLessonResponse = zod.object({
 })),
   "targets": zod.array(zod.string()).optional()
 }).optional(),
+  "labExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "environmentType": zod.enum(['lab', 'clinic', 'office', 'courtroom', 'terminal', 'classroom', 'field', 'workshop']),
+  "environmentContext": zod.string(),
+  "steps": zod.array(zod.object({
+  "context": zod.string().optional(),
+  "task": zod.string(),
+  "choices": zod.array(zod.object({
+  "label": zod.string(),
+  "isCorrect": zod.boolean(),
+  "feedback": zod.string().optional()
+})),
+  "correctFeedback": zod.string().optional(),
+  "incorrectFeedback": zod.string().optional()
+}))
+}).optional(),
   "checkQuestion": zod.object({
   "prompt": zod.string(),
   "options": zod.array(zod.string()),
@@ -713,6 +730,23 @@ export const GetLessonByIdResponse = zod.object({
   "category": zod.string().optional()
 })),
   "targets": zod.array(zod.string()).optional()
+}).optional(),
+  "labExercise": zod.object({
+  "title": zod.string(),
+  "description": zod.string(),
+  "environmentType": zod.enum(['lab', 'clinic', 'office', 'courtroom', 'terminal', 'classroom', 'field', 'workshop']),
+  "environmentContext": zod.string(),
+  "steps": zod.array(zod.object({
+  "context": zod.string().optional(),
+  "task": zod.string(),
+  "choices": zod.array(zod.object({
+  "label": zod.string(),
+  "isCorrect": zod.boolean(),
+  "feedback": zod.string().optional()
+})),
+  "correctFeedback": zod.string().optional(),
+  "incorrectFeedback": zod.string().optional()
+}))
 }).optional(),
   "checkQuestion": zod.object({
   "prompt": zod.string(),

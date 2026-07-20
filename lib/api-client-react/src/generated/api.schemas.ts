@@ -317,6 +317,42 @@ export interface CodeExercise {
   hints?: string[];
 }
 
+export interface LabStepChoice {
+  label: string;
+  isCorrect: boolean;
+  feedback?: string;
+}
+
+export interface LabStep {
+  context?: string;
+  task: string;
+  choices: LabStepChoice[];
+  correctFeedback?: string;
+  incorrectFeedback?: string;
+}
+
+export type MultiStepLabExerciseEnvironmentType = typeof MultiStepLabExerciseEnvironmentType[keyof typeof MultiStepLabExerciseEnvironmentType];
+
+
+export const MultiStepLabExerciseEnvironmentType = {
+  lab: 'lab',
+  clinic: 'clinic',
+  office: 'office',
+  courtroom: 'courtroom',
+  terminal: 'terminal',
+  classroom: 'classroom',
+  field: 'field',
+  workshop: 'workshop',
+} as const;
+
+export interface MultiStepLabExercise {
+  title: string;
+  description: string;
+  environmentType: MultiStepLabExerciseEnvironmentType;
+  environmentContext: string;
+  steps: LabStep[];
+}
+
 export interface DragDropItem {
   id: string;
   label: string;
@@ -351,6 +387,7 @@ export interface LessonSection {
   scenarioExercise?: ScenarioExercise;
   codeExercise?: CodeExercise;
   dragDropExercise?: DragDropExercise;
+  labExercise?: MultiStepLabExercise;
   checkQuestion: LessonCheckQuestion;
 }
 

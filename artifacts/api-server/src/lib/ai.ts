@@ -502,6 +502,28 @@ export type CodeExerciseData = {
   hints: string[];
 };
 
+export type LabStepChoiceData = {
+  label: string;
+  isCorrect: boolean;
+  feedback?: string;
+};
+
+export type LabStepData = {
+  context?: string;
+  task: string;
+  choices: LabStepChoiceData[];
+  correctFeedback?: string;
+  incorrectFeedback?: string;
+};
+
+export type MultiStepLabExerciseData = {
+  title: string;
+  description: string;
+  environmentType: "lab" | "clinic" | "office" | "courtroom" | "terminal" | "classroom" | "field" | "workshop";
+  environmentContext: string;
+  steps: LabStepData[];
+};
+
 export type DragDropItemData = {
   id: string;
   label: string;
@@ -527,6 +549,7 @@ export type LessonSectionData = {
   scenarioExercise?: ScenarioExerciseData;
   codeExercise?: CodeExerciseData;
   dragDropExercise?: DragDropExerciseData;
+  labExercise?: MultiStepLabExerciseData;
   checkQuestion: LessonCheckQuestion;
 };
 
@@ -730,7 +753,7 @@ Rules: 4-6 items per exercise; items must be shuffled (not already in correct or
   const system =
     "You are an expert instructional designer building CompTIA/LabSim-quality interactive lessons. " +
     "Each section teaches a concept deeply with real worked examples, then gives the learner hands-on practice via interactive exercises. " +
-    "Use TWO exercise types per lesson: a primary exercise (spreadsheet/code/scenario) on 2 sections, and a drag-and-drop lab (order/match/categorize) on 1-2 other sections. " +
+    "Use THREE exercise types per lesson: a primary exercise (spreadsheet/code/scenario) on 2 sections; a drag-and-drop lab (order/match/categorize) on 1-2 other sections; and ONE multi-step simulation lab on the most immersive section. " +
     "IMPORTANT: Vary where the correct answer appears in check questions — spread across positions 0, 1, 2, 3. Never repeat the same index twice in a row. " +
     "Write in a warm, encouraging, plain-spoken voice. " +
     "Return ONLY valid JSON, no prose, no markdown fences.";
@@ -752,6 +775,7 @@ Return JSON with this exact shape:
       "practicalTip": "one concrete pro tip a beginner would not know but an experienced professional would",
       ${primaryFieldName}
       "dragDropExercise": null,
+      "labExercise": null,
       "checkQuestion": {
         "prompt": "applied question testing professional judgment, not just recall",
         "options": ["option text", "option text", "option text", "option text"],
@@ -770,12 +794,44 @@ ${primaryExerciseInstruction}
 
 ${dragDropInstruction}
 
+LAB SIMULATION EXERCISE (labExercise) — exactly ONE section gets this:
+Pick the section where learners most need to BE THERE on the job (the most procedural or high-stakes step). The lab puts them inside the real environment.
+"environmentType" must be one of: lab, clinic, office, courtroom, terminal, classroom, field, workshop
+  - lab → chemistry/biology/physics experiment bench
+  - clinic → patient care, nursing, medical assessment
+  - office → business, HR, management, accounting
+  - courtroom → legal proceedings, contracts, evidence
+  - terminal → IT/networking/cybersecurity command line
+  - classroom → teaching, tutoring, academic instruction
+  - field → environmental science, geology, archaeology, outdoor fieldwork
+  - workshop → mechanical, electrical, construction, trades
+"environmentContext" is a compact info-bar string like: "Mercy General Hospital — ER • Patient: M. Santos, 52F • CC: Chest pain" or "CompTIA Lab — Router: Cisco 2960 • Issue: No internet • Ticket: INC-3847"
+"steps": array of 4-5 sequential tasks. Each step:
+  - "context": one sentence describing what the learner now observes/sees (changes per step — shows consequences of prior action)
+  - "task": what they must do right now (one clear decision)
+  - "choices": 3-4 options; exactly ONE has "isCorrect": true; include a "feedback" string on each (what actually happens)
+  - "correctFeedback" / "incorrectFeedback": overall step outcome message
+Steps should FLOW: completing one step changes the situation and leads to the next.
+Example shape (DO NOT copy verbatim — generate for the actual topic):
+{
+  "title": "Emergency Triage Simulation",
+  "description": "Walk through a real patient assessment from arrival to intervention.",
+  "environmentType": "clinic",
+  "environmentContext": "Mercy General — ER • Patient: J. Torres, 34M • CC: Shortness of breath",
+  "steps": [
+    { "context": "The patient walks in pale and diaphoretic. Vitals: SpO2 88%, RR 28, BP 138/82.", "task": "What is your FIRST action?", "choices": [{"label":"Apply supplemental O2 via non-rebreather mask","isCorrect":true,"feedback":"SpO2 rises to 94% within 2 minutes."},{"label":"Order a chest X-ray immediately","isCorrect":false,"feedback":"Imaging is secondary — airway and oxygenation come first."}], "correctFeedback":"Good — oxygenation is always the priority.", "incorrectFeedback":"Remember ABC: Airway, Breathing, Circulation first." },
+    ...
+  ]
+}
+Set "labExercise": null in ALL other sections.
+
 EXERCISE DISTRIBUTION RULES:
 - Primary exercise (${exerciseType}): include in 2 sections where it is most hands-on and natural; set to null in other sections
-- Drag-and-drop: include in 1-2 DIFFERENT sections (not the same sections as the primary exercise); set to null in other sections
-- Each section should have AT MOST one exercise type filled in (primary OR drag-drop, not both)
-- For sections with no exercise, both fields must be null
-- Total exercises across all sections: 3-4 interactive exercises
+- Drag-and-drop: include in 1-2 DIFFERENT sections (not the same sections as the primary or lab); set to null in other sections
+- Lab simulation: include in exactly 1 section (the most procedural/immersive); set to null in all others
+- Each section should have AT MOST one exercise type filled in — never two in the same section
+- For sections with no exercise, ALL exercise fields must be null
+- Total exercises across all sections: 4-5 interactive exercises
 
 Include 5-7 sections that build on each other logically.
 Include 6-10 key terms covering essential vocabulary.
@@ -845,6 +901,23 @@ correctAnswer must be verbatim from the options array.`;
           category?: unknown;
         }>;
         targets?: unknown[];
+      } | null;
+      labExercise?: {
+        title?: string;
+        description?: string;
+        environmentType?: unknown;
+        environmentContext?: string;
+        steps?: Array<{
+          context?: string;
+          task?: string;
+          choices?: Array<{
+            label?: unknown;
+            isCorrect?: unknown;
+            feedback?: string;
+          }>;
+          correctFeedback?: string;
+          incorrectFeedback?: string;
+        }>;
       } | null;
       checkQuestion?: {
         prompt?: string;
@@ -1000,6 +1073,43 @@ correctAnswer must be verbatim from the options array.`;
         }
       }
 
+      // Parse lab simulation exercise if present
+      let labExercise: MultiStepLabExerciseData | undefined;
+      const le = s.labExercise;
+      if (le && typeof le === "object") {
+        const validEnvTypes = ["lab", "clinic", "office", "courtroom", "terminal", "classroom", "field", "workshop"] as const;
+        const envType = validEnvTypes.includes(le.environmentType as (typeof validEnvTypes)[number])
+          ? (le.environmentType as (typeof validEnvTypes)[number])
+          : null;
+        const steps: LabStepData[] = Array.isArray(le.steps)
+          ? le.steps
+              .filter((st) => typeof st?.task === "string" && Array.isArray(st?.choices) && st.choices.length >= 2)
+              .map((st) => ({
+                context: typeof st.context === "string" ? st.context.trim() : undefined,
+                task: String(st.task).trim(),
+                choices: (st.choices as Array<{label?: unknown; isCorrect?: unknown; feedback?: string}>)
+                  .filter((ch) => typeof ch?.label === "string" && ch.label.trim().length > 0)
+                  .map((ch) => ({
+                    label: String(ch.label).trim(),
+                    isCorrect: ch.isCorrect === true,
+                    feedback: typeof ch.feedback === "string" ? ch.feedback.trim() : undefined,
+                  })),
+                correctFeedback: typeof st.correctFeedback === "string" ? st.correctFeedback.trim() : undefined,
+                incorrectFeedback: typeof st.incorrectFeedback === "string" ? st.incorrectFeedback.trim() : undefined,
+              }))
+              .filter((st) => st.choices.some((c) => c.isCorrect))
+          : [];
+        if (envType && steps.length >= 2) {
+          labExercise = {
+            title: typeof le.title === "string" && le.title.trim().length > 0 ? le.title.trim() : "Lab Simulation",
+            description: typeof le.description === "string" ? le.description.trim() : "",
+            environmentType: envType,
+            environmentContext: typeof le.environmentContext === "string" ? le.environmentContext.trim() : "",
+            steps,
+          };
+        }
+      }
+
       // Parse code exercise if present
       let codeExercise: CodeExerciseData | undefined;
       const ce = s.codeExercise;
@@ -1050,6 +1160,7 @@ correctAnswer must be verbatim from the options array.`;
         spreadsheetExercise,
         scenarioExercise,
         dragDropExercise,
+        labExercise,
         codeExercise,
         checkQuestion: {
           prompt:

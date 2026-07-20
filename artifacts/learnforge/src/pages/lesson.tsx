@@ -30,6 +30,8 @@ import type {
   ScenarioExercise,
   CodeExercise,
   DragDropExercise,
+  MultiStepLabExercise,
+  LabStep,
 } from "@workspace/api-client-react";
 
 type AnswerState = {
@@ -459,38 +461,63 @@ function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise 
   );
 }
 
+function detectScenarioEnv(role: string): {
+  icon: string; label: string; bg: string; border: string; headerBg: string; text: string; badge: string;
+} {
+  const r = role.toLowerCase();
+  if (/nurse|doctor|physician|ER|hospital|patient|clinical|medic|surgeon|therapist|pharmacy|pharm/i.test(r))
+    return { icon: "🏥", label: "Clinical Environment", bg: "bg-blue-50/60 dark:bg-blue-950/20", border: "border-blue-300 dark:border-blue-700", headerBg: "bg-blue-600", text: "text-blue-900 dark:text-blue-100", badge: "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200" };
+  if (/lab|chemist|chemistry|biology|experiment|biolog|physics|scientist|specimen|reagent/i.test(r))
+    return { icon: "🧪", label: "Science Laboratory", bg: "bg-emerald-50/60 dark:bg-emerald-950/20", border: "border-emerald-300 dark:border-emerald-700", headerBg: "bg-emerald-700", text: "text-emerald-900 dark:text-emerald-100", badge: "bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200" };
+  if (/attorney|lawyer|judge|court|legal|paralegal|counsel|contract|litigation/i.test(r))
+    return { icon: "⚖️", label: "Legal Environment", bg: "bg-amber-50/60 dark:bg-amber-950/20", border: "border-amber-400 dark:border-amber-700", headerBg: "bg-amber-800", text: "text-amber-900 dark:text-amber-100", badge: "bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-200" };
+  if (/engineer|developer|programmer|IT|network|cyber|sysadmin|tech|devops|security|software/i.test(r))
+    return { icon: "💻", label: "Technical Environment", bg: "bg-gray-900/90 dark:bg-gray-950", border: "border-gray-600 dark:border-gray-600", headerBg: "bg-gray-800", text: "text-green-400", badge: "bg-gray-700 text-green-300" };
+  if (/teacher|professor|instructor|tutor|educator|classroom|curriculum/i.test(r))
+    return { icon: "📚", label: "Educational Setting", bg: "bg-teal-50/60 dark:bg-teal-950/20", border: "border-teal-300 dark:border-teal-700", headerBg: "bg-teal-700", text: "text-teal-900 dark:text-teal-100", badge: "bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200" };
+  if (/field|outdoor|environ|geolog|archaeolog|forest|soil|ecolog|wildlife/i.test(r))
+    return { icon: "🔬", label: "Field Research", bg: "bg-lime-50/60 dark:bg-lime-950/20", border: "border-lime-400 dark:border-lime-700", headerBg: "bg-lime-700", text: "text-lime-900 dark:text-lime-100", badge: "bg-lime-100 dark:bg-lime-900 text-lime-800 dark:text-lime-200" };
+  if (/mechanic|electrician|plumber|carpenter|welder|technician|construct|trade|workshop/i.test(r))
+    return { icon: "🔧", label: "Workshop / Trades", bg: "bg-orange-50/60 dark:bg-orange-950/20", border: "border-orange-400 dark:border-orange-700", headerBg: "bg-orange-700", text: "text-orange-900 dark:text-orange-100", badge: "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200" };
+  // Default: professional office
+  return { icon: "💼", label: "Professional Setting", bg: "bg-amber-50/40 dark:bg-amber-950/20", border: "border-amber-300 dark:border-amber-700", headerBg: "bg-amber-700", text: "text-amber-900 dark:text-amber-100", badge: "bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200" };
+}
+
 function ScenarioExerciseBlock({ exercise }: { exercise: ScenarioExercise }) {
   const [selected, setSelected] = useState<number | null>(null);
   const revealed = selected !== null;
   const optimalIdx = exercise.choices.findIndex((c) => c.isOptimal);
+  const env = detectScenarioEnv(exercise.role ?? "");
 
   return (
-    <div className="rounded-xl border-2 border-amber-300 dark:border-amber-700 bg-amber-50/40 dark:bg-amber-950/20 overflow-hidden">
-      <div className="px-5 py-3 border-b border-amber-200 dark:border-amber-800 flex items-center gap-2">
-        <span className="text-amber-700 dark:text-amber-400 font-semibold text-sm uppercase tracking-wider flex items-center gap-2">
-          <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-          On-the-Job Scenario
-        </span>
+    <div className={`rounded-xl border-2 ${env.border} ${env.bg} overflow-hidden`}>
+      {/* Immersive environment header */}
+      <div className={`${env.headerBg} px-5 py-3`}>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <span className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+            <span className="text-lg leading-none">{env.icon}</span>
+            {env.label}
+          </span>
+          <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${env.badge}`}>
+            On-the-Job Scenario
+          </span>
+        </div>
+      </div>
+
+      {/* Role + situation briefing */}
+      <div className="px-5 pt-4 pb-1 space-y-2">
+        <p className="text-xs font-bold uppercase tracking-wider opacity-60">{exercise.title}</p>
+        <div className={`rounded-lg border ${env.border} px-4 py-3 space-y-1.5`}>
+          <p className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${env.text} opacity-70`}>
+            🎯 Your role
+          </p>
+          <p className={`text-sm font-semibold leading-snug ${env.text}`}>{exercise.role}</p>
+          <hr className="border-current opacity-10 my-1" />
+          <p className={`text-sm leading-relaxed ${env.text} opacity-90`}>{exercise.situation}</p>
+        </div>
       </div>
 
       <div className="p-5 space-y-4">
-        {/* Role + situation */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
-            {exercise.title}
-          </p>
-          <div className="rounded-lg bg-amber-100/60 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 px-4 py-3">
-            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">
-              🎯 {exercise.role}
-            </p>
-            <p className="text-sm leading-relaxed text-foreground">{exercise.situation}</p>
-          </div>
-        </div>
-
         <p className="text-sm font-semibold text-foreground">What do you do?</p>
 
         {/* Choice buttons */}
@@ -859,6 +886,293 @@ function DragDropExerciseBlock({ exercise }: { exercise: DragDropExercise }) {
 
 type CodeRunState = { stdout: string; stderr: string; exitCode: number } | null;
 
+// ─── Multi-Step Lab Simulation ────────────────────────────────────────────────
+
+const LAB_ENV_CONFIG: Record<string, {
+  icon: string; label: string; bg: string; border: string; headerBg: string;
+  stepBg: string; stepBorder: string; contextBg: string; accentText: string;
+}> = {
+  lab:       { icon: "🧪", label: "Science Laboratory",    bg: "bg-emerald-50/60 dark:bg-emerald-950/20",  border: "border-emerald-300 dark:border-emerald-700", headerBg: "bg-emerald-700",  stepBg: "bg-emerald-50 dark:bg-emerald-950/40",  stepBorder: "border-emerald-200 dark:border-emerald-800", contextBg: "bg-emerald-100/70 dark:bg-emerald-900/30", accentText: "text-emerald-800 dark:text-emerald-300" },
+  clinic:    { icon: "🏥", label: "Clinical Environment",  bg: "bg-blue-50/60 dark:bg-blue-950/20",        border: "border-blue-300 dark:border-blue-700",     headerBg: "bg-blue-700",     stepBg: "bg-blue-50 dark:bg-blue-950/40",        stepBorder: "border-blue-200 dark:border-blue-800",     contextBg: "bg-blue-100/70 dark:bg-blue-900/30",    accentText: "text-blue-800 dark:text-blue-300" },
+  office:    { icon: "💼", label: "Professional Setting",  bg: "bg-slate-50/60 dark:bg-slate-950/20",      border: "border-slate-300 dark:border-slate-700",   headerBg: "bg-slate-700",    stepBg: "bg-slate-50 dark:bg-slate-950/40",      stepBorder: "border-slate-200 dark:border-slate-800",   contextBg: "bg-slate-100/70 dark:bg-slate-900/30",  accentText: "text-slate-700 dark:text-slate-300" },
+  courtroom: { icon: "⚖️", label: "Legal Proceedings",    bg: "bg-amber-50/60 dark:bg-amber-950/20",      border: "border-amber-400 dark:border-amber-700",   headerBg: "bg-amber-900",    stepBg: "bg-amber-50 dark:bg-amber-950/40",      stepBorder: "border-amber-200 dark:border-amber-800",   contextBg: "bg-amber-100/70 dark:bg-amber-900/30",  accentText: "text-amber-900 dark:text-amber-300" },
+  terminal:  { icon: "💻", label: "Technical Lab",         bg: "bg-gray-950",                              border: "border-gray-600",                          headerBg: "bg-gray-900",     stepBg: "bg-gray-900",                           stepBorder: "border-gray-700",                          contextBg: "bg-black/60",                           accentText: "text-green-400" },
+  classroom: { icon: "📚", label: "Educational Setting",  bg: "bg-teal-50/60 dark:bg-teal-950/20",        border: "border-teal-300 dark:border-teal-700",     headerBg: "bg-teal-700",     stepBg: "bg-teal-50 dark:bg-teal-950/40",        stepBorder: "border-teal-200 dark:border-teal-800",     contextBg: "bg-teal-100/70 dark:bg-teal-900/30",    accentText: "text-teal-800 dark:text-teal-300" },
+  field:     { icon: "🔬", label: "Field Research",        bg: "bg-lime-50/60 dark:bg-lime-950/20",        border: "border-lime-400 dark:border-lime-700",     headerBg: "bg-lime-800",     stepBg: "bg-lime-50 dark:bg-lime-950/40",        stepBorder: "border-lime-200 dark:border-lime-800",     contextBg: "bg-lime-100/70 dark:bg-lime-900/30",    accentText: "text-lime-800 dark:text-lime-300" },
+  workshop:  { icon: "🔧", label: "Workshop / Trades",     bg: "bg-orange-50/60 dark:bg-orange-950/20",    border: "border-orange-400 dark:border-orange-700", headerBg: "bg-orange-800",   stepBg: "bg-orange-50 dark:bg-orange-950/40",    stepBorder: "border-orange-200 dark:border-orange-800", contextBg: "bg-orange-100/70 dark:bg-orange-900/30", accentText: "text-orange-800 dark:text-orange-300" },
+};
+
+function MultiStepLabExerciseBlock({ exercise }: { exercise: MultiStepLabExercise }) {
+  const [stepIdx, setStepIdx] = useState(0);
+  const [stepResults, setStepResults] = useState<Array<{ chosen: number; correct: boolean }>>([]);
+  const [chosenThisStep, setChosenThisStep] = useState<number | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const cfg = LAB_ENV_CONFIG[exercise.environmentType] ?? LAB_ENV_CONFIG.office;
+  const steps = exercise.steps as LabStep[];
+  const totalSteps = steps.length;
+  const isTerminal = exercise.environmentType === "terminal";
+
+  const currentStep = steps[stepIdx];
+  const isDone = stepResults.length === totalSteps;
+  const correctCount = stepResults.filter((r) => r.correct).length;
+
+  const handleChoose = (idx: number) => {
+    if (confirmed) return;
+    setChosenThisStep(idx);
+  };
+
+  const handleConfirm = () => {
+    if (chosenThisStep === null || confirmed) return;
+    const isCorrect = currentStep.choices[chosenThisStep]?.isCorrect === true;
+    setStepResults((prev) => [...prev, { chosen: chosenThisStep, correct: isCorrect }]);
+    setConfirmed(true);
+  };
+
+  const handleNext = () => {
+    setStepIdx((i) => i + 1);
+    setChosenThisStep(null);
+    setConfirmed(false);
+  };
+
+  const handleReset = () => {
+    setStepIdx(0);
+    setStepResults([]);
+    setChosenThisStep(null);
+    setConfirmed(false);
+  };
+
+  const progressPct = isDone ? 100 : Math.round((stepIdx / totalSteps) * 100);
+
+  const textColor = isTerminal ? "text-green-400" : "text-foreground";
+  const mutedText = isTerminal ? "text-green-600" : "text-muted-foreground";
+
+  return (
+    <div className={`rounded-2xl border-2 ${cfg.border} ${cfg.bg} overflow-hidden`}>
+      {/* Environment header */}
+      <div className={`${cfg.headerBg} px-5 py-3`}>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <span className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+            <span className="text-lg leading-none">{cfg.icon}</span>
+            {cfg.label} — Simulation
+          </span>
+          <span className="text-white/80 text-xs font-medium">
+            Step {Math.min(stepIdx + 1, totalSteps)} of {totalSteps}
+          </span>
+        </div>
+        {/* Info bar */}
+        {exercise.environmentContext && (
+          <p className={`text-xs mt-1.5 font-mono ${isTerminal ? "text-green-300" : "text-white/70"}`}>
+            {isTerminal ? `$ ` : ""}{exercise.environmentContext}
+          </p>
+        )}
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-1.5 bg-black/10 dark:bg-white/10">
+        <div
+          className={`h-full transition-all duration-500 ${isDone ? "bg-green-400" : isTerminal ? "bg-green-500" : "bg-white/60"}`}
+          style={{ width: `${progressPct}%` }}
+        />
+      </div>
+
+      <div className="p-5 space-y-4">
+        {/* Title + description */}
+        <div>
+          <p className={`font-bold text-sm ${cfg.accentText}`}>{exercise.title}</p>
+          {exercise.description && (
+            <p className={`text-xs mt-0.5 ${mutedText}`}>{exercise.description}</p>
+          )}
+        </div>
+
+        {/* Step breadcrumb dots */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {steps.map((_, i) => {
+            const res = stepResults[i];
+            const isCurrent = i === stepIdx && !isDone;
+            return (
+              <span key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${
+                res
+                  ? res.correct ? "bg-green-400 scale-110" : "bg-red-400 scale-110"
+                  : isCurrent
+                    ? isTerminal ? "bg-green-400 ring-2 ring-green-600" : "bg-white ring-2 ring-current ring-offset-1 ring-offset-transparent scale-110"
+                    : "bg-black/20 dark:bg-white/20"
+              }`} />
+            );
+          })}
+        </div>
+
+        {!isDone && currentStep && (
+          <>
+            {/* Current step context */}
+            {currentStep.context && (
+              <div className={`rounded-lg ${cfg.contextBg} border ${cfg.stepBorder} px-4 py-3`}>
+                <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${cfg.accentText}`}>
+                  {isTerminal ? "▶ OUTPUT" : "📋 Situation Update"}
+                </p>
+                <p className={`text-sm leading-relaxed ${isTerminal ? "font-mono text-green-300" : textColor}`}>
+                  {currentStep.context}
+                </p>
+              </div>
+            )}
+
+            {/* Task question */}
+            <p className={`font-semibold text-sm leading-snug ${textColor}`}>
+              {currentStep.task}
+            </p>
+
+            {/* Choices */}
+            <div className="space-y-2">
+              {currentStep.choices.map((choice, i) => {
+                const isChosen = chosenThisStep === i;
+                const isCorrect = choice.isCorrect === true;
+                const showFeedback = confirmed && isChosen;
+                const showCorrectMark = confirmed && !isChosen && isCorrect;
+
+                let border = `${cfg.stepBorder}`;
+                let bg = `${cfg.stepBg} hover:opacity-90`;
+                if (confirmed) {
+                  if (isChosen && isCorrect) { border = "border-green-400 dark:border-green-500"; bg = "bg-green-50 dark:bg-green-950/40"; }
+                  else if (isChosen && !isCorrect) { border = "border-red-400 dark:border-red-500"; bg = "bg-red-50 dark:bg-red-950/40"; }
+                  else if (showCorrectMark) { border = "border-green-400/60 dark:border-green-600"; bg = "bg-green-50/60 dark:bg-green-950/20"; }
+                } else if (isChosen) {
+                  border = `${cfg.border}`;
+                  bg = isTerminal ? "bg-green-950/50" : "bg-white dark:bg-card shadow-sm";
+                }
+
+                return (
+                  <div key={i} className={`rounded-lg border-2 ${border} ${bg} overflow-hidden transition-all`}>
+                    <button
+                      disabled={confirmed}
+                      onClick={() => handleChoose(i)}
+                      className={`w-full text-left px-4 py-3 flex items-start gap-3 disabled:cursor-default`}
+                    >
+                      <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5 ${
+                        confirmed
+                          ? isCorrect ? "bg-green-500 text-white" : "bg-gray-300 dark:bg-muted text-muted-foreground"
+                          : isChosen ? "bg-current text-white" : "bg-black/15 dark:bg-white/15 text-foreground"
+                      }`} style={confirmed ? undefined : isChosen ? { backgroundColor: cfg.headerBg.replace("bg-", "") } : undefined}>
+                        {confirmed && isCorrect ? "✓" : confirmed && isChosen && !isCorrect ? "✗" : String.fromCharCode(65 + i)}
+                      </span>
+                      <span className={`text-sm leading-relaxed ${isTerminal ? "font-mono text-green-300" : textColor}`}>
+                        {choice.label}
+                      </span>
+                    </button>
+                    {(showFeedback || showCorrectMark) && choice.feedback && (
+                      <div className={`px-4 pb-3 pt-1 text-xs leading-relaxed border-t ${
+                        isCorrect ? "border-green-200 dark:border-green-800 text-green-700 dark:text-green-300" : "border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+                      }`}>
+                        {showCorrectMark ? "✓ " : showFeedback && !isCorrect ? "✗ " : ""}{choice.feedback}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Outcome feedback + action */}
+            {confirmed ? (
+              <div className={`rounded-lg px-4 py-3 text-sm font-medium border ${
+                stepResults[stepResults.length - 1]?.correct
+                  ? "bg-green-50 dark:bg-green-950/40 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300"
+                  : "bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-700 text-red-800 dark:text-red-300"
+              }`}>
+                {stepResults[stepResults.length - 1]?.correct
+                  ? currentStep.correctFeedback ?? "✓ Correct — well done!"
+                  : currentStep.incorrectFeedback ?? "Not quite — review the feedback above."}
+              </div>
+            ) : (
+              <button
+                disabled={chosenThisStep === null}
+                onClick={handleConfirm}
+                className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-all border-2 ${
+                  chosenThisStep === null
+                    ? "border-gray-200 dark:border-border text-muted-foreground cursor-not-allowed"
+                    : `${cfg.border} text-white`
+                }`}
+                style={chosenThisStep !== null ? { backgroundColor: cfg.headerBg.replace("bg-", ""), background: undefined } : undefined}
+              >
+                Confirm Answer
+              </button>
+            )}
+
+            {confirmed && stepIdx < totalSteps - 1 && (
+              <button
+                onClick={handleNext}
+                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 transition-colors"
+              >
+                Next Step →
+              </button>
+            )}
+            {confirmed && stepIdx === totalSteps - 1 && (
+              <button
+                onClick={handleNext}
+                className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors"
+              >
+                Complete Simulation
+              </button>
+            )}
+          </>
+        )}
+
+        {/* Completion screen */}
+        {isDone && (
+          <div className="text-center space-y-4 py-4">
+            <div className={`text-5xl ${correctCount === totalSteps ? "animate-bounce" : ""}`}>
+              {correctCount === totalSteps ? "🏆" : correctCount >= Math.ceil(totalSteps / 2) ? "✅" : "📖"}
+            </div>
+            <div>
+              <p className={`text-xl font-bold ${correctCount === totalSteps ? "text-green-600 dark:text-green-400" : textColor}`}>
+                {correctCount === totalSteps
+                  ? "Perfect simulation run!"
+                  : correctCount >= Math.ceil(totalSteps / 2)
+                    ? "Good work — keep practicing!"
+                    : "Review the steps and try again"}
+              </p>
+              <p className={`text-sm mt-1 ${mutedText}`}>
+                {correctCount} of {totalSteps} steps correct
+              </p>
+            </div>
+            {/* Step-by-step review */}
+            <div className="text-left space-y-2 mt-2">
+              {steps.map((step, i) => {
+                const res = stepResults[i];
+                return (
+                  <div key={i} className={`rounded-lg border px-3 py-2.5 flex items-start gap-2.5 text-sm ${
+                    res?.correct
+                      ? "border-green-200 dark:border-green-800 bg-green-50/60 dark:bg-green-950/20"
+                      : "border-red-200 dark:border-red-800 bg-red-50/60 dark:bg-red-950/20"
+                  }`}>
+                    <span className={`flex-shrink-0 font-bold text-xs mt-0.5 ${res?.correct ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                      {res?.correct ? "✓" : "✗"} {i + 1}
+                    </span>
+                    <div className="space-y-0.5">
+                      <p className="font-medium text-xs text-foreground">{step.task}</p>
+                      {res && !res.correct && (
+                        <p className="text-xs text-muted-foreground">
+                          Correct: {step.choices.find((c) => c.isCorrect)?.label}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              onClick={handleReset}
+              className={`mt-2 px-6 py-2 rounded-lg text-sm font-semibold text-white ${
+                correctCount === totalSteps ? "bg-green-600 hover:bg-green-700" : "bg-indigo-600 hover:bg-indigo-700"
+              } transition-colors`}
+            >
+              {correctCount === totalSteps ? "Run Again" : "Try Again"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CodeExerciseBlock({ exercise }: { exercise: CodeExercise }) {
   const [code, setCode] = useState(exercise.starterCode);
   const [running, setRunning] = useState(false);
@@ -1109,7 +1423,7 @@ export default function LessonPage() {
     lesson &&
     !regenerate.isPending &&
     lesson.sections.every(
-      (s) => !s.spreadsheetExercise && !s.scenarioExercise && !s.codeExercise && !s.dragDropExercise,
+      (s) => !s.spreadsheetExercise && !s.scenarioExercise && !s.codeExercise && !s.dragDropExercise && !s.labExercise,
     );
 
   if (isLoading) {
@@ -1312,6 +1626,10 @@ export default function LessonPage() {
 
           {section.dragDropExercise && (
             <DragDropExerciseBlock exercise={section.dragDropExercise} />
+          )}
+
+          {section.labExercise && (
+            <MultiStepLabExerciseBlock exercise={section.labExercise} />
           )}
 
           <CheckQuestion

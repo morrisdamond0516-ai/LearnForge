@@ -1600,6 +1600,49 @@ components:
           type: array
           items:
             type: string
+    LabStepChoice:
+      type: object
+      required: [label, isCorrect]
+      properties:
+        label:
+          type: string
+        isCorrect:
+          type: boolean
+        feedback:
+          type: string
+    LabStep:
+      type: object
+      required: [task, choices]
+      properties:
+        context:
+          type: string
+        task:
+          type: string
+        choices:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabStepChoice"
+        correctFeedback:
+          type: string
+        incorrectFeedback:
+          type: string
+    MultiStepLabExercise:
+      type: object
+      required: [title, description, environmentType, environmentContext, steps]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        environmentType:
+          type: string
+          enum: [lab, clinic, office, courtroom, terminal, classroom, field, workshop]
+        environmentContext:
+          type: string
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabStep"
     DragDropItem:
       type: object
       required: [id, label]
@@ -1653,6 +1696,8 @@ components:
           $ref: "#/components/schemas/CodeExercise"
         dragDropExercise:
           $ref: "#/components/schemas/DragDropExercise"
+        labExercise:
+          $ref: "#/components/schemas/MultiStepLabExercise"
         checkQuestion:
           $ref: "#/components/schemas/LessonCheckQuestion"
     LessonKeyTerm:
