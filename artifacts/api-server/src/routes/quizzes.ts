@@ -299,12 +299,17 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
     }
   }
 
-  for (const freeText of [quiz.career, quiz.topic]) {
-    if (freeText && freeText.trim().length > 0) {
-      const check = await validateLearningInput(freeText);
-      if (!check.valid) {
-        res.status(400).json({ error: check.reason });
-        return;
+  // Curriculum module quizzes store a system-generated topic (not user-typed),
+  // so skip re-validation; their content was already vetted at curriculum
+  // generation time. Only validate user-supplied free-text fields.
+  if (!quiz.curriculumId) {
+    for (const freeText of [quiz.career, quiz.topic]) {
+      if (freeText && freeText.trim().length > 0) {
+        const check = await validateLearningInput(freeText);
+        if (!check.valid) {
+          res.status(400).json({ error: check.reason });
+          return;
+        }
       }
     }
   }

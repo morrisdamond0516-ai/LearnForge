@@ -238,11 +238,18 @@ router.post(
           .map((s) => s.trim())
           .filter((s) => s.length > 0)
       : [];
-    const topicParts = [mod.title];
-    if (mod.objective) topicParts.push(mod.objective);
-    if (skills.length > 0)
-      topicParts.push(`Focus on these skills: ${skills.join("; ")}`);
-    const topic = topicParts.join(". ");
+
+    // Store only the module title as `topic` so it stays under the 120-char
+    // validation limit on refresh. Pass the richer context to generation only.
+    const topic = mod.title;
+    const generationTopic = [
+      mod.title,
+      ...(mod.objective ? [mod.objective] : []),
+      ...(skills.length > 0
+        ? [`Focus on these skills: ${skills.join("; ")}`]
+        : []),
+    ].join(". ");
+
     const difficulty = difficultyForLevel(c.level);
 
     let generated;
@@ -250,7 +257,7 @@ router.post(
       generated = await generateQuizContent({
         mode: "practice",
         subjectName: subjectName ?? undefined,
-        topic,
+        topic: generationTopic,
         difficulty,
         questionCount: 8,
       });
