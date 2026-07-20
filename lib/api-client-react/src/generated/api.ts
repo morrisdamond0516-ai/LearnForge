@@ -2321,6 +2321,81 @@ export const useGenerateLesson = <TError = ErrorType<ErrorEnvelope>,
       return useMutation(getGenerateLessonMutationOptions(options));
     }
 
+export const getStartLessonPracticeUrl = (id: number,) => {
+
+
+
+
+  return `/api/learn/lessons/${id}/practice`
+}
+
+/**
+ * Looks at the learner's past quiz performance on this lesson's topic and
+picks the appropriate difficulty (easy if no history, scaling up with
+score). Generates a 10-question practice quiz and returns it immediately
+— no configuration needed.
+
+ * @summary Auto-generate an adaptive practice quiz for a completed lesson
+ */
+export const startLessonPractice = async (id: number, options?: RequestInit): Promise<Quiz> => {
+
+  return customFetch<Quiz>(getStartLessonPracticeUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getStartLessonPracticeMutationOptions = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startLessonPractice>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startLessonPractice>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['startLessonPractice'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startLessonPractice>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  startLessonPractice(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartLessonPracticeMutationResult = NonNullable<Awaited<ReturnType<typeof startLessonPractice>>>
+
+    export type StartLessonPracticeMutationError = ErrorType<ErrorEnvelope>
+
+    /**
+ * @summary Auto-generate an adaptive practice quiz for a completed lesson
+ */
+export const useStartLessonPractice = <TError = ErrorType<ErrorEnvelope>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startLessonPractice>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startLessonPractice>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getStartLessonPracticeMutationOptions(options));
+    }
+
 export const getListLessonsUrl = () => {
 
 

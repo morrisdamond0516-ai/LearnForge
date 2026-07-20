@@ -1,6 +1,14 @@
 import { Router, type IRouter } from "express";
-import { and, desc, eq, isNull, or } from "drizzle-orm";
-import { db, learnSessionsTable, lessonsTable, subjectsTable } from "@workspace/db";
+import { and, desc, eq, isNull, max, or } from "drizzle-orm";
+import {
+  db,
+  learnSessionsTable,
+  lessonsTable,
+  subjectsTable,
+  quizzesTable,
+  attemptsTable,
+  type Quiz,
+} from "@workspace/db";
 import {
   ResearchTopicBody,
   ListLearnSessionsResponse,
@@ -12,8 +20,31 @@ import {
   GetLessonByIdParams,
   GetLessonByIdResponse,
   DeleteLessonByIdParams,
+  StartLessonPracticeParams,
 } from "@workspace/api-zod";
-import { generateStudyGuide, generateLesson, validateLearningInput } from "../lib/ai";
+import {
+  generateStudyGuide,
+  generateLesson,
+  generateQuizContent,
+  validateLearningInput,
+} from "../lib/ai";
+
+function toQuizResponse(quiz: Quiz, subjectName: string | null) {
+  return {
+    id: quiz.id,
+    title: quiz.title,
+    mode: quiz.mode,
+    subjectId: quiz.subjectId,
+    subjectName,
+    documentId: quiz.documentId,
+    topic: quiz.topic,
+    career: quiz.career,
+    difficulty: quiz.difficulty,
+    questionCount: quiz.questionCount,
+    createdAt: quiz.createdAt,
+    questions: quiz.questions,
+  };
+}
 
 const router: IRouter = Router();
 
@@ -347,6 +378,87 @@ router.get("/learn/lessons/:id", async (req, res): Promise<void> => {
       createdAt: row.createdAt,
     }),
   );
+});
+
+// Adaptive difficulty thresholds
+const DIFFICULTY_HARD_THRESHOLD = 80;
+const DIFFICULTY_MEDIUM_THRESHOLD = 60;
+
+router.post("/learn/lessons/:id/practice", async (req, res): Promise<void> => {
+  const params = StartLessonPracticeParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  // Load the lesson (ownership check)
+  const [lesson] = await db
+    .select()
+    .from(lessonsTable)
+    .where(
+      and(
+        eq(lessonsTable.id, params.data.id),
+        eq(lessonsTable.userId, req.userId!),
+      ),
+    );
+
+  if (!lesson) {
+    res.status(404).json({ error: "Lesson not found" });
+    return;
+  }
+
+  // Find the learner's best score on any past quiz with this same topic
+  const pastScores = await db
+    .select({ bestScore: max(attemptsTable.score) })
+    .from(attemptsTable)
+    .innerJoin(quizzesTable, eq(attemptsTable.quizId, quizzesTable.id))
+    .where(
+      and(
+        eq(quizzesTable.userId, req.userId!),
+        eq(quizzesTable.topic, lesson.topic),
+      ),
+    );
+
+  const bestScore = pastScores[0]?.bestScore ?? null;
+
+  // Adaptive difficulty: start easy for new learners, scale up with performance
+  const difficulty =
+    bestScore === null
+      ? "easy"
+      : bestScore >= DIFFICULTY_HARD_THRESHOLD
+        ? "hard"
+        : bestScore >= DIFFICULTY_MEDIUM_THRESHOLD
+          ? "medium"
+          : "easy";
+
+  let generated;
+  try {
+    generated = await generateQuizContent({
+      mode: "practice",
+      topic: lesson.topic,
+      difficulty,
+      questionCount: 10,
+    });
+  } catch (err) {
+    req.log.error({ err }, "Lesson practice quiz generation failed");
+    res.status(500).json({ error: "Failed to generate quiz. Please try again." });
+    return;
+  }
+
+  const [quiz] = await db
+    .insert(quizzesTable)
+    .values({
+      userId: req.userId!,
+      title: generated.title,
+      mode: "practice",
+      topic: lesson.topic,
+      difficulty,
+      questionCount: 10,
+      questions: generated.questions,
+    })
+    .returning();
+
+  res.status(201).json(toQuizResponse(quiz, null));
 });
 
 router.delete("/learn/lessons/:id", async (req, res): Promise<void> => {

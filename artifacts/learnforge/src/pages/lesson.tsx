@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from "wouter";
 import {
   useGetLessonById,
   getGetLessonByIdQueryKey,
+  useStartLessonPractice,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import {
   BookMarked,
   Trophy,
   Zap,
+  Loader2,
 } from "lucide-react";
 import type { LessonSection, LessonKeyTerm } from "@workspace/api-client-react";
 
@@ -131,6 +133,8 @@ export default function LessonPage() {
   const [currentSection, setCurrentSection] = useState(0);
   const [answers, setAnswers] = useState<Map<number, AnswerState>>(new Map());
   const [done, setDone] = useState(false);
+
+  const startPractice = useStartLessonPractice();
 
   const { data: lesson, isLoading, error } = useGetLessonById(lessonId, {
     query: {
@@ -330,13 +334,22 @@ export default function LessonPage() {
               <div className="flex flex-wrap gap-3 justify-center mt-2">
                 <Button
                   size="lg"
+                  disabled={startPractice.isPending}
                   onClick={() =>
-                    setLocation(
-                      `/quizzes?topic=${encodeURIComponent(lesson.topic)}&level=${encodeURIComponent(lesson.level)}`,
+                    startPractice.mutate(
+                      { id: lessonId },
+                      {
+                        onSuccess: (quiz) =>
+                          setLocation(`/quizzes/${quiz.id}`),
+                      },
                     )
                   }
                 >
-                  <BookOpen className="mr-2 h-5 w-5" /> Take a Practice Quiz
+                  {startPractice.isPending ? (
+                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Building your quiz…</>
+                  ) : (
+                    <><BookOpen className="mr-2 h-5 w-5" /> Take a Practice Quiz</>
+                  )}
                 </Button>
                 <Button
                   variant="outline"

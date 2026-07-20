@@ -783,6 +783,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorEnvelope"
+  /learn/lessons/{id}/practice:
+    post:
+      operationId: startLessonPractice
+      tags: [learn]
+      summary: Auto-generate an adaptive practice quiz for a completed lesson
+      description: |
+        Looks at the learner's past quiz performance on this lesson's topic and
+        picks the appropriate difficulty (easy if no history, scaling up with
+        score). Generates a 10-question practice quiz and returns it immediately
+        — no configuration needed.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: Generated quiz ready to take
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+        "404":
+          description: Lesson not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
   /learn/lessons:
     get:
       operationId: listLessons

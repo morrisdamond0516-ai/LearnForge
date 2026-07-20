@@ -540,6 +540,19 @@ export const GenerateLessonBody = zod.object({
 
 
 /**
+ * Looks at the learner's past quiz performance on this lesson's topic and
+picks the appropriate difficulty (easy if no history, scaling up with
+score). Generates a 10-question practice quiz and returns it immediately
+— no configuration needed.
+
+ * @summary Auto-generate an adaptive practice quiz for a completed lesson
+ */
+export const StartLessonPracticeParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+/**
  * @summary List saved interactive lessons
  */
 export const ListLessonsResponseItem = zod.object({
