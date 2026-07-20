@@ -24,6 +24,8 @@ import type {
   LessonSection,
   LessonKeyTerm,
   SpreadsheetExercise,
+  ScenarioExercise,
+  CodeExercise,
 } from "@workspace/api-client-react";
 
 type AnswerState = {
@@ -354,6 +356,313 @@ function SpreadsheetExerciseBlock({ exercise }: { exercise: SpreadsheetExercise 
   );
 }
 
+function ScenarioExerciseBlock({ exercise }: { exercise: ScenarioExercise }) {
+  const [selected, setSelected] = useState<number | null>(null);
+  const revealed = selected !== null;
+  const optimalIdx = exercise.choices.findIndex((c) => c.isOptimal);
+
+  return (
+    <div className="rounded-xl border-2 border-amber-300 dark:border-amber-700 bg-amber-50/40 dark:bg-amber-950/20 overflow-hidden">
+      <div className="px-5 py-3 border-b border-amber-200 dark:border-amber-800 flex items-center gap-2">
+        <span className="text-amber-700 dark:text-amber-400 font-semibold text-sm uppercase tracking-wider flex items-center gap-2">
+          <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          On-the-Job Scenario
+        </span>
+      </div>
+
+      <div className="p-5 space-y-4">
+        {/* Role + situation */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+            {exercise.title}
+          </p>
+          <div className="rounded-lg bg-amber-100/60 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 px-4 py-3">
+            <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">
+              🎯 {exercise.role}
+            </p>
+            <p className="text-sm leading-relaxed text-foreground">{exercise.situation}</p>
+          </div>
+        </div>
+
+        <p className="text-sm font-semibold text-foreground">What do you do?</p>
+
+        {/* Choice buttons */}
+        <div className="space-y-2">
+          {exercise.choices.map((choice, i) => {
+            const isSelected = selected === i;
+            const isOptimal = choice.isOptimal;
+            const showResult = revealed && isSelected;
+            const showCorrect = revealed && !isSelected && isOptimal;
+
+            let borderClass = "border-gray-200 dark:border-border";
+            if (showResult && isOptimal) borderClass = "border-green-400 dark:border-green-500";
+            if (showResult && !isOptimal) borderClass = "border-red-400 dark:border-red-500";
+            if (showCorrect) borderClass = "border-green-400 dark:border-green-500 opacity-80";
+
+            let bgClass = "bg-white dark:bg-card hover:bg-amber-50 dark:hover:bg-amber-950/20";
+            if (showResult && isOptimal) bgClass = "bg-green-50 dark:bg-green-950/30";
+            if (showResult && !isOptimal) bgClass = "bg-red-50 dark:bg-red-950/30";
+            if (showCorrect) bgClass = "bg-green-50/60 dark:bg-green-950/20";
+
+            return (
+              <div key={i} className={`rounded-lg border-2 ${borderClass} ${bgClass} overflow-hidden transition-colors`}>
+                <button
+                  disabled={revealed}
+                  onClick={() => setSelected(i)}
+                  className="w-full text-left px-4 py-3 flex items-start gap-3 disabled:cursor-default"
+                >
+                  <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5 ${
+                    revealed
+                      ? isOptimal
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-300 dark:bg-muted text-muted-foreground"
+                      : "bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200"
+                  }`}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className="text-sm leading-relaxed text-foreground">{choice.label}</span>
+                </button>
+
+                {(showResult || showCorrect) && (
+                  <div className={`px-4 pb-3 pt-1 text-sm leading-relaxed border-t ${
+                    isOptimal
+                      ? "border-green-200 dark:border-green-800 text-green-800 dark:text-green-300"
+                      : "border-red-200 dark:border-red-800 text-red-800 dark:text-red-300"
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1 font-semibold text-xs uppercase tracking-wider">
+                      {isOptimal ? (
+                        <><CheckCircle2 className="h-3.5 w-3.5" /> Best approach</>
+                      ) : showResult ? (
+                        <><XCircle className="h-3.5 w-3.5" /> What actually happens</>
+                      ) : (
+                        <><CheckCircle2 className="h-3.5 w-3.5" /> What would've happened</>
+                      )}
+                    </div>
+                    {choice.outcome}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {revealed && (
+          <button
+            onClick={() => setSelected(null)}
+            className="text-xs text-amber-700 dark:text-amber-400 underline"
+          >
+            Reset scenario
+          </button>
+        )}
+
+        {revealed && selected === optimalIdx && (
+          <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-semibold text-sm">
+            <Trophy className="h-4 w-4" /> Great call — that's the professional approach!
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type CodeRunState = { stdout: string; stderr: string; exitCode: number } | null;
+
+function CodeExerciseBlock({ exercise }: { exercise: CodeExercise }) {
+  const [code, setCode] = useState(exercise.starterCode);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<CodeRunState>(null);
+  const [showSolution, setShowSolution] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [hintIndex, setHintIndex] = useState(0);
+
+  const languageLabel: Record<string, string> = {
+    python: "Python", javascript: "JavaScript", typescript: "TypeScript",
+    sql: "SQL", java: "Java", ruby: "Ruby", go: "Go", rust: "Rust",
+    bash: "Bash", cpp: "C++",
+  };
+  const label = languageLabel[exercise.language] ?? exercise.language.toUpperCase();
+
+  const runCode = async () => {
+    setRunning(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/execute-code", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: exercise.language, code }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        setResult({ stdout: "", stderr: err.error ?? "Execution failed", exitCode: 1 });
+      } else {
+        const data = (await res.json()) as { stdout: string; stderr: string; exitCode: number };
+        setResult(data);
+      }
+    } catch {
+      setResult({ stdout: "", stderr: "Could not reach execution service", exitCode: 1 });
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  const isCorrect =
+    result !== null &&
+    result.exitCode === 0 &&
+    result.stdout.trim() === exercise.expectedOutput.trim();
+
+  return (
+    <div className="rounded-xl border-2 border-violet-300 dark:border-violet-700 bg-violet-50/30 dark:bg-violet-950/20 overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-3 border-b border-violet-200 dark:border-violet-800 flex items-center justify-between">
+        <span className="text-violet-700 dark:text-violet-400 font-semibold text-sm uppercase tracking-wider flex items-center gap-2">
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          {exercise.title}
+        </span>
+        <span className="text-xs font-mono bg-violet-200 dark:bg-violet-900 text-violet-700 dark:text-violet-300 px-2 py-0.5 rounded">
+          {label}
+        </span>
+      </div>
+
+      <div className="p-5 space-y-4">
+        <p className="text-sm text-muted-foreground">{exercise.description}</p>
+
+        {/* Code editor */}
+        <div className="rounded-lg border border-violet-200 dark:border-violet-800 overflow-hidden bg-gray-950">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-900 border-b border-gray-800">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+            </div>
+            <span className="text-xs text-gray-500 ml-1">{exercise.language}</span>
+          </div>
+          <textarea
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value);
+              setResult(null);
+            }}
+            spellCheck={false}
+            rows={Math.max(6, code.split("\n").length + 1)}
+            className="w-full bg-gray-950 text-gray-100 font-mono text-sm p-4 outline-none resize-none leading-relaxed"
+            style={{ tabSize: 2 }}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                e.preventDefault();
+                const start = e.currentTarget.selectionStart;
+                const end = e.currentTarget.selectionEnd;
+                const newCode = code.substring(0, start) + "  " + code.substring(end);
+                setCode(newCode);
+                requestAnimationFrame(() => {
+                  e.currentTarget.selectionStart = e.currentTarget.selectionEnd = start + 2;
+                });
+              }
+            }}
+          />
+        </div>
+
+        {/* Run button + expected output */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <Button
+            onClick={runCode}
+            disabled={running}
+            className="bg-violet-600 hover:bg-violet-700 text-white"
+          >
+            {running ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running…</>
+            ) : (
+              <>▶ Run Code</>
+            )}
+          </Button>
+          {(exercise.hints ?? []).length > 0 && (
+            <button
+              onClick={() => {
+                setShowHint(true);
+                setHintIndex((i) => Math.min(i + 1, (exercise.hints ?? []).length - 1));
+              }}
+              className="text-sm text-violet-600 dark:text-violet-400 underline"
+            >
+              {showHint && hintIndex < (exercise.hints ?? []).length - 1 ? "Next hint" : "Hint"}
+            </button>
+          )}
+          <button
+            onClick={() => setShowSolution(!showSolution)}
+            className="text-sm text-muted-foreground underline"
+          >
+            {showSolution ? "Hide solution" : "Show solution"}
+          </button>
+        </div>
+
+        {showHint && (exercise.hints ?? [])[hintIndex] && (
+          <div className="flex items-start gap-2 text-sm bg-violet-100 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800 rounded-lg px-4 py-3 text-violet-800 dark:text-violet-300">
+            <Lightbulb className="h-4 w-4 mt-0.5 shrink-0" />
+            <span>{(exercise.hints ?? [])[hintIndex]}</span>
+          </div>
+        )}
+
+        {/* Output panel */}
+        {result !== null && (
+          <div className={`rounded-lg border overflow-hidden ${
+            isCorrect
+              ? "border-green-400 dark:border-green-600"
+              : "border-red-400 dark:border-red-600"
+          }`}>
+            <div className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wider flex items-center gap-2 ${
+              isCorrect
+                ? "bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400"
+                : "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400"
+            }`}>
+              {isCorrect ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+              {isCorrect ? "Correct output!" : "Output doesn't match yet"}
+            </div>
+            {result.stdout && (
+              <pre className="px-4 py-3 text-sm font-mono bg-gray-950 text-gray-100 overflow-x-auto whitespace-pre-wrap">
+                {result.stdout}
+              </pre>
+            )}
+            {result.stderr && (
+              <pre className="px-4 py-3 text-sm font-mono bg-red-950/30 text-red-300 overflow-x-auto whitespace-pre-wrap">
+                {result.stderr}
+              </pre>
+            )}
+            {!isCorrect && (
+              <div className="px-3 py-2 bg-gray-900 text-xs text-gray-400 flex items-center gap-2">
+                <span className="text-gray-500">Expected:</span>
+                <code className="text-gray-200">{exercise.expectedOutput}</code>
+              </div>
+            )}
+          </div>
+        )}
+
+        {showSolution && (
+          <div className="rounded-lg border border-violet-200 dark:border-violet-800 overflow-hidden bg-gray-950">
+            <div className="px-3 py-1.5 bg-gray-900 text-xs text-gray-400 border-b border-gray-800">
+              Solution
+            </div>
+            <pre className="px-4 py-3 text-sm font-mono text-gray-100 overflow-x-auto whitespace-pre-wrap">
+              {exercise.solutionCode}
+            </pre>
+          </div>
+        )}
+
+        {isCorrect && (
+          <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-semibold text-sm">
+            <Trophy className="h-4 w-4" /> Your output matches — great work!
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function KeyTermsGlossary({ terms }: { terms: LessonKeyTerm[] }) {
   if (terms.length === 0) return null;
   return (
@@ -550,6 +859,14 @@ export default function LessonPage() {
 
           {section.spreadsheetExercise && (
             <SpreadsheetExerciseBlock exercise={section.spreadsheetExercise} />
+          )}
+
+          {section.scenarioExercise && (
+            <ScenarioExerciseBlock exercise={section.scenarioExercise} />
+          )}
+
+          {section.codeExercise && (
+            <CodeExerciseBlock exercise={section.codeExercise} />
           )}
 
           <CheckQuestion

@@ -25,6 +25,7 @@ import paypalRouter from "./paypal";
 import { analyticsPublicRouter, analyticsRouter } from "./analytics";
 import { newsletterPublicRouter } from "./newsletter";
 import { ownerOutreachRouter } from "./owner-outreach";
+import executeCodeRouter from "./execute-code";
 
 const router: IRouter = Router();
 
@@ -63,5 +64,6 @@ router.use(accessCodesRouter);
 router.use(paypalRouter);
 router.use(analyticsRouter);
 router.use(ownerOutreachRouter);
+router.use(executeCodeRouter);
 
 export default router;

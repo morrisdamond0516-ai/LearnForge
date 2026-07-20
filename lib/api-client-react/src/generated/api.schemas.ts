@@ -294,12 +294,37 @@ export interface SpreadsheetExercise {
   tasks: SpreadsheetTask[];
 }
 
+export interface ScenarioChoice {
+  label: string;
+  outcome: string;
+  isOptimal: boolean;
+}
+
+export interface ScenarioExercise {
+  title: string;
+  role: string;
+  situation: string;
+  choices: ScenarioChoice[];
+}
+
+export interface CodeExercise {
+  title: string;
+  description: string;
+  language: string;
+  starterCode: string;
+  expectedOutput: string;
+  solutionCode: string;
+  hints?: string[];
+}
+
 export interface LessonSection {
   heading: string;
   content: string;
   example: string;
   practicalTip?: string;
   spreadsheetExercise?: SpreadsheetExercise;
+  scenarioExercise?: ScenarioExercise;
+  codeExercise?: CodeExercise;
   checkQuestion: LessonCheckQuestion;
 }
 

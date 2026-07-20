@@ -1522,6 +1522,50 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SpreadsheetTask"
+    ScenarioChoice:
+      type: object
+      required: [label, outcome, isOptimal]
+      properties:
+        label:
+          type: string
+        outcome:
+          type: string
+        isOptimal:
+          type: boolean
+    ScenarioExercise:
+      type: object
+      required: [title, role, situation, choices]
+      properties:
+        title:
+          type: string
+        role:
+          type: string
+        situation:
+          type: string
+        choices:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScenarioChoice"
+    CodeExercise:
+      type: object
+      required: [title, description, language, starterCode, expectedOutput, solutionCode]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        language:
+          type: string
+        starterCode:
+          type: string
+        expectedOutput:
+          type: string
+        solutionCode:
+          type: string
+        hints:
+          type: array
+          items:
+            type: string
     LessonSection:
       type: object
       required: [heading, content, example, checkQuestion]
@@ -1536,6 +1580,10 @@ components:
           type: string
         spreadsheetExercise:
           $ref: "#/components/schemas/SpreadsheetExercise"
+        scenarioExercise:
+          $ref: "#/components/schemas/ScenarioExercise"
+        codeExercise:
+          $ref: "#/components/schemas/CodeExercise"
         checkQuestion:
           $ref: "#/components/schemas/LessonCheckQuestion"
     LessonKeyTerm:

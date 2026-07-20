@@ -479,12 +479,37 @@ export type SpreadsheetExerciseData = {
   tasks: SpreadsheetTaskData[];
 };
 
+export type ScenarioChoiceData = {
+  label: string;
+  outcome: string;
+  isOptimal: boolean;
+};
+
+export type ScenarioExerciseData = {
+  title: string;
+  role: string;
+  situation: string;
+  choices: ScenarioChoiceData[];
+};
+
+export type CodeExerciseData = {
+  title: string;
+  description: string;
+  language: string;
+  starterCode: string;
+  expectedOutput: string;
+  solutionCode: string;
+  hints: string[];
+};
+
 export type LessonSectionData = {
   heading: string;
   content: string;
   example: string;
   practicalTip?: string;
   spreadsheetExercise?: SpreadsheetExerciseData;
+  scenarioExercise?: ScenarioExerciseData;
+  codeExercise?: CodeExerciseData;
   checkQuestion: LessonCheckQuestion;
 };
 
@@ -524,13 +549,25 @@ export async function generateLesson(
       ? `The learner especially needs help with: ${focusAreas.join(", ")}. Weight your sections toward these areas.`
       : "";
 
-  // Detect if the topic warrants interactive spreadsheet exercises
+  // Detect the best interactive exercise type for this topic
+  const codeKeywords =
+    /\b(javascript|typescript|python|java\b|c\+\+|c#|ruby|rust|go\b|swift|kotlin|php|bash|shell|algorithm|programming|coding|software|developer|engineer|debugging|function|recursion|loop|array|class|object.oriented|api|rest|graphql|react|node|express|django|flask|machine learning|deep learning|neural|pytorch|tensorflow|scikit|sklearn)\b/i;
   const dataKeywords =
-    /excel|spreadsheet|formula|pivot|vlookup|sql|python|pandas|numpy|statistics|regression|data|analyst|analysis|aggregat|sum|average|count|chart|visualization|tableau|power bi|r language|descriptive|correlation/i;
-  const isDataTopic = dataKeywords.test(topic) || dataKeywords.test(subjectName ?? "");
+    /\b(excel|spreadsheet|formula|pivot|vlookup|sql|pandas|numpy|statistics|regression|data analyst|data analysis|aggregat|sum|average|count|chart|visualization|tableau|power bi|r language|descriptive stats|correlation|pivot table|google sheets)\b/i;
+  const scenarioKeywords =
+    /\b(nurse|nursing|doctor|physician|medical|patient|diagnosis|triage|clinical|pharmacist|pharmacy|healthcare|dentist|dental|vet|veterinary|lawyer|attorney|legal|law|contract|compliance|hr|human resources|recruiting|hiring|manager|management|leadership|customer service|sales|marketing|finance|accounting|auditing|bookkeeping|teacher|education|counselor|social work|therapist|psychology|psychiatry|entrepreneur|project management|operations|logistics|supply chain|real estate|insurance|banking|investment|trading|hospitality|hotel|restaurant|chef|culinary|journalism|public relations|government|policy)\b/i;
 
-  const spreadsheetInstruction = isDataTopic
-    ? `For sections that involve calculations, formulas, or working with data, include a "spreadsheetExercise" field with a hands-on mini spreadsheet the learner can interact with. Shape:
+  const exerciseType = codeKeywords.test(topic) || codeKeywords.test(subjectName ?? "")
+    ? "code"
+    : dataKeywords.test(topic) || dataKeywords.test(subjectName ?? "")
+      ? "spreadsheet"
+      : scenarioKeywords.test(topic) || scenarioKeywords.test(subjectName ?? "")
+        ? "scenario"
+        : "scenario"; // default to scenario — it works for any subject
+
+  const exerciseInstruction =
+    exerciseType === "spreadsheet"
+      ? `SPREADSHEET EXERCISES: For sections involving calculations or data work, add a "spreadsheetExercise" field:
 {
   "spreadsheetExercise": {
     "title": "brief exercise title",
@@ -540,45 +577,59 @@ export async function generateLesson(
       ["1", "Month", "Units Sold", "Unit Price", "Revenue"],
       ["2", "January", "120", "25.00", ""],
       ["3", "February", "145", "25.00", ""],
-      ["4", "March", "98", "27.50", ""],
-      ["5", "April", "210", "27.50", ""],
-      ["6", "May", "175", "30.00", ""],
-      ["7", "June", "230", "30.00", ""],
-      ["8", "TOTAL", "", "", ""]
+      ["4", "TOTAL", "", "", ""]
     ],
     "tasks": [
-      {
-        "instruction": "In cell D2, calculate revenue for January (Units Sold × Unit Price). What is the result?",
-        "targetCell": "D2",
-        "expectedValue": "3000",
-        "formulaHint": "=B2*C2 → 120 × 25.00 = 3000"
-      }
+      { "instruction": "Calculate January revenue (Units Sold × Unit Price).", "targetCell": "D2", "expectedValue": "3000", "formulaHint": "=B2*C2 → 120 × 25.00 = 3000" }
     ]
   }
 }
-Rules for spreadsheetExercise:
-- Use realistic business/data scenarios with real numbers (not placeholder text)
-- headers[0] is always "" (empty, for the row-number column); remaining headers are column letters
-- rows[0] is always the column label row (Month, Units Sold, etc.); subsequent rows are data
-- Leave answer cells as "" in the rows array — the learner fills these in
-- tasks[].expectedValue must be the exact numeric string result (e.g. "3000" not "3,000")
-- tasks[].formulaHint shows the Excel/Python formula AND the worked calculation
-- Include 2-4 tasks per exercise that build progressively (individual cells first, then totals/averages)
-- Only include spreadsheetExercise for sections where hands-on data work is natural; omit it for conceptual sections`
-    : "";
+Rules: headers[0]=""; rows[0] is label row; leave answer cells as ""; expectedValue is exact numeric string; 2-4 progressive tasks; only include where data work is natural.`
+      : exerciseType === "code"
+        ? `CODE EXERCISES: For sections where writing code deepens understanding, add a "codeExercise" field:
+{
+  "codeExercise": {
+    "title": "brief exercise title",
+    "description": "What the learner should complete or fix",
+    "language": "python",
+    "starterCode": "# Complete the function below\\ndef calculate_average(numbers):\\n    # YOUR CODE HERE\\n    pass\\n\\nprint(calculate_average([10, 20, 30]))",
+    "expectedOutput": "20.0",
+    "solutionCode": "def calculate_average(numbers):\\n    return sum(numbers) / len(numbers)\\n\\nprint(calculate_average([10, 20, 30]))",
+    "hints": ["Use the built-in sum() function", "Divide by len(numbers)"]
+  }
+}
+Rules: use the language most natural for the topic (python/javascript/sql); starterCode must be runnable with the solution filled in; expectedOutput is exactly what stdout should show; 2-3 short hints; only include for sections where coding practice makes sense.`
+        : `SCENARIO EXERCISES: For sections covering judgment, decision-making, or professional practice, add a "scenarioExercise" field that puts the learner in a realistic workplace situation:
+{
+  "scenarioExercise": {
+    "title": "brief scenario title",
+    "role": "Your role here — e.g. 'You are the charge nurse on a busy ER floor' or 'You are an HR manager at a mid-size tech company'",
+    "situation": "2-4 sentences describing the specific situation, with realistic details — names, numbers, context. What just happened that requires your action right now?",
+    "choices": [
+      { "label": "Action A — specific, realistic thing you could do", "outcome": "2-3 sentences describing what actually happens when you take this action. Be realistic — include both immediate and downstream effects.", "isOptimal": false },
+      { "label": "Action B — the best professional response", "outcome": "2-3 sentences on why this works well — the immediate result, why it aligns with best practice, and what it signals to others.", "isOptimal": true },
+      { "label": "Action C — plausible but flawed approach", "outcome": "2-3 sentences on what goes wrong — not catastrophic, but describe the real consequence and what it teaches.", "isOptimal": false }
+    ]
+  }
+}
+Rules: role must be vivid and job-specific; situation must have real stakes and concrete details; choices must all be plausible (no obviously wrong option); exactly one isOptimal:true; outcomes must be realistic job consequences, not textbook answers; include for sections where professional judgment matters most.`;
+
+  const exerciseJsonField =
+    exerciseType === "spreadsheet"
+      ? `"spreadsheetExercise": null,`
+      : exerciseType === "code"
+        ? `"codeExercise": null,`
+        : `"scenarioExercise": null,`;
 
   const system =
-    "You are an expert instructional designer who creates deep, interactive lessons for self-learners. " +
-    "Each section thoroughly explains one concept, walks through a detailed real-world worked example, includes a practical tip, " +
-    "and ends with a comprehension question. " +
-    (isDataTopic
-      ? "For data/calculation sections, also include an interactive spreadsheet exercise so learners practice with real data. "
-      : "") +
-    "IMPORTANT: Vary where the correct answer appears in every question — spread correct answers across positions A (index 0), B (index 1), C (index 2), and D (index 3). Never put the correct answer in the same position more than once in a row. " +
+    "You are an expert instructional designer who creates immersive, job-realistic lessons. " +
+    "Each section explains a concept deeply, walks through a detailed worked example, includes a practical tip, " +
+    "an interactive hands-on exercise (spreadsheet, code, or scenario), and ends with a comprehension check. " +
+    "IMPORTANT: Vary where the correct answer appears — spread across positions 0, 1, 2, 3. Never repeat the same index in a row. " +
     "Write in a warm, encouraging, plain-spoken voice. " +
     "Return ONLY valid JSON, no prose, no markdown fences.";
 
-  const user = `Create a thorough, in-depth interactive lesson about "${topic}".
+  const user = `Create a thorough, job-realistic interactive lesson about "${topic}".
 ${subjectName ? `Subject area: ${subjectName}.` : ""}
 Level: ${level}. ${levelGuidance}
 ${focusBlock}
@@ -590,32 +641,36 @@ Return JSON with this exact shape:
   "sections": [
     {
       "heading": "concept heading",
-      "content": "3-5 paragraphs thoroughly explaining the concept: start with WHY it matters and a real-world context, then explain HOW it works in plain language with analogies, then cover important nuances or edge cases",
-      "example": "a fully worked, step-by-step example using real tool names, real data, real numbers — number each step, show intermediate results, and explain the reasoning at each step",
-      "practicalTip": "one concrete pro tip or common mistake to avoid — something a beginner would not know",
-      ${isDataTopic ? `"spreadsheetExercise": null,` : ""}
+      "content": "3-5 paragraphs thoroughly explaining the concept: start with WHY it matters in the real job, then explain HOW it works with analogies, then cover edge cases professionals actually encounter",
+      "example": "a fully worked, step-by-step example using real names, real data, real numbers — number each step, show intermediate results, explain reasoning at each step",
+      "practicalTip": "one concrete pro tip or common mistake to avoid — something a beginner would not know but an experienced professional would",
+      ${exerciseJsonField}
       "checkQuestion": {
-        "prompt": "a specific question testing understanding of this section — not a definition lookup but applied understanding",
+        "prompt": "a specific applied question testing professional judgment, not just recall",
         "options": ["option text", "option text", "option text", "option text"],
         "correctIndex": 2,
-        "correctAnswer": "exact verbatim text of the correct option from the options array",
-        "explanation": "explain why the correct answer is right, AND briefly explain why each wrong option is incorrect"
+        "correctAnswer": "exact verbatim text of the correct option",
+        "explanation": "explain why the correct answer is right AND briefly why each wrong answer is incorrect"
       }
     }
   ],
   "keyTerms": [
-    { "term": "term", "definition": "a precise, one-to-two sentence definition with a usage example" }
+    { "term": "term", "definition": "a precise, one-to-two sentence definition with a real-world usage example" }
   ]
 }
 
-${spreadsheetInstruction}
+${exerciseInstruction}
+
+INTERACTIVE EXERCISE RULES:
+- Include an exercise in 2-3 of the most applicable sections (not all sections — choose the most hands-on ones)
+- For sections without an exercise, set the field to null (keep the key, value null)
+- Make every exercise feel like real on-the-job work — not a textbook drill
 
 Include 5-7 sections that build on each other logically — start with fundamentals and progress to application.
 Include 6-10 key terms covering essential vocabulary for this topic.
 Each checkQuestion must have exactly 4 options with exactly one correct answer.
 CRITICAL: Vary correctIndex across sections — use 0, 1, 2, and 3 in different sections, never the same index twice in a row.
-correctAnswer must be copied verbatim from the options array.
-Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real numbers, real job scenarios — no abstract placeholders.`;
+correctAnswer must be copied verbatim from the options array.`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -647,6 +702,25 @@ Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real num
           expectedValue?: string;
           formulaHint?: string;
         }>;
+      } | null;
+      scenarioExercise?: {
+        title?: string;
+        role?: string;
+        situation?: string;
+        choices?: Array<{
+          label?: string;
+          outcome?: string;
+          isOptimal?: unknown;
+        }>;
+      } | null;
+      codeExercise?: {
+        title?: string;
+        description?: string;
+        language?: string;
+        starterCode?: string;
+        expectedOutput?: string;
+        solutionCode?: string;
+        hints?: unknown[];
       } | null;
       checkQuestion?: {
         prompt?: string;
@@ -731,6 +805,73 @@ Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real num
         }
       }
 
+      // Parse scenario exercise if present
+      let scenarioExercise: ScenarioExerciseData | undefined;
+      const sc = s.scenarioExercise;
+      if (sc && typeof sc === "object") {
+        const choices = Array.isArray(sc.choices)
+          ? sc.choices
+              .filter(
+                (c) =>
+                  typeof c?.label === "string" &&
+                  typeof c?.outcome === "string",
+              )
+              .map((c) => ({
+                label: String(c.label).trim(),
+                outcome: String(c.outcome).trim(),
+                isOptimal: c.isOptimal === true,
+              }))
+          : [];
+        if (
+          typeof sc.role === "string" &&
+          typeof sc.situation === "string" &&
+          choices.length >= 2
+        ) {
+          scenarioExercise = {
+            title:
+              typeof sc.title === "string" && sc.title.trim().length > 0
+                ? sc.title.trim()
+                : "Workplace Scenario",
+            role: sc.role.trim(),
+            situation: sc.situation.trim(),
+            choices,
+          };
+        }
+      }
+
+      // Parse code exercise if present
+      let codeExercise: CodeExerciseData | undefined;
+      const ce = s.codeExercise;
+      if (ce && typeof ce === "object") {
+        if (
+          typeof ce.starterCode === "string" &&
+          typeof ce.expectedOutput === "string" &&
+          typeof ce.solutionCode === "string" &&
+          ce.starterCode.trim().length > 0
+        ) {
+          codeExercise = {
+            title:
+              typeof ce.title === "string" && ce.title.trim().length > 0
+                ? ce.title.trim()
+                : "Coding Exercise",
+            description:
+              typeof ce.description === "string" ? ce.description.trim() : "",
+            language:
+              typeof ce.language === "string" && ce.language.trim().length > 0
+                ? ce.language.trim().toLowerCase()
+                : "python",
+            starterCode: ce.starterCode.trim(),
+            expectedOutput: ce.expectedOutput.trim(),
+            solutionCode: ce.solutionCode.trim(),
+            hints: Array.isArray(ce.hints)
+              ? ce.hints
+                  .filter((h) => typeof h === "string")
+                  .map((h) => String(h).trim())
+              : [],
+          };
+        }
+      }
+
       return {
         heading:
           typeof s.heading === "string" && s.heading.trim().length > 0
@@ -746,6 +887,8 @@ Make examples concrete: use real tool names (Excel, Python, SQL, etc.), real num
             ? s.practicalTip.trim()
             : undefined,
         spreadsheetExercise,
+        scenarioExercise,
+        codeExercise,
         checkQuestion: {
           prompt:
             typeof s.checkQuestion?.prompt === "string"

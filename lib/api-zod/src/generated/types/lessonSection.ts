@@ -5,7 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CodeExercise } from './codeExercise';
 import type { LessonCheckQuestion } from './lessonCheckQuestion';
+import type { ScenarioExercise } from './scenarioExercise';
 import type { SpreadsheetExercise } from './spreadsheetExercise';
 
 export interface LessonSection {
@@ -14,5 +16,7 @@ export interface LessonSection {
   example: string;
   practicalTip?: string;
   spreadsheetExercise?: SpreadsheetExercise;
+  scenarioExercise?: ScenarioExercise;
+  codeExercise?: CodeExercise;
   checkQuestion: LessonCheckQuestion;
 }
