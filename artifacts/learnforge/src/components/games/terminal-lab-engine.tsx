@@ -1285,6 +1285,33 @@ export function TerminalLabEngine({
             </ol>
           </div>
 
+          {/* How it works */}
+          <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+              How to complete each step
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { num: "1", label: "Read the step", desc: "The sidebar shows what you need to do." },
+                { num: "2", label: "Click the terminal", desc: "Click inside the black area to focus it." },
+                { num: "3", label: "Type & press Enter", desc: "Type the CLI command and hit Enter to run it." },
+              ].map((s) => (
+                <div key={s.num} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500 text-[10px] font-bold text-white">
+                      {s.num}
+                    </span>
+                    <span className="text-xs font-medium">{s.label}</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-snug">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Stuck? Use <span className="font-semibold text-foreground">Show hint</span> in the sidebar, or press <kbd className="text-[10px] font-mono bg-muted px-1 py-0.5 rounded border">Tab</kbd> in the terminal to auto-complete a command.
+            </p>
+          </div>
+
           {/* Begin button */}
           <div className="pt-2 flex justify-center">
             <Button
@@ -1490,6 +1517,16 @@ export function TerminalLabEngine({
         </div>
       )}
 
+      {/* First-use callout — shown until the first step is completed */}
+      {completedSteps.size === 0 && (
+        <div className="flex items-center gap-2.5 bg-blue-500/10 border-b border-blue-500/20 px-3 py-2 text-xs text-blue-300">
+          <span className="text-base">💻</span>
+          <span>
+            <span className="font-semibold text-blue-200">Click inside the black terminal area</span>, type the command shown in the sidebar, then press <kbd className="font-mono bg-blue-900/50 px-1 py-0.5 rounded border border-blue-500/30 text-blue-100">Enter</kbd>.
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row">
         {/* Terminal area — all machines rendered, only active one visible */}
         <div className="flex-1 min-w-0 bg-[#0c0c0c] relative">
@@ -1574,6 +1611,10 @@ export function TerminalLabEngine({
               )}
               <p className="text-xs font-medium">
                 Step {currentStep + 1}: {currentStepData.instruction}
+              </p>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <span>💻</span>
+                <span>Click the terminal and type a command, then press <kbd className="font-mono bg-muted px-1 rounded border text-[10px]">Enter</kbd></span>
               </p>
               <Button
                 size="sm"
