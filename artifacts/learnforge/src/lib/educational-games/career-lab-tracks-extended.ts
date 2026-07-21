@@ -2973,6 +2973,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "FMCSA compliance",
+      image: "/lab-images/cdl-pretrip-checklist.jpg",
       content: {
         intakeForm: {
           title: "DVIR — Unit 847",
@@ -2995,6 +2996,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "HOS compliance",
+      image: "/lab-images/cdl-hos-log.jpg",
       content: {
         intakeForm: {
           title: "ELD Log — Day 1",
@@ -3016,6 +3018,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "Compliance",
+      image: "/lab-images/cdl-weight.jpg",
       content: {
         jobsite: {
           title: "Pre-Trip Weight Lab",
