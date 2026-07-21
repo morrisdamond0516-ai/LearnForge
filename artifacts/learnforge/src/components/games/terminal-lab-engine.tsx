@@ -1616,19 +1616,36 @@ export function TerminalLabEngine({
                 <span>💻</span>
                 <span>Click the terminal and type a command, then press <kbd className="font-mono bg-muted px-1 rounded border text-[10px]">Enter</kbd></span>
               </p>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="w-full text-xs h-7"
-                onClick={() => { if (!showHint) setHintsUsed((h) => h + 1); setShowHint((v) => !v); }}
-              >
-                <HelpCircle className="h-3 w-3 mr-1" />
-                {showHint ? "Hide hint" : "Show hint"}
-              </Button>
-              {showHint && (
-                <p className="text-xs text-muted-foreground bg-muted/50 rounded p-2 font-mono">
-                  {currentStepData.hint ?? currentStepData.expectedCommand}
-                </p>
+              {/* Step 1: auto-reveal command free — shows the pattern so learners know the format */}
+              {currentStep === 0 && completedSteps.size === 0 ? (
+                <div className="space-y-1">
+                  <p className="text-[10px] text-emerald-500 font-semibold uppercase tracking-wide">
+                    Step 1 — command shown to get you started
+                  </p>
+                  <p className="text-xs bg-emerald-500/10 border border-emerald-500/20 rounded p-2 font-mono text-emerald-300">
+                    {currentStepData.hint ?? currentStepData.expectedCommand}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Type this exactly in the terminal and press <kbd className="font-mono bg-muted px-1 rounded border">Enter</kbd>. Steps 2+ are on you.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full text-xs h-7"
+                    onClick={() => { if (!showHint) setHintsUsed((h) => h + 1); setShowHint((v) => !v); }}
+                  >
+                    <HelpCircle className="h-3 w-3 mr-1" />
+                    {showHint ? "Hide hint" : "Show hint"}
+                  </Button>
+                  {showHint && (
+                    <p className="text-xs text-muted-foreground bg-muted/50 rounded p-2 font-mono">
+                      {currentStepData.hint ?? currentStepData.expectedCommand}
+                    </p>
+                  )}
+                </>
               )}
               {revealAvailable && !cmdRevealed && (
                 <Button
