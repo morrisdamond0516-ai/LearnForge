@@ -943,7 +943,9 @@ export function TerminalLabEngine({
               s.fs = newFS;
               if (fsOut) fsOut.split("\n").forEach((l) => term.writeln(l));
             } else {
-              const out = getCommandOutput(cmd, machine.hostname, os);
+              // Check per-lab custom command outputs first (domain CLIs: BMS, pharmacy, billing, etc.)
+              const customOut = data.commandOutputs?.[cmd.toLowerCase()];
+              const out = customOut ?? getCommandOutput(cmd, machine.hostname, os);
               if (out) out.split("\n").forEach((l) => term.writeln(l));
             }
 

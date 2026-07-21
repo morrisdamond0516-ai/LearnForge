@@ -160,6 +160,12 @@ export type TerminalWorkspaceContent = {
   machines?: TerminalMachine[];
   /** Optional countdown timer in minutes (undefined = no timer) */
   timeLimitMinutes?: number;
+  /**
+   * Optional map of command (lowercase) → simulated output string.
+   * Used for domain-specific CLIs (BMS, pharmacy, billing, etc.) where
+   * the standard getCommandOutput doesn't know the commands.
+   */
+  commandOutputs?: Record<string, string>;
 };
 
 export type PatientChartTask = {

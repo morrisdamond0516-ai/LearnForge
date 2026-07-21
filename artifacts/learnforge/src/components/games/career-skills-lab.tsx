@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Briefcase, ChevronLeft, Layers, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +31,21 @@ import {
   SKILL_GAME_TYPE_LABELS,
   type SkillGameContent,
 } from "@/lib/educational-games/skill-game-types";
+import { getBestLabAttempt } from "@/lib/lab-history";
+
+function LabScoreBadge({ labId }: { labId: string }) {
+  const [best, setBest] = useState<{ score: number; timeStr: string } | null>(null);
+  useEffect(() => {
+    const b = getBestLabAttempt(labId);
+    if (b) setBest({ score: b.score, timeStr: b.timeStr });
+  }, [labId]);
+  if (!best) return null;
+  return (
+    <Badge className="bg-emerald-600 text-white text-xs">
+      ✓ {best.score}% · {best.timeStr}
+    </Badge>
+  );
+}
 
 export function CareerSkillsLab({
   onBack,
@@ -131,6 +146,7 @@ export function CareerSkillsLab({
                     {SKILL_GAME_TYPE_LABELS[mod.gameType]}
                   </Badge>
                   <Badge variant="outline">{mod.duration}</Badge>
+                  <LabScoreBadge labId={mod.id} />
                 </CardContent>
               </Card>
             ))}
