@@ -107,6 +107,20 @@ export const LAB_CLUSTER_LABELS: Record<LabPreviewCluster, string> = {
   subject: "Subject simulations",
 };
 
+const SCHOOL_IMAGES: Partial<Record<EducationLevelSlug, string>> = {
+  kindergarten: "/lab-images/school-kindergarten.jpg",
+  "trade-school-vocabulary": "/lab-images/school-trade-school-vocabulary.jpg",
+};
+
+const SUBJECT_IMAGES: Partial<Record<SubjectSimSlug, string>> = {
+  "physics-projectile": "/lab-images/physics-projectile.jpg",
+  "aerospace-orbit": "/lab-images/aerospace-orbit.jpg",
+  "biology-microscopy": "/lab-images/biology-microscopy.jpg",
+  "chemistry-titration": "/lab-images/chemistry-titration.jpg",
+  "algebra-graphing": "/lab-images/algebra-graphing.jpg",
+  "earth-science-climate": "/lab-images/earth-science-climate.jpg",
+};
+
 function careerHref(slug: CareerSkillSlug, moduleId: string): string {
   return `/games?game=career-skills-lab&career=${encodeURIComponent(slug)}&module=${encodeURIComponent(moduleId)}`;
 }
@@ -167,6 +181,7 @@ export function buildLabPreviewCatalog(): LabPreviewEntry[] {
         level.slug,
         EDUCATION_LEVEL_CONTENT[level.slug],
       ),
+      image: SCHOOL_IMAGES[level.slug],
     });
   }
 
@@ -187,6 +202,7 @@ export function buildLabPreviewCatalog(): LabPreviewEntry[] {
       labCount: 1,
       href: subjectHref(sim.slug),
       content: SUBJECT_SIM_CONTENT[sim.slug],
+      image: SUBJECT_IMAGES[sim.slug],
     });
   }
 

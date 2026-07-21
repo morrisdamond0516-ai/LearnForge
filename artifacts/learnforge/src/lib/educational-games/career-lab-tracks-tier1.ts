@@ -827,6 +827,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Cloud operations",
+      image: "/lab-images/cloud-incident-intake.jpg",
       content: {
         intakeForm: {
           title: "Cloud Security Incident — SEC-441",
@@ -948,6 +949,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Field documentation",
+      image: "/lab-images/plumb-work-order.jpg",
       content: {
         intakeForm: {
           title: "Work Order — Kitchen Leak",
@@ -970,6 +972,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Code compliance",
+      image: "/lab-images/plumb-permit-intake.jpg",
       content: {
         intakeForm: {
           title: "Plumbing Permit — New Bathroom",
@@ -991,6 +994,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "Field math",
+      image: "/lab-images/plumb-pipe-math.jpg",
       content: {
         jobsite: {
           title: "Drain Line Layout",
@@ -1059,6 +1063,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Quality / certification",
+      image: "/lab-images/weld-wps-intake.jpg",
       content: {
         intakeForm: {
           title: "WPS Setup — Structural MIG",
@@ -1081,6 +1086,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Quality control",
+      image: "/lab-images/weld-inspection-form.jpg",
       content: {
         intakeForm: {
           title: "VT Report — Joint #A-14",
@@ -1120,6 +1126,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "jobsite-workspace",
       duration: "6–10 min",
       domain: "Shop math",
+      image: "/lab-images/weld-material-math.jpg",
       content: {
         jobsite: {
           title: "Fabrication Bench",

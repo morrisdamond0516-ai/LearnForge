@@ -13,6 +13,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Legal admin",
+      image: "/lab-images/para-intake.jpg",
       prep: [
         {
           prompt: "Why must a firm run a conflict check before opening a new matter file?",
@@ -79,6 +80,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "E-discovery",
+      image: "/lab-images/para-privilege-log.jpg",
       prep: [
         {
           prompt: "When is a document listed on a privilege log instead of produced?",
@@ -147,6 +149,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Legal billing",
+      image: "/lab-images/para-billing-sheet.jpg",
       prep: [
         {
           prompt: "Why do firms track paralegal time in tenths of an hour (0.1 hr = 6 min)?",
@@ -222,6 +225,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Litigation support",
+      image: "/lab-images/para-production-log.jpg",
       prep: [
         {
           prompt: "What happens during 'document review' before production?",
@@ -299,6 +303,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Leave administration",
+      image: "/lab-images/hr-leave-intake.jpg",
       content: {
         intakeForm: {
           title: "Leave of Absence Request — HRIS",
@@ -321,6 +326,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Employee relations",
+      image: "/lab-images/hr-complaint-intake.jpg",
       content: {
         intakeForm: {
           title: "ER Intake — Confidential",
@@ -342,6 +348,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "HR operations",
+      image: "/lab-images/hr-onboarding.jpg",
       content: {
         intakeForm: {
           title: "Day-1 New Hire Packet",
@@ -411,6 +418,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Case preparation",
+      image: "/lab-images/cst-supply-prep.jpg",
       content: {
         intakeForm: {
           title: "Major Tray Prep — Lap Chole",
@@ -432,6 +440,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "lab-bench-workspace",
       duration: "8–12 min",
       domain: "Sterile technique",
+      image: "/lab-images/cst-sterile-bench.jpg",
       content: {
         labBench: {
           title: "OR Setup — Sterile Field",
@@ -472,6 +481,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Patient safety",
+      image: "/lab-images/cst-count-log.jpg",
       content: {
         intakeForm: {
           title: "Initial Count Sheet — Case #2026-118",
@@ -671,6 +681,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Documentation",
+      image: "/lab-images/ta-attendance-intake.jpg",
       content: {
         intakeForm: {
           title: "Daily Attendance Log — Period 2",
@@ -693,6 +704,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Special education",
+      image: "/lab-images/ta-accommodation-checklist.jpg",
       content: {
         intakeForm: {
           title: "Assessment Accommodation Verification",
@@ -714,6 +726,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Documentation",
+      image: "/lab-images/ta-behavior-log.jpg",
       content: {
         intakeForm: {
           title: "Paraeducator Incident Log",
@@ -784,6 +797,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "patient-chart-workspace",
       duration: "6–10 min",
       domain: "Triage",
+      image: "/lab-images/vet-vitals-chart.jpg",
       content: {
         patientChart: {
           title: "Technician Triage — Canine",
@@ -805,6 +819,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Clinical intake",
+      image: "/lab-images/vet-intake.jpg",
       content: {
         intakeForm: {
           title: "Canine Wellness Visit",
@@ -826,6 +841,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "Pharmacy math",
+      image: "/lab-images/vet-dosage.jpg",
       content: {
         jobsite: {
           title: "Pre-Medication Calculation",
@@ -876,6 +892,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Safety documentation",
+      image: "/lab-images/cda-incident-report.jpg",
       content: {
         intakeForm: {
           title: "Incident Report — Playground",
@@ -898,6 +915,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Health & safety",
+      image: "/lab-images/cda-health-screen.jpg",
       content: {
         intakeForm: {
           title: "Morning Health Screen — Room 3",
@@ -919,6 +937,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Early childhood admin",
+      image: "/lab-images/cda-child-intake.jpg",
       content: {
         intakeForm: {
           title: "Center Enrollment Form",
@@ -989,6 +1008,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Service advisor",
+      image: "/lab-images/ase-work-order-intake.jpg",
       content: {
         intakeForm: {
           title: "RO #8842 — Brake Noise",
@@ -1011,6 +1031,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "jobsite-workspace",
       duration: "6–10 min",
       domain: "ASE maintenance",
+      image: "/lab-images/ase-fluid-check.jpg",
       content: {
         jobsite: {
           title: "Multi-Point Inspection",
@@ -1047,6 +1068,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "jobsite-workspace",
       duration: "6–10 min",
       domain: "Shop math",
+      image: "/lab-images/ase-shop-math.jpg",
       content: {
         jobsite: {
           title: "Brake Job Calculator",
@@ -1097,6 +1119,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Claims intake",
+      image: "/lab-images/ins-fnol-intake.jpg",
       content: {
         intakeForm: {
           title: "Auto Claim — FNOL",
@@ -1119,6 +1142,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Policy math",
+      image: "/lab-images/ins-premium-spreadsheet.jpg",
       content: {
         spreadsheet: {
           title: "Auto Quote Comparison — Garcia Family",
@@ -1161,6 +1185,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Sales admin",
+      image: "/lab-images/ins-policy-intake.jpg",
       content: {
         intakeForm: {
           title: "Auto Policy Application",

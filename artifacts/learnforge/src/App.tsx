@@ -58,6 +58,7 @@ import Snap from "@/pages/snap";
 import Games from "@/pages/games";
 import LabPreview, { LabPreviewPage } from "@/pages/lab-preview";
 import LabDemoPage from "@/pages/lab-demo";
+import LabShotPage from "@/pages/lab-shot";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -304,6 +305,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/pricing" component={Pricing} />
             <Route path="/lab-preview" component={LabPreview} />
             <Route path="/lab-demo" component={LabDemoPage} />
+            <Route path="/lab-shot" component={LabShotPage} />
             <Route path="/terms" component={Terms} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/refund" component={Refund} />
