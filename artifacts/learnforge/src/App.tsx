@@ -56,6 +56,7 @@ import Tutor from "@/pages/tutor";
 import Flashcards from "@/pages/flashcards";
 import Snap from "@/pages/snap";
 import Games from "@/pages/games";
+import LabPreview, { LabPreviewPage } from "@/pages/lab-preview";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -194,6 +195,9 @@ function AppShell() {
         <Route path="/tutor" component={Tutor} />
         <Route path="/flashcards" component={Flashcards} />
         <Route path="/games" component={Games} />
+        <Route path="/lab-preview">
+          {() => <LabPreviewPage embedded />}
+        </Route>
         <Route path="/snap" component={Snap} />
         <Route path="/documents" component={Documents} />
         <Route path="/help" component={Help} />
@@ -297,6 +301,7 @@ function ClerkProviderWithRoutes() {
             <Route path="/sign-up/*?" component={SignUpPage} />
             <Route path="/" component={RootGate} />
             <Route path="/pricing" component={Pricing} />
+            <Route path="/lab-preview" component={LabPreview} />
             <Route path="/terms" component={Terms} />
             <Route path="/privacy" component={Privacy} />
             <Route path="/refund" component={Refund} />

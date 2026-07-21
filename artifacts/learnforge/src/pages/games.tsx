@@ -136,9 +136,14 @@ export default function GamesPage() {
             optional fun after you practice.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/curriculum">Start with Curriculum</Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/curriculum">Start with Curriculum</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/lab-preview">Browse lab gallery</Link>
+          </Button>
+        </div>
       </div>
 
       <Card className="border-primary/25 bg-primary/5">

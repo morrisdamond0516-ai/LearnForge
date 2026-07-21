@@ -168,6 +168,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         { name: "Curriculum", href: "/curriculum", icon: BookMarked },
         { name: "Flashcards", href: "/flashcards", icon: Layers },
         { name: "Learning Games", href: "/games", icon: Gamepad2 },
+        { name: "Lab Gallery", href: "/lab-preview", icon: Layers },
         { name: "Snap a Problem", href: "/snap", icon: Camera },
       ],
     },

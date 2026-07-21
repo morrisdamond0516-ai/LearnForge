@@ -294,6 +294,9 @@ export default function Pricing() {
             If you're 18 or older, you get the full app free for 6 months — then
             keep going for less than most study apps charge.
           </p>
+          <Button variant="outline" className="mt-6" asChild>
+            <Link href="/lab-preview">Preview all hands-on labs before you buy</Link>
+          </Button>
         </section>
 
         {/* Model summary band */}
