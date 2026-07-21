@@ -36,10 +36,10 @@ import {
   ManipulativeBoardPlayer,
   PatientChartWorkspacePlayer,
   SimCanvasWorkspacePlayer,
-  SpreadsheetWorkspacePlayer,
-  TerminalWorkspacePlayer,
   HelpdeskTicketQueuePlayer,
 } from "@/components/games/simulation-workspace-engines";
+import { TerminalLabEngine } from "@/components/games/terminal-lab-engine";
+import { SpreadsheetLabEngine } from "@/components/games/spreadsheet-lab-engine";
 
 function normalizeTyping(s: string) {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -92,9 +92,9 @@ export function SkillGameRenderer({
           finishTitle={content.finishTitle}
         />
       ) : gameType === "spreadsheet-workspace" && content.spreadsheet ? (
-        <SpreadsheetWorkspacePlayer gameId={gameId} data={content.spreadsheet} />
+        <SpreadsheetLabEngine gameId={gameId} data={content.spreadsheet} />
       ) : gameType === "terminal-workspace" && content.terminal ? (
-        <TerminalWorkspacePlayer gameId={gameId} data={content.terminal} />
+        <TerminalLabEngine gameId={gameId} data={content.terminal} />
       ) : gameType === "patient-chart-workspace" && content.patientChart ? (
         <PatientChartWorkspacePlayer gameId={gameId} data={content.patientChart} />
       ) : gameType === "jobsite-workspace" && content.jobsite ? (
