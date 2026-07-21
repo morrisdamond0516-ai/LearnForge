@@ -2607,4 +2607,261 @@ console.log(user.name.toUpperCase())`,
       },
     },
   ],
+
+  "it-support": [
+    {
+      id: "its-network-triage",
+      title: "CompTIA A+ — Network Triage",
+      description:
+        "A user reports no internet access. Walk the Windows CMD triage process from IP check to DNS flush to DHCP renew.",
+      gameType: "terminal-workspace",
+      duration: "10–15 min",
+      domain: "Network troubleshooting",
+      content: {
+        terminal: {
+          title: "Ticket #4421 — No Internet Access (DESK-101)",
+          brief:
+            "User at DESK-101 reports no internet. DHCP is configured. Follow the CompTIA A+ triage sequence: check IP → test gateway → test external → flush DNS → renew lease.",
+          hostname: "DESK-101",
+          prompt: "C:\\Windows\\System32>",
+          initialOutput:
+            "Ticket #4421 assigned to you.\nUser: 'I can open files but websites won't load.'\nStart your triage...",
+          steps: [
+            {
+              instruction: "Display the full IP configuration including DNS and DHCP info.",
+              expectedCommand: "ipconfig /all",
+              hint: "ipconfig /all",
+            },
+            {
+              instruction: "Test connectivity to the default gateway (192.168.1.1).",
+              expectedCommand: "ping 192.168.1.1",
+              hint: "ping 192.168.1.1",
+            },
+            {
+              instruction: "Test external connectivity to Google's DNS server.",
+              expectedCommand: "ping 8.8.8.8",
+              hint: "ping 8.8.8.8",
+            },
+            {
+              instruction: "Resolve a hostname to verify DNS is working.",
+              expectedCommand: "nslookup google.com",
+              hint: "nslookup google.com",
+            },
+            {
+              instruction: "Flush the local DNS resolver cache.",
+              expectedCommand: "ipconfig /flushdns",
+              hint: "ipconfig /flushdns",
+            },
+            {
+              instruction: "Request a new DHCP lease.",
+              expectedCommand: "ipconfig /renew",
+              hint: "ipconfig /renew",
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      id: "its-linux-webserver",
+      title: "Linux Server — nginx Setup & Verify",
+      description:
+        "SSH into an Ubuntu server, inspect and restart nginx, then verify it is listening and serving on port 80.",
+      gameType: "terminal-workspace",
+      duration: "10–15 min",
+      domain: "Linux server admin",
+      content: {
+        terminal: {
+          title: "WEB-SRV-01 — nginx health check",
+          brief:
+            "The staging web server went quiet after a reboot. Verify the service state, review the config, restart nginx, and confirm it is listening on port 80.",
+          hostname: "web-srv-01",
+          prompt: "student@web-srv-01:~$",
+          initialOutput:
+            "Connected to web-srv-01 (192.168.1.20)\nUbuntu 22.04.3 LTS  kernel 5.15.0-91-generic\n\nMonitoring alert: HTTP health check failed at 08:02 UTC.",
+          steps: [
+            {
+              instruction: "Check the current status of the nginx service.",
+              expectedCommand: "systemctl status nginx",
+              hint: "systemctl status nginx",
+            },
+            {
+              instruction: "View the main nginx configuration file.",
+              expectedCommand: "cat /etc/nginx/nginx.conf",
+              hint: "cat /etc/nginx/nginx.conf",
+            },
+            {
+              instruction: "Restart nginx to apply any pending changes.",
+              expectedCommand: "systemctl restart nginx",
+              hint: "systemctl restart nginx",
+            },
+            {
+              instruction: "Confirm nginx is now listening on port 80.",
+              expectedCommand: "ss -tuln",
+              hint: "ss -tuln",
+            },
+            {
+              instruction: "Send a test request to localhost to verify the web server responds.",
+              expectedCommand: "curl localhost",
+              hint: "curl localhost",
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      id: "its-cisco-router",
+      title: "CompTIA Network+ — Cisco Router Config",
+      description:
+        "Configure a Cisco IOS router interface: enter privileged mode, assign an IP address, bring the interface up, and save.",
+      gameType: "terminal-workspace",
+      duration: "12–18 min",
+      domain: "Network configuration",
+      content: {
+        terminal: {
+          title: "Router1 — GigabitEthernet0/1 Configuration",
+          brief:
+            "The WAN-side interface on Router1 is administratively down with no IP. Enable it, assign 10.0.1.1/24, and save the configuration to NVRAM.",
+          hostname: "Router1",
+          prompt: "Router1>",
+          initialOutput:
+            "Router1>  (Cisco IOS 15.4)\nInterface GigabitEthernet0/1 is currently administratively down.\nTask: configure and enable it.",
+          steps: [
+            {
+              instruction: "Enter privileged EXEC mode.",
+              expectedCommand: "enable",
+              hint: "enable",
+            },
+            {
+              instruction: "Show the IP status of all interfaces.",
+              expectedCommand: "show ip interface brief",
+              hint: "show ip interface brief",
+            },
+            {
+              instruction: "Enter global configuration mode.",
+              expectedCommand: "configure terminal",
+              hint: "configure terminal",
+            },
+            {
+              instruction: "Select the GigabitEthernet0/1 interface.",
+              expectedCommand: "interface GigabitEthernet0/1",
+              hint: "interface GigabitEthernet0/1",
+            },
+            {
+              instruction: "Assign IP address 10.0.1.1 with a /24 subnet mask.",
+              expectedCommand: "ip address 10.0.1.1 255.255.255.0",
+              hint: "ip address 10.0.1.1 255.255.255.0",
+            },
+            {
+              instruction: "Bring the interface up (remove the admin-down state).",
+              expectedCommand: "no shutdown",
+              hint: "no shutdown",
+            },
+            {
+              instruction: "Exit configuration mode.",
+              expectedCommand: "end",
+              hint: "end",
+            },
+            {
+              instruction: "Save the running config to startup (NVRAM).",
+              expectedCommand: "write memory",
+              hint: "write memory",
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      id: "its-win-user-mgmt",
+      title: "Windows — Local User & Group Management",
+      description:
+        "Create a helpdesk user account, add it to Administrators, and verify the group membership using net commands.",
+      gameType: "terminal-workspace",
+      duration: "8–12 min",
+      domain: "Windows administration",
+      content: {
+        terminal: {
+          title: "Server2022 — Helpdesk Account Provisioning",
+          brief:
+            "Provision a new local helpdesk technician account on the server. Add it to the Administrators group and confirm access before closing the ticket.",
+          hostname: "Server2022",
+          prompt: "C:\\Windows\\System32>",
+          initialOutput:
+            "SYS ticket #0087: Create local account 'helpdesk' with admin rights for tier-2 support access.",
+          steps: [
+            {
+              instruction: "List current local user accounts.",
+              expectedCommand: "net user",
+              hint: "net user",
+            },
+            {
+              instruction: "Create a new user account 'helpdesk' with password P@ssw0rd.",
+              expectedCommand: "net user helpdesk P@ssw0rd /add",
+              hint: "net user helpdesk P@ssw0rd /add",
+            },
+            {
+              instruction: "Add 'helpdesk' to the local Administrators group.",
+              expectedCommand: "net localgroup Administrators helpdesk /add",
+              hint: "net localgroup Administrators helpdesk /add",
+            },
+            {
+              instruction: "Verify the account details and group membership.",
+              expectedCommand: "net user helpdesk",
+              hint: "net user helpdesk",
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      id: "its-linux-audit",
+      title: "CompTIA Security+ — Linux Security Audit",
+      description:
+        "Audit a Linux server for suspicious processes, open ports, and misconfigured accounts before escalating.",
+      gameType: "terminal-workspace",
+      duration: "12–18 min",
+      domain: "Security baseline",
+      content: {
+        terminal: {
+          title: "web-srv-01 — Security Audit (SOC Ticket #9912)",
+          brief:
+            "SOC flagged unusual traffic from web-srv-01. Enumerate running processes, open network ports, and check for suspicious local accounts, then stop the flagged service.",
+          hostname: "web-srv-01",
+          prompt: "student@web-srv-01:~$",
+          initialOutput:
+            "SOC Alert: Unusual outbound traffic from 192.168.1.20 on port 4444.\nAudit the system before escalation.",
+          steps: [
+            {
+              instruction: "List all running processes with user info.",
+              expectedCommand: "ps aux",
+              hint: "ps aux",
+            },
+            {
+              instruction: "Show all listening TCP/UDP ports.",
+              expectedCommand: "ss -tuln",
+              hint: "ss -tuln",
+            },
+            {
+              instruction: "Review local user accounts in /etc/passwd.",
+              expectedCommand: "cat /etc/passwd",
+              hint: "cat /etc/passwd",
+            },
+            {
+              instruction: "Check recent authentication log entries.",
+              expectedCommand: "cat /var/log/auth",
+              hint: "cat /var/log/auth",
+            },
+            {
+              instruction: "Stop the suspicious nginx service pending further investigation.",
+              expectedCommand: "systemctl stop nginx",
+              hint: "systemctl stop nginx",
+            },
+          ],
+        },
+      },
+    },
+  ],
 };
