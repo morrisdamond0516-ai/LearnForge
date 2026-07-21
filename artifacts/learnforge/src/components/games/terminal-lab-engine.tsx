@@ -28,7 +28,7 @@ import type {
 } from "@/lib/educational-games/skill-game-types";
 
 // ─── OS detection ──────────────────────────────────────────────────────────────
-type OS = "windows" | "linux" | "cisco" | "powershell";
+type OS = "windows" | "linux" | "cisco" | "powershell" | "domain";
 
 function detectOS(prompt: string): OS {
   const p = prompt.toLowerCase();
@@ -40,7 +40,12 @@ function detectOS(prompt: string): OS {
     (p.endsWith("#") && !p.includes("$") && !p.includes(":"))
   )
     return "cisco";
-  if (p.includes("$") || p.includes("~") || p.startsWith("/")) return "linux";
+  if (p.includes("$") || p.includes("~") || p.startsWith("/")) {
+    // Domain CLI: custom user@host prompt (bms@, pharma@, billing@, etc.) — not a student shell
+    const atIdx = p.indexOf("@");
+    if (atIdx > 0 && p.slice(0, atIdx) !== "student") return "domain";
+    return "linux";
+  }
   return "windows";
 }
 
@@ -413,7 +418,7 @@ function NetworkTopologyDiagram({
                   {m.label}
                 </p>
                 <p className={`text-[9px] uppercase tracking-wide ${colour}`}>
-                  {os === "cisco" ? "Cisco IOS" : os === "linux" ? "Linux" : os === "powershell" ? "PowerShell" : "Windows"}
+                  {os === "cisco" ? "Cisco IOS" : os === "linux" ? "Linux" : os === "domain" ? "Domain CLI" : os === "powershell" ? "PowerShell" : "Windows"}
                 </p>
               </div>
             </button>
@@ -807,7 +812,7 @@ export function TerminalLabEngine({
     initialOutput: data.initialOutput,
     icon: (() => {
       const os = detectOS(data.prompt);
-      return os === "cisco" ? "router" : os === "linux" ? "server" : "pc";
+      return os === "cisco" ? "router" : (os === "linux" || os === "domain") ? "server" : "pc";
     })(),
   };
   const allMachines: TerminalMachine[] =
@@ -850,6 +855,7 @@ export function TerminalLabEngine({
     (machine: TerminalMachine, fs: VirtualFS): string => {
       const os = detectOS(machine.prompt);
       if (os === "cisco") return `\r\n\x1b[36m${machine.prompt}\x1b[0m`;
+      if (os === "domain") return `\r\n\x1b[32m${machine.prompt}\x1b[0m `;
       if (os === "linux") {
         const short = cwdShort(fs.cwd, os);
         return `\r\n\x1b[32mstudent@${machine.hostname}:${short}$\x1b[0m `;
@@ -904,14 +910,17 @@ export function TerminalLabEngine({
       };
       machineStatesRef.current.set(machine.id, state);
 
-      // Banner
+      // Banner — domain CLIs (BMS, pharmacy, billing, etc.) skip the OS banner;
+      // their initialOutput already provides the system context.
       const banner =
         os === "windows"
           ? `Microsoft Windows [Version 10.0.19045.3803]\n(c) Microsoft Corporation. All rights reserved.`
           : os === "cisco"
           ? `\r\n${machine.hostname}>\r\nCisco IOS Software, Version 15.4(3)M2 — Cisco 2911 Router`
+          : os === "domain"
+          ? null
           : `Last login: Mon Jul 21 08:00:00 2026\nWelcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.0-91-generic x86_64)`;
-      banner.split("\n").forEach((l) => term.writeln(l));
+      if (banner) banner.split("\n").forEach((l) => term.writeln(l));
 
       if (machine.initialOutput) {
         term.writeln("");
@@ -1227,6 +1236,7 @@ export function TerminalLabEngine({
                   const osLabel =
                     os === "cisco" ? "Cisco IOS"
                     : os === "linux" ? "Linux"
+                    : os === "domain" ? "Domain CLI"
                     : os === "powershell" ? "PowerShell"
                     : "Windows";
                   return (
@@ -1446,6 +1456,8 @@ export function TerminalLabEngine({
                 ? "Cisco IOS"
                 : os === "linux"
                 ? "Linux"
+                : os === "domain"
+                ? "Domain CLI"
                 : os === "powershell"
                 ? "PowerShell"
                 : "Windows";
