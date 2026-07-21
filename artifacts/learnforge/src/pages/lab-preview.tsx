@@ -51,7 +51,12 @@ type LabPreviewPageProps = {
 
 export function LabPreviewPage({ embedded = false }: LabPreviewPageProps) {
   const { isSignedIn } = useUser();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => {
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("q") ?? "";
+    }
+    return "";
+  });
   const [kindFilter, setKindFilter] = useState<LabPreviewKind | "all">("all");
   const [clusterFilter, setClusterFilter] = useState<LabPreviewCluster | "all">("all");
   const [selected, setSelected] = useState<LabPreviewEntry | null>(null);
