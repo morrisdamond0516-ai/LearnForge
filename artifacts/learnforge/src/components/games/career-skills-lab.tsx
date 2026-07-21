@@ -143,9 +143,18 @@ export function CareerSkillsLab({
             {track.map((mod, idx) => (
               <Card
                 key={mod.id}
-                className="cursor-pointer transition hover:border-primary/50"
+                className="cursor-pointer transition hover:border-primary/50 overflow-hidden"
                 onClick={() => setModuleId(mod.id)}
               >
+                {mod.image && (
+                  <div className="aspect-video w-full overflow-hidden">
+                    <img
+                      src={mod.image}
+                      alt={mod.title}
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                )}
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base leading-snug">
                     <span className="mr-2 text-muted-foreground">{idx + 1}.</span>

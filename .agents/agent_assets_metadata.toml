@@ -6,8 +6,122 @@ uri = "file://artifacts/learnforge/src/assets/mascot.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "kFrSPULcYOAfYRq-yPLY6"
+uri = "file://artifacts/learnforge/public/lab-images/its-network-triage.png"
+type = "image"
+title = "network triage terminal lab"
+
+[[generated]]
+id = "f8_3h5o11BnXaLbueYgxi"
+uri = "file://artifacts/learnforge/public/lab-images/its-net-gateway-repair.png"
+type = "image"
+title = "gateway repair fix-it lab"
+
+[[generated]]
+id = "K7H6M24alW5oe5jaBLqPR"
+uri = "file://artifacts/learnforge/public/lab-images/its-win-boot-repair.png"
+type = "image"
+title = "windows BCD boot repair lab"
+
+[[generated]]
+id = "B7fqZGif5Geld-cKBMigC"
+uri = "file://artifacts/learnforge/public/lab-images/its-linux-nginx-repair.png"
+type = "image"
+title = "linux nginx repair lab"
+
+[[generated]]
+id = "ANm3iCRs_wkRjz2-w3nMs"
+uri = "file://artifacts/learnforge/public/lab-images/cloud-ec2-recovery.png"
+type = "image"
+title = "AWS EC2 recovery lab"
+
+[[generated]]
+id = "UIrN3NWev_CMOd7zCQeJi"
+uri = "file://artifacts/learnforge/public/lab-images/its-linux-webserver.png"
+type = "image"
+title = "Linux nginx webserver lab"
+
+[[generated]]
+id = "fzp0cJtlEKCH3cYINB6an"
+uri = "file://artifacts/learnforge/public/lab-images/its-cisco-router.png"
+type = "image"
+title = "Cisco router config lab"
+
+[[generated]]
+id = "91BTjvSTW32mvagr6hiqB"
+uri = "file://artifacts/learnforge/public/lab-images/its-win-user-mgmt.png"
+type = "image"
+title = "Windows user management lab"
+
+[[generated]]
+id = "yCklKiccua4XOArhaXe9B"
+uri = "file://artifacts/learnforge/public/lab-images/its-multi-machine-network.png"
+type = "image"
+title = "multi-machine network lab"
+
+[[generated]]
+id = "QWQbpY7j4s615daCQU3FT"
+uri = "file://artifacts/learnforge/public/lab-images/its-linux-audit.png"
+type = "image"
+title = "Linux security audit lab"
+
+[[generated]]
+id = "WHRWDKSzBC8iPb1KrhGPq"
+uri = "file://artifacts/learnforge/public/lab-images/hvac-diagnostic-cli.png"
+type = "image"
+title = "HVAC BMS diagnostic CLI lab"
+
+[[generated]]
+id = "z9s7iWUwh5IiEkNdlx5_z"
+uri = "file://artifacts/learnforge/public/lab-images/pharma-sys-cli.png"
+type = "image"
+title = "PharmaSYS CLI lab"
+
+[[generated]]
+id = "vZV4K-MDmZKruSI-2MyIK"
+uri = "file://artifacts/learnforge/public/lab-images/billing-pro-cli.png"
+type = "image"
+title = "BillingPRO medical coding CLI lab"
+
+[[generated]]
+id = "Xp-gGaFGdYQ8OgaXCuDod"
+uri = "file://artifacts/learnforge/public/lab-images/cloud-iam-terminal.png"
+type = "image"
+title = "AWS IAM security CLI lab"
+
 [[outputs]]
 id = "12h8NihN8XIukVeFBTaN_"
 uri = "file://exports/learnforge-brand-kit.zip"
 type = "unspecified"
 title = "LearnForge Brand Kit (icon + logo)"
+
+[[outputs]]
+id = "26_6kdWkfj7SSLZ_xenCp"
+uri = "file://artifacts/learnforge/public/lab-images/its-network-triage.png"
+type = "image"
+title = "CompTIA A+ — Network Triage"
+
+[[outputs]]
+id = "CzWks6ygtHqVi7f6Vxamc"
+uri = "file://artifacts/learnforge/public/lab-images/its-net-gateway-repair.png"
+type = "image"
+title = "🔧 Fix-It: Wrong Default Gateway"
+
+[[outputs]]
+id = "NJ0UeVt74mOoJK4uhRqo6"
+uri = "file://artifacts/learnforge/public/lab-images/its-win-boot-repair.png"
+type = "image"
+title = "🔧 Fix-It: Windows BCD Boot Repair"
+
+[[outputs]]
+id = "g1OpOc2kdwrndRPc4vt5a"
+uri = "file://artifacts/learnforge/public/lab-images/its-linux-nginx-repair.png"
+type = "image"
+title = "🔧 Fix-It: Linux nginx Config Repair"
+
+[[outputs]]
+id = "14Jxe-sVYKqrua0938ePh"
+uri = "file://artifacts/learnforge/public/lab-images/cloud-ec2-recovery.png"
+type = "image"
+title = "AWS CLI — EC2 Recovery & Deploy"

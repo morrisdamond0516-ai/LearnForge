@@ -27,6 +27,8 @@ export type CareerLabModule = {
   domain: string;
   /** Optional difficulty rating shown as a badge on the lab card. */
   difficulty?: LabDifficulty;
+  /** Optional cover image path (relative to /public) shown at the top of the lab card. */
+  image?: string;
   content: SkillGameContent;
   /** Optional warm-up questions before the hands-on workspace (Step 1). */
   prep?: LabPhaseQuestion[];
@@ -908,6 +910,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "10–15 min",
       domain: "HVAC diagnostics",
+      image: "/lab-images/hvac-diagnostic-cli.png",
       content: {
         terminal: {
           title: "BMS Terminal — AHU-2 No-Cool",
@@ -1328,6 +1331,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "10–14 min",
       domain: "Dispensing workflow",
+      image: "/lab-images/pharma-sys-cli.png",
       content: {
         terminal: {
           title: "PharmaSYS — Retail Rx Workstation",
@@ -1763,6 +1767,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "12–16 min",
       domain: "Revenue cycle",
+      image: "/lab-images/billing-pro-cli.png",
       content: {
         terminal: {
           title: "BillingPRO — Claim Submission Workstation",
@@ -3002,6 +3007,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "10–15 min",
       domain: "Network troubleshooting",
+      image: "/lab-images/its-network-triage.png",
       content: {
         terminal: {
           title: "Ticket #4421 — No Internet Access (DESK-101)",
@@ -3061,6 +3067,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "10–15 min",
       domain: "Linux server admin",
+      image: "/lab-images/its-linux-webserver.png",
       content: {
         terminal: {
           title: "WEB-SRV-01 — nginx health check",
@@ -3075,26 +3082,31 @@ console.log(user.name.toUpperCase())`,
               instruction: "Check the current status of the nginx service.",
               expectedCommand: "systemctl status nginx",
               hint: "systemctl status nginx",
+              notes: "systemctl (system control) manages services on modern Linux. 'status' shows current state, PID, recent log lines, and any start-up errors — always the first check when a service appears down.",
             },
             {
               instruction: "View the main nginx configuration file.",
               expectedCommand: "cat /etc/nginx/nginx.conf",
               hint: "cat /etc/nginx/nginx.conf",
+              notes: "nginx stores its main config at /etc/nginx/nginx.conf. Common issues: wrong worker_processes value, missing events block, or an include pointing to a broken sites-enabled file.",
             },
             {
               instruction: "Restart nginx to apply any pending changes.",
               expectedCommand: "systemctl restart nginx",
               hint: "systemctl restart nginx",
+              notes: "'restart' stops then starts the service, picking up all config changes. Use 'reload' instead for a zero-downtime config refresh on a live server.",
             },
             {
               instruction: "Confirm nginx is now listening on port 80.",
               expectedCommand: "ss -tuln",
               hint: "ss -tuln",
+              notes: "ss replaces netstat on modern Linux. -t=TCP -u=UDP -l=listening only -n=numeric ports. Look for 0.0.0.0:80 or :::80 to confirm nginx is accepting connections.",
             },
             {
               instruction: "Send a test request to localhost to verify the web server responds.",
               expectedCommand: "curl localhost",
               hint: "curl localhost",
+              notes: "curl sends an HTTP GET to localhost. An HTTP 200 OK or an HTML response body confirms the server is live. 'Connection refused' means nothing is listening on port 80 yet.",
             },
           ],
         },
@@ -3109,6 +3121,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "12–18 min",
       domain: "Network configuration",
+      image: "/lab-images/its-cisco-router.png",
       content: {
         terminal: {
           title: "Router1 — GigabitEthernet0/1 Configuration",
@@ -3123,41 +3136,49 @@ console.log(user.name.toUpperCase())`,
               instruction: "Enter privileged EXEC mode.",
               expectedCommand: "enable",
               hint: "enable",
+              notes: "Cisco IOS has two EXEC modes: user EXEC (Router>) and privileged EXEC (Router#). 'enable' elevates privileges — required before any 'show' or 'configure' commands.",
             },
             {
               instruction: "Show the IP status of all interfaces.",
               expectedCommand: "show ip interface brief",
               hint: "show ip interface brief",
+              notes: "The fastest overview of all interfaces in one table. Both 'Status' and 'Protocol' must show 'up' for a functional interface. 'administratively down' means the interface was explicitly shut down.",
             },
             {
               instruction: "Enter global configuration mode.",
               expectedCommand: "configure terminal",
               hint: "configure terminal",
+              notes: "Enters global configuration mode (Router(config)#). Changes take effect on the running-config immediately but are NOT saved to NVRAM until you run 'write memory'.",
             },
             {
               instruction: "Select the GigabitEthernet0/1 interface.",
               expectedCommand: "interface GigabitEthernet0/1",
               hint: "interface GigabitEthernet0/1",
+              notes: "Moves from global config to interface config mode — prompt changes to Router(config-if)#. Commands typed here only apply to this interface.",
             },
             {
               instruction: "Assign IP address 10.0.1.1 with a /24 subnet mask.",
               expectedCommand: "ip address 10.0.1.1 255.255.255.0",
               hint: "ip address 10.0.1.1 255.255.255.0",
+              notes: "/24 equals 255.255.255.0 in dotted-decimal — 256 addresses, 254 usable hosts. The interface also needs 'no shutdown' to become active after assigning an IP.",
             },
             {
               instruction: "Bring the interface up (remove the admin-down state).",
               expectedCommand: "no shutdown",
               hint: "no shutdown",
+              notes: "Cisco interfaces are admin-down by default. 'no shutdown' removes that state and allows the interface to come up. The opposite command 'shutdown' administratively disables it.",
             },
             {
               instruction: "Exit configuration mode.",
               expectedCommand: "end",
               hint: "end",
+              notes: "'end' jumps directly back to privileged EXEC from any config submode. Ctrl+Z is the keyboard shortcut. 'exit' steps up only one level in the mode hierarchy.",
             },
             {
               instruction: "Save the running config to startup (NVRAM).",
               expectedCommand: "write memory",
               hint: "write memory",
+              notes: "Running-config lives in RAM and is lost on reboot. 'write memory' (or 'copy running-config startup-config') persists it to NVRAM. Always save after any successful change.",
             },
           ],
         },
@@ -3172,6 +3193,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "Windows administration",
+      image: "/lab-images/its-win-user-mgmt.png",
       content: {
         terminal: {
           title: "Server2022 — Helpdesk Account Provisioning",
@@ -3186,21 +3208,25 @@ console.log(user.name.toUpperCase())`,
               instruction: "List current local user accounts.",
               expectedCommand: "net user",
               hint: "net user",
+              notes: "Displays all local accounts on the machine. Key flags: /add (create), /delete (remove), /active:no (disable without deleting). A CompTIA A+ exam favorite.",
             },
             {
               instruction: "Create a new user account 'helpdesk' with password P@ssw0rd.",
               expectedCommand: "net user helpdesk P@ssw0rd /add",
               hint: "net user helpdesk P@ssw0rd /add",
+              notes: "Syntax: net user <username> <password> /add. The account is created active immediately. Windows Server enforces password complexity by default — at least 8 chars with uppercase, lowercase, and a digit or symbol.",
             },
             {
               instruction: "Add 'helpdesk' to the local Administrators group.",
               expectedCommand: "net localgroup Administrators helpdesk /add",
               hint: "net localgroup Administrators helpdesk /add",
+              notes: "'Administrators' is the built-in local admin group with full machine rights. Use /delete to remove a member. For domain environments, 'Domain Admins' is automatically a member of this group.",
             },
             {
               instruction: "Verify the account details and group membership.",
               expectedCommand: "net user helpdesk",
               hint: "net user helpdesk",
+              notes: "Shows full account details: active/locked status, password expiry, last logon, and local group memberships. Confirm 'Local Group Memberships' lists *Administrators before closing the ticket.",
             },
           ],
         },
@@ -3215,6 +3241,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "15–20 min",
       domain: "Multi-machine networking",
+      image: "/lab-images/its-multi-machine-network.png",
       content: {
         terminal: {
           title: "Multi-Machine Network Lab",
@@ -3316,6 +3343,7 @@ console.log(user.name.toUpperCase())`,
       duration: "8–12 min",
       domain: "CompTIA A+ — networking",
       difficulty: "intermediate",
+      image: "/lab-images/its-net-gateway-repair.png",
       content: {
         terminal: {
           title: "WIN-PC-07 — Internet Access Failure",
@@ -3451,6 +3479,7 @@ console.log(user.name.toUpperCase())`,
       duration: "10–14 min",
       domain: "CompTIA A+ — OS repair",
       difficulty: "intermediate",
+      image: "/lab-images/its-win-boot-repair.png",
       content: {
         terminal: {
           title: "Windows RE — BCD Boot Repair",
@@ -3571,6 +3600,7 @@ console.log(user.name.toUpperCase())`,
       duration: "10–14 min",
       domain: "CompTIA Linux+ — service repair",
       difficulty: "intermediate",
+      image: "/lab-images/its-linux-nginx-repair.png",
       content: {
         terminal: {
           title: "web-prod-01 — nginx Service Failure",
@@ -3681,6 +3711,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "12–18 min",
       domain: "Security baseline",
+      image: "/lab-images/its-linux-audit.png",
       content: {
         terminal: {
           title: "web-srv-01 — Security Audit (SOC Ticket #9912)",
@@ -3695,26 +3726,31 @@ console.log(user.name.toUpperCase())`,
               instruction: "List all running processes with user info.",
               expectedCommand: "ps aux",
               hint: "ps aux",
+              notes: "a=all users, u=user-oriented format, x=include detached processes. Scan for unusual names, processes running as root unexpectedly, or long command strings with network paths or base64 blobs.",
             },
             {
               instruction: "Show all listening TCP/UDP ports.",
               expectedCommand: "ss -tuln",
               hint: "ss -tuln",
+              notes: "Port 4444 is the default Metasploit reverse-shell port and a classic IOC. Any unexpected listening port — especially on 4444, 1337, or high-numbered ports — is a finding that must be escalated.",
             },
             {
               instruction: "Review local user accounts in /etc/passwd.",
               expectedCommand: "cat /etc/passwd",
               hint: "cat /etc/passwd",
+              notes: "Each line: username:x:UID:GID:comment:home:shell. Accounts with UID 0 (root-equivalent), unexpected /bin/bash shells, or suspicious home paths (/tmp, /dev/shm) are red flags.",
             },
             {
               instruction: "Check recent authentication log entries.",
               expectedCommand: "cat /var/log/auth",
               hint: "cat /var/log/auth",
+              notes: "Records sudo, su, SSH, and PAM events. Look for 'Failed password', 'Accepted publickey' from an unexpected IP, or COMMAND lines showing unauthorized sudo activity.",
             },
             {
               instruction: "Stop the suspicious nginx service pending further investigation.",
               expectedCommand: "systemctl stop nginx",
               hint: "systemctl stop nginx",
+              notes: "Containment step: stopping the service prevents further outbound callbacks and removes the attack surface while you await IR team instructions. Document the time and state before stopping.",
             },
           ],
         },

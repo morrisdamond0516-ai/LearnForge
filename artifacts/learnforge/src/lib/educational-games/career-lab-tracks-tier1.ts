@@ -668,6 +668,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       duration: "10–15 min",
       domain: "AWS DevOps",
       difficulty: "intermediate" as const,
+      image: "/lab-images/cloud-ec2-recovery.png",
       content: {
         terminal: {
           title: "AWS CLI — Production EC2 Recovery",
@@ -780,6 +781,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "Cloud security",
+      image: "/lab-images/cloud-iam-terminal.png",
       content: {
         terminal: {
           title: "LAB — AWS Account Hygiene",
@@ -793,21 +795,25 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
               instruction: "Show the caller identity for the current credentials.",
               expectedCommand: "aws sts get-caller-identity",
               hint: "aws sts get-caller-identity",
+              notes: "STS (Security Token Service) returns the Account ID, ARN, and UserID for your current credentials. Always run first in any audit to confirm you are operating under the expected role — never assume.",
             },
             {
               instruction: "List IAM users in the account.",
               expectedCommand: "aws iam list-users",
               hint: "aws iam list-users",
+              notes: "Compare against the expected headcount. Stale accounts with an old 'PasswordLastUsed' date are a finding. Best practice: use IAM roles for services and SSO for humans instead of long-lived user keys.",
             },
             {
               instruction: "Check S3 public access block settings for the account.",
               expectedCommand: "aws s3control get-public-access-block",
               hint: "aws s3control get-public-access-block",
+              notes: "The account-level Block Public Access setting is a safety net that overrides individual bucket ACLs. All four booleans should be 'true' in a compliant account — any 'false' is a critical finding.",
             },
             {
               instruction: "List S3 buckets to identify scope.",
               expectedCommand: "aws s3 ls",
               hint: "aws s3 ls",
+              notes: "Lists all buckets in the account. For any bucket holding sensitive data, follow up with 'aws s3api get-bucket-acl --bucket <name>' to confirm it is not world-readable (no AllUsers or AuthenticatedUsers grants).",
             },
           ],
         },
