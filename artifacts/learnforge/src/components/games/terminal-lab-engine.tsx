@@ -963,6 +963,9 @@ export function TerminalLabEngine({
                 const typed = cmd.trim().toLowerCase();
                 if (typed === expected || typed.startsWith(expected + " ")) {
                   term.writeln(`\r\n\x1b[32m✓ Step ${stepIdx + 1} complete\x1b[0m`);
+                  if (stepData.notes) {
+                    term.writeln(`\x1b[36m💡 ${stepData.notes}\x1b[0m`);
+                  }
                   const next = stepIdx + 1;
                   currentStepRef.current = next;
                   wrongAttemptsRef.current.delete(stepIdx);

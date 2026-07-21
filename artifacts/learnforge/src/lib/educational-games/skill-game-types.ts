@@ -134,6 +134,8 @@ export type TerminalStep = {
   machineId?: string;
   expectedOutputContains?: string;
   hint?: string;
+  /** Educational note shown in the terminal after the step is completed */
+  notes?: string;
 };
 
 export type TerminalMachine = {
