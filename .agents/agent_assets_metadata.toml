@@ -144,6 +144,366 @@ uri = "file://artifacts/learnforge/public/lab-images/cyber-log-triage.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "yuzKs6imAJ7nD-xHE75L1"
+uri = "file://artifacts/learnforge/public/lab-images/helpdesk-asset-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "tY1G_oRbHYXLG2Y6c4sWA"
+uri = "file://artifacts/learnforge/public/lab-images/helpdesk-security-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "SX1oX9LAcLAXFldLyI0bB"
+uri = "file://artifacts/learnforge/public/lab-images/helpdesk-ticket-queue.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ryoQcVP1NCu_2jNlFVijc"
+uri = "file://artifacts/learnforge/public/lab-images/da-stakeholder-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "9ogcxKLToOM2SvO_BzQN_"
+uri = "file://artifacts/learnforge/public/lab-images/da-cohort-spreadsheet.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "lLfAPZtrVuvxSL8BOmxFM"
+uri = "file://artifacts/learnforge/public/lab-images/da-sales-summary.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "mt37iAKrFhx4Y1lHCZJBJ"
+uri = "file://artifacts/learnforge/public/lab-images/da-data-quality.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "971_oVvee2-mtH42qmrNf"
+uri = "file://artifacts/learnforge/public/lab-images/postal-window-transaction.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "j2FveawROmUIQd6aG4bvD"
+uri = "file://artifacts/learnforge/public/lab-images/postal-route-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "9Khtwd7bzKPDThE6oXK6K"
+uri = "file://artifacts/learnforge/public/lab-images/postal-parcel-log.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "RW29toAYrjNB1lDpfleMQ"
+uri = "file://artifacts/learnforge/public/lab-images/dev-ticket-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "hVJkI_K1kI1d2sufRnhV3"
+uri = "file://artifacts/learnforge/public/lab-images/bk-ledger.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "i2CNpOg8gmnTzaEC-14Q4"
+uri = "file://artifacts/learnforge/public/lab-images/bk-reconcile.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "TezER5RU_uM15IZyh_ErT"
+uri = "file://artifacts/learnforge/public/lab-images/pm-risk-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "TeKSDHgOtpeoGgTxnmAcg"
+uri = "file://artifacts/learnforge/public/lab-images/pm-status-report.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "eQ_3PKyDsq4q9-vz2OGFS"
+uri = "file://artifacts/learnforge/public/lab-images/pm-budget.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "TJZeiwkz5dILvgRlD-ZVS"
+uri = "file://artifacts/learnforge/public/lab-images/elec-panel-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "YyoGWzwGAkSvEAq3sNoZF"
+uri = "file://artifacts/learnforge/public/lab-images/elec-service-ticket.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "oK5wSPoNTCa0hHL-InniK"
+uri = "file://artifacts/learnforge/public/lab-images/elec-jobsite.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "akkdWUI4PCa-ffphfR39_"
+uri = "file://artifacts/learnforge/public/lab-images/hvac-service-ticket.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "k8OTTSnYVXrH83lS800dD"
+uri = "file://artifacts/learnforge/public/lab-images/hvac-refrigerant-log.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "GnsZbETgpqPgDmRSWUn5c"
+uri = "file://artifacts/learnforge/public/lab-images/hvac-load.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "mmYQMxZPFTtYrz8NstY85"
+uri = "file://artifacts/learnforge/public/lab-images/cna-vitals.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "GYErx6uuDMmqjnyAWo4lX"
+uri = "file://artifacts/learnforge/public/lab-images/cna-adl-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "b45yon6HXya7tWzW0929m"
+uri = "file://artifacts/learnforge/public/lab-images/cna-io-chart.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "fjEX6kzLjbblOg1ovnOCE"
+uri = "file://artifacts/learnforge/public/lab-images/ma-referral-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "1lx7DEjiF4YIP17ekXz7l"
+uri = "file://artifacts/learnforge/public/lab-images/ma-medication-log.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "6qn34dtwPEalzjohuXHoN"
+uri = "file://artifacts/learnforge/public/lab-images/ma-chart.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "AfDzb15d24VUoWk8rbqLB"
+uri = "file://artifacts/learnforge/public/lab-images/rx-label-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "BQzr4lXhfSdif85rR3KcJ"
+uri = "file://artifacts/learnforge/public/lab-images/rx-inventory-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "phqQyHF6K-90gA_pwJWRE"
+uri = "file://artifacts/learnforge/public/lab-images/rx-math.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "KYuE-aoPcuSG9ZVCqkmnt"
+uri = "file://artifacts/learnforge/public/lab-images/mbc-claim-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "9SX8iLweG5VIb-Ei60wBX"
+uri = "file://artifacts/learnforge/public/lab-images/mbc-era-spreadsheet.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "K7yMf4CpCeIYZUqkuE-Hz"
+uri = "file://artifacts/learnforge/public/lab-images/mbc-denial-appeal-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "vpzURbuEFMlxgpoasVuFe"
+uri = "file://artifacts/learnforge/public/lab-images/office-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "PO_d9G6HIWwjlGqGSiDtj"
+uri = "file://artifacts/learnforge/public/lab-images/office-schedule.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "FSLQC8MJjcvYb4gsGjRcE"
+uri = "file://artifacts/learnforge/public/lab-images/teach-grade-sheet.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ZyjsHcpiypc7prNoiQ0Ii"
+uri = "file://artifacts/learnforge/public/lab-images/teach-sub-plan.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "cAtyjvxEJPyL1r4mrsE5H"
+uri = "file://artifacts/learnforge/public/lab-images/teach-plan.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "FDbhJX97kxvXSBwqoKbPq"
+uri = "file://artifacts/learnforge/public/lab-images/leo-evidence-log.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "zFvS8NmpBRGlxghhcHZz1"
+uri = "file://artifacts/learnforge/public/lab-images/leo-use-of-force-report.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "83sBv_0HuEYeSVsOfibv4"
+uri = "file://artifacts/learnforge/public/lab-images/leo-report.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "_AiSCYRBl-oOfRGpglryf"
+uri = "file://artifacts/learnforge/public/lab-images/emt-pcr-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "mKM4Vg05OGEYNDTfnyyyk"
+uri = "file://artifacts/learnforge/public/lab-images/emt-equipment-check.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "iLTA-B8X66FY3CJWydPQW"
+uri = "file://artifacts/learnforge/public/lab-images/emt-math.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "xJlq1VQ4-LLa5TCfxVDsn"
+uri = "file://artifacts/learnforge/public/lab-images/re-closing-sheet.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "uZOApdl-D4_2SQkAA_vnJ"
+uri = "file://artifacts/learnforge/public/lab-images/re-showing-checklist.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "fNDhULxaH8ESzjevz7nps"
+uri = "file://artifacts/learnforge/public/lab-images/re-listing.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "7gBj38kZkPAn_uBf7qL_N"
+uri = "file://artifacts/learnforge/public/lab-images/cosmo-client-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "e5H28zTK6t-Q0P5W0QsXL"
+uri = "file://artifacts/learnforge/public/lab-images/cosmo-chemical-log.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "GGISCqHDKHgwGpayqvWFB"
+uri = "file://artifacts/learnforge/public/lab-images/cosmo-sanitize.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "9FE4WbFW9OFKE7TcQT_BN"
+uri = "file://artifacts/learnforge/public/lab-images/fs-safety-assessment.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Ojig9krLR1bv4O_7iGJtH"
+uri = "file://artifacts/learnforge/public/lab-images/fs-service-plan.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "2JKWDGu49avemzbvuU-us"
+uri = "file://artifacts/learnforge/public/lab-images/fs-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "f-RW2HSGUDBbjIG26pgeq"
+uri = "file://artifacts/learnforge/public/lab-images/sw-resource-referral.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "PgotStUIzuvh26GH5qyIw"
+uri = "file://artifacts/learnforge/public/lab-images/sw-case-note.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "rVlaS4xAQWX3-NB09jHFX"
+uri = "file://artifacts/learnforge/public/lab-images/sw-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Yf32vpBadAb8y_lilYOmX"
+uri = "file://artifacts/learnforge/public/lab-images/teller-ctr-intake.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "SUcYs4eWB-Lt4zU1HwAf4"
+uri = "file://artifacts/learnforge/public/lab-images/teller-end-of-day.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Zd5oHVb_xLCCjPhUFyZ9h"
+uri = "file://artifacts/learnforge/public/lab-images/teller-drawer.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "12h8NihN8XIukVeFBTaN_"
 uri = "file://exports/learnforge-brand-kit.zip"
