@@ -16,6 +16,8 @@ import type {
   SkillGameType,
 } from "./skill-game-types";
 
+export type LabDifficulty = "beginner" | "intermediate" | "advanced";
+
 export type CareerLabModule = {
   id: string;
   title: string;
@@ -23,6 +25,8 @@ export type CareerLabModule = {
   gameType: SkillGameType;
   duration: string;
   domain: string;
+  /** Optional difficulty rating shown as a badge on the lab card. */
+  difficulty?: LabDifficulty;
   content: SkillGameContent;
   /** Optional warm-up questions before the hands-on workspace (Step 1). */
   prep?: LabPhaseQuestion[];
@@ -3293,6 +3297,226 @@ console.log(user.name.toUpperCase())`,
               hint: "ping 192.168.1.20",
             },
           ],
+        },
+      },
+    },
+
+    {
+      id: "its-win-boot-repair",
+      title: "🔧 Fix-It: Windows BCD Boot Repair",
+      description:
+        "The PC shows error 0xc000000f on startup — Boot Configuration Data is corrupted. Use the Windows Recovery Environment CLI to diagnose the bad BCD entry, repair the MBR and boot sector, rebuild the BCD, then verify the bootloader is restored.",
+      gameType: "terminal-workspace",
+      duration: "10–14 min",
+      domain: "CompTIA A+ — OS repair",
+      difficulty: "intermediate",
+      content: {
+        terminal: {
+          title: "Windows RE — BCD Boot Repair",
+          brief:
+            "A technician's PC shows '0xc000000f — Boot Configuration Data file is missing or corrupt.' You've booted to the Windows Recovery Environment. Diagnose the BCD, repair the bootloader, and verify Windows can start again.",
+          hostname: "X:\\Sources",
+          prompt: "X:\\Sources>",
+          initialOutput: [
+            "Windows Recovery Environment",
+            "Microsoft Windows [Version 10.0.19045]",
+            "",
+            "Error reported by user: 0xc000000f",
+            "  'The Boot Configuration Data for your PC is missing or contains errors.'",
+            "Ready for repair commands.",
+          ].join("\n"),
+          steps: [
+            {
+              instruction: "List all BCD entries to find the corrupt or missing boot record.",
+              expectedCommand: "bcdedit /enum all",
+              hint: "bcdedit /enum all",
+            },
+            {
+              instruction: "Repair the Master Boot Record.",
+              expectedCommand: "bootrec /fixmbr",
+              hint: "bootrec /fixmbr",
+            },
+            {
+              instruction: "Repair the boot sector on the system partition.",
+              expectedCommand: "bootrec /fixboot",
+              hint: "bootrec /fixboot",
+            },
+            {
+              instruction: "Scan all disks and rebuild the Boot Configuration Database.",
+              expectedCommand: "bootrec /rebuildbcd",
+              hint: "bootrec /rebuildbcd",
+            },
+            {
+              instruction: "Enumerate the default BCD entry to confirm a valid Windows boot record is present.",
+              expectedCommand: "bcdedit /enum",
+              hint: "bcdedit /enum",
+            },
+          ],
+          commandOutputs: {
+            "bcdedit /enum all": [
+              "Windows Boot Manager",
+              "--------------------",
+              "identifier              {bootmgr}",
+              "device                  unknown",
+              "description             Windows Boot Manager",
+              "default                 {BADENTRY}    ← GUID NOT FOUND",
+              "",
+              "Windows Boot Loader",
+              "-------------------",
+              "identifier              {BADENTRY}",
+              "device                  CORRUPT — partition not resolvable",
+              "path                    \\windows\\system32\\winload.efi",
+              "description             Windows 10",
+              "STATUS: BCD references {BADENTRY} which has no valid partition.",
+              "This is the cause of 0xc000000f.",
+            ].join("\n"),
+            "bootrec /fixmbr": [
+              "The operation completed successfully.",
+              "  Master Boot Record has been written to disk 0.",
+            ].join("\n"),
+            "bootrec /fixboot": [
+              "The operation completed successfully.",
+              "  Boot sector has been written to the system volume.",
+            ].join("\n"),
+            "bootrec /rebuildbcd": [
+              "Scanning all disks for Windows installations.",
+              "",
+              "Please wait, since this may take a while...",
+              "",
+              "Successfully scanned Windows installations.",
+              "Total identified Windows installations: 1",
+              "",
+              "  [1]  C:\\Windows",
+              "",
+              "Add installation to boot list? Yes/No/All: [auto-confirmed]",
+              "The operation completed successfully.",
+              "  Boot Configuration Data rebuilt.",
+            ].join("\n"),
+            "bcdedit /enum": [
+              "Windows Boot Manager",
+              "--------------------",
+              "identifier              {bootmgr}",
+              "device                  partition=\\Device\\HarddiskVolume1",
+              "description             Windows Boot Manager",
+              "default                 {current}   ✓",
+              "timeout                 30",
+              "",
+              "Windows Boot Loader",
+              "-------------------",
+              "identifier              {current}",
+              "device                  partition=C:",
+              "path                    \\windows\\system32\\winload.efi",
+              "description             Windows 10",
+              "osdevice                partition=C:",
+              "systemroot              \\windows",
+              "STATUS: ✓ Valid boot entry present. Remove the install media and restart.",
+            ].join("\n"),
+          },
+        },
+      },
+    },
+
+    {
+      id: "its-linux-nginx-repair",
+      title: "🔧 Fix-It: Linux nginx Config Repair",
+      description:
+        "After a config edit, nginx fails to start and users see 502 errors. Use systemctl and nginx -t to diagnose the misconfiguration, fix the worker_processes directive with sed, restart the service, and verify the server responds.",
+      gameType: "terminal-workspace",
+      duration: "10–14 min",
+      domain: "CompTIA Linux+ — service repair",
+      difficulty: "intermediate",
+      content: {
+        terminal: {
+          title: "web-prod-01 — nginx Service Failure",
+          brief:
+            "Users are hitting 502 Bad Gateway. On-call says nginx was working until a junior admin edited the config 10 minutes ago. Diagnose the failure, fix the misconfiguration, and restore the web service.",
+          hostname: "web-prod-01",
+          prompt: "student@web-prod-01:~$",
+          initialOutput: [
+            "On-call alert: 502 Bad Gateway — nginx down on web-prod-01",
+            "Last config change: 10 min ago by admin_trainee",
+            "SSH session established. Begin investigation.",
+          ].join("\n"),
+          steps: [
+            {
+              instruction: "Check the nginx service status to see the failure reason.",
+              expectedCommand: "systemctl status nginx",
+              hint: "systemctl status nginx",
+            },
+            {
+              instruction: "Run nginx's built-in config test to locate the exact error.",
+              expectedCommand: "nginx -t",
+              hint: "nginx -t",
+            },
+            {
+              instruction: "Find the worker_processes line number in the nginx config.",
+              expectedCommand: "grep -n \"worker_processes\" /etc/nginx/nginx.conf",
+              hint: "grep -n \"worker_processes\" /etc/nginx/nginx.conf",
+            },
+            {
+              instruction:
+                "Fix the misconfiguration: replace 'worker_processes 0' with 'worker_processes 1' using sed.",
+              expectedCommand:
+                "sed -i 's/worker_processes 0/worker_processes 1/' /etc/nginx/nginx.conf",
+              hint: "sed -i 's/worker_processes 0/worker_processes 1/' /etc/nginx/nginx.conf",
+            },
+            {
+              instruction: "Restart nginx to apply the corrected config.",
+              expectedCommand: "systemctl restart nginx",
+              hint: "systemctl restart nginx",
+            },
+            {
+              instruction: "Verify the web server responds on localhost.",
+              expectedCommand: "curl localhost",
+              hint: "curl localhost",
+            },
+          ],
+          commandOutputs: {
+            "systemctl status nginx": [
+              "● nginx.service - A high performance web server",
+              "     Loaded: loaded (/lib/systemd/system/nginx.service; enabled)",
+              "     Active: failed (Result: exit-code) since 14:22:07",
+              "    Process: 4821 ExecStart=/usr/sbin/nginx (code=exited, status=1/FAILURE)",
+              "",
+              "Jan 21 14:22:07 web-prod-01 nginx[4821]: nginx: [emerg] 0 worker processes",
+              "Jan 21 14:22:07 web-prod-01 systemd[1]: nginx.service: Control process exited",
+              "Jan 21 14:22:07 web-prod-01 systemd[1]: Failed to start nginx.",
+              "",
+              "→ Error: 0 worker processes. Check nginx.conf worker_processes directive.",
+            ].join("\n"),
+            "nginx -t": [
+              "nginx: [emerg] 0 worker processes",
+              "nginx: configuration file /etc/nginx/nginx.conf test failed",
+              "",
+              "  Check /etc/nginx/nginx.conf line 4:",
+              "    worker_processes 0;   ← must be >= 1 (or 'auto')",
+            ].join("\n"),
+            "grep -n \"worker_processes\" /etc/nginx/nginx.conf": [
+              "4:worker_processes 0;    ← MISCONFIGURED (should be 1 or auto)",
+            ].join("\n"),
+            "sed -i 's/worker_processes 0/worker_processes 1/' /etc/nginx/nginx.conf": [
+              "Replacement applied.",
+              "  Line 4: worker_processes 0;  →  worker_processes 1;",
+              "Run 'nginx -t' to verify before restarting.",
+            ].join("\n"),
+            "systemctl restart nginx": [
+              "● nginx.service restarted successfully.",
+              "  Active: active (running) since 14:23:54",
+              "  Process: 4950 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)",
+              "nginx is now running.",
+            ].join("\n"),
+            "curl localhost": [
+              "<!DOCTYPE html>",
+              "<html>",
+              "<head><title>Welcome to nginx!</title></head>",
+              "<body>",
+              "<h1>Welcome to nginx!</h1>",
+              "<p>If you see this page, the nginx web server is running.</p>",
+              "</body></html>",
+              "",
+              "→ HTTP 200 OK. Web service restored. Incident resolved.",
+            ].join("\n"),
+          },
         },
       },
     },

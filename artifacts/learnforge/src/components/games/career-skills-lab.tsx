@@ -32,6 +32,21 @@ import {
   type SkillGameContent,
 } from "@/lib/educational-games/skill-game-types";
 import { getBestLabAttempt } from "@/lib/lab-history";
+import type { LabDifficulty } from "@/lib/educational-games/career-lab-tracks-extended";
+
+const DIFFICULTY_STYLES: Record<LabDifficulty, string> = {
+  beginner: "bg-sky-500 text-white",
+  intermediate: "bg-amber-500 text-white",
+  advanced: "bg-rose-600 text-white",
+};
+
+function DifficultyBadge({ difficulty }: { difficulty: LabDifficulty }) {
+  return (
+    <Badge className={`text-xs capitalize ${DIFFICULTY_STYLES[difficulty]}`}>
+      {difficulty}
+    </Badge>
+  );
+}
 
 function LabScoreBadge({ labId }: { labId: string }) {
   const [best, setBest] = useState<{ score: number; timeStr: string } | null>(null);
@@ -146,6 +161,7 @@ export function CareerSkillsLab({
                     {SKILL_GAME_TYPE_LABELS[mod.gameType]}
                   </Badge>
                   <Badge variant="outline">{mod.duration}</Badge>
+                  {mod.difficulty && <DifficultyBadge difficulty={mod.difficulty} />}
                   <LabScoreBadge labId={mod.id} />
                 </CardContent>
               </Card>
