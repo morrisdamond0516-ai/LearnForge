@@ -148,6 +148,7 @@ export function SpreadsheetLabEngine({
   const numCols = Math.max(data.headers.length, ...data.rows.map((r) => r.length));
   const totalRows = numDataRows + 2;
 
+  const [labStarted, setLabStarted] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
   const [cellStates, setCellStates] = useState<Record<string, CellState>>({});
   const [activeCell, setActiveCell] = useState<string>("A1");
@@ -281,6 +282,55 @@ export function SpreadsheetLabEngine({
             <Button variant="outline" onClick={handleRetry}>
               <RotateCcw className="mr-2 h-4 w-4" />
               Practice again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Lab intro screen ───────────────────────────────────────────────────────
+  if (!labStarted && !done) {
+    return (
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="bg-[#217346] px-3 py-1.5 text-white text-xs font-medium flex items-center gap-3">
+          <span>📊</span>
+          <span className="flex-1">{data.title}.xlsx — Microsoft Excel</span>
+          <span className="opacity-70 text-[10px]">Lab Workbook</span>
+        </div>
+        <div className="p-6 sm:p-8 space-y-6 bg-card">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Scenario</p>
+            <p className="text-sm leading-relaxed">{data.brief}</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Tasks — {data.tasks.length}
+            </p>
+            <ol className="space-y-1.5">
+              {data.tasks.map((task, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-sm">
+                  <span className="flex-shrink-0 h-5 w-5 rounded-full bg-[#217346]/10 text-[#217346] dark:text-green-400 text-[11px] font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="flex-1 text-muted-foreground leading-snug">
+                    {task.instruction}
+                    <span className="ml-1.5 font-mono text-[10px] text-[#217346] dark:text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">
+                      {task.targetCell}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="pt-2 flex justify-center">
+            <Button
+              size="lg"
+              className="px-10 bg-[#217346] hover:bg-[#185c38] text-white border-0"
+              onClick={() => setLabStarted(true)}
+            >
+              Open Workbook
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>

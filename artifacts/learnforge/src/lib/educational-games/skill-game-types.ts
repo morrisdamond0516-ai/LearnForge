@@ -130,17 +130,36 @@ export type SpreadsheetWorkspaceContent = {
 export type TerminalStep = {
   instruction: string;
   expectedCommand: string;
+  /** If set, this step is only validated when typed on the matching machine */
+  machineId?: string;
   expectedOutputContains?: string;
   hint?: string;
+};
+
+export type TerminalMachine = {
+  id: string;
+  /** Tab label shown above the terminal */
+  label: string;
+  hostname: string;
+  prompt: string;
+  /** Icon shown in the tab bar */
+  icon?: "pc" | "laptop" | "server" | "router" | "switch" | "firewall";
+  initialOutput?: string;
 };
 
 export type TerminalWorkspaceContent = {
   title: string;
   brief: string;
+  /** Primary / single-machine hostname (required for backward compat) */
   hostname: string;
+  /** Primary / single-machine prompt */
   prompt: string;
   initialOutput?: string;
   steps: TerminalStep[];
+  /** Optional: define multiple machines — adds a machine-tab bar */
+  machines?: TerminalMachine[];
+  /** Optional countdown timer in minutes (undefined = no timer) */
+  timeLimitMinutes?: number;
 };
 
 export type PatientChartTask = {

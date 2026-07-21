@@ -169,6 +169,13 @@ export default function Landing() {
                 <Link href="/sign-in">I already have an account</Link>
               </Button>
             </div>
+            <div className="mt-3">
+              <Link href="/lab-demo" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+                <span>⚡</span>
+                Try a live lab first — no sign-up needed
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
             <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
               <ShieldCheck className="h-4 w-4 text-primary" />
               Free to start. No credit card required.

@@ -1085,6 +1085,58 @@ console.log(user.name.toUpperCase())`,
         ],
       },
     },
+    {
+      id: "ma-ehr-terminal",
+      title: "💻 EHR Terminal Lab — Patient Lookup & Vitals",
+      description:
+        "Navigate a simulated EHR command-line interface: look up a patient, verify allergies, view the medication list, and confirm that vitals were charted before the provider enters.",
+      gameType: "terminal-workspace",
+      duration: "8–12 min",
+      domain: "Clinical documentation",
+      content: {
+        terminal: {
+          title: "EHR Workstation — Clinic Session",
+          brief:
+            "The provider is 5 minutes out. You need to confirm the patient record is complete: verify the patient was found in the system, check allergies, review active medications, and confirm vitals are charted.",
+          hostname: "CLINIC-WS01",
+          prompt: "C:\\EHR>",
+          initialOutput:
+            "Epic EHR Workstation — Riverside Family Medicine\nSession: MA Santos | Date: 2026-07-21\nType 'help' to see available commands.",
+          steps: [
+            {
+              instruction: "Search the EHR for patient Maria Santos using the lookup command.",
+              expectedCommand: "net user santos",
+              hint: "net user santos",
+            },
+            {
+              instruction: "Display the full IP/system configuration to verify the workstation is on the clinic VLAN.",
+              expectedCommand: "ipconfig",
+              hint: "ipconfig",
+            },
+            {
+              instruction: "Confirm the EHR service is running on this workstation.",
+              expectedCommand: "sc query wuauserv",
+              hint: "sc query wuauserv",
+            },
+            {
+              instruction: "Check for any pending system alerts or notifications.",
+              expectedCommand: "tasklist",
+              hint: "tasklist",
+            },
+            {
+              instruction: "Verify the workstation hostname matches the assigned clinic station.",
+              expectedCommand: "hostname",
+              hint: "hostname",
+            },
+            {
+              instruction: "Display system information to confirm the workstation meets EHR minimum specs.",
+              expectedCommand: "systeminfo",
+              hint: "systeminfo",
+            },
+          ],
+        },
+      },
+    },
   ],
 
   "pharmacy-tech": [
@@ -2810,6 +2862,106 @@ console.log(user.name.toUpperCase())`,
               instruction: "Verify the account details and group membership.",
               expectedCommand: "net user helpdesk",
               hint: "net user helpdesk",
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      id: "its-multi-machine-network",
+      title: "🖥️ Multi-Machine: Network Lab (A+ / Network+)",
+      description:
+        "Work across three machines at once — Windows desktop, Cisco router, and Linux server — to diagnose a connectivity gap, just like real-world CompTIA labs.",
+      gameType: "terminal-workspace",
+      duration: "15–20 min",
+      domain: "Multi-machine networking",
+      content: {
+        terminal: {
+          title: "Multi-Machine Network Lab",
+          timeLimitMinutes: 15,
+          brief:
+            "Three systems, one goal: confirm end-to-end connectivity from DESK-102 (Windows) through Router1 (Cisco) to web-srv-01 (Linux). Each tab is a separate live terminal — switch machines when the step indicator tells you to.",
+          hostname: "DESK-102",
+          prompt: "C:\\>",
+          initialOutput: "",
+          machines: [
+            {
+              id: "desk",
+              label: "DESK-102",
+              hostname: "DESK-102",
+              prompt: "C:\\>",
+              icon: "pc",
+              initialOutput:
+                "Windows 10 Pro — Corp workstation\nYour job: verify this PC can reach the router and the web server.",
+            },
+            {
+              id: "router",
+              label: "Router1",
+              hostname: "Router1",
+              prompt: "Router1>",
+              icon: "router",
+              initialOutput:
+                "Cisco IOS 15.4 — Core router\nYour job: confirm routing table and ARP cache are correct.",
+            },
+            {
+              id: "server",
+              label: "web-srv-01",
+              hostname: "web-srv-01",
+              prompt: "student@web-srv-01:~$",
+              icon: "server",
+              initialOutput:
+                "Ubuntu 22.04 LTS — Web server (192.168.1.20)\nYour job: confirm nginx is running and port 80 is open.",
+            },
+          ],
+          steps: [
+            {
+              machineId: "desk",
+              instruction: "On DESK-102: show the full IP configuration to find the default gateway.",
+              expectedCommand: "ipconfig /all",
+              hint: "ipconfig /all",
+            },
+            {
+              machineId: "desk",
+              instruction: "On DESK-102: ping the default gateway (Router1 at 192.168.1.1) to verify L3 connectivity.",
+              expectedCommand: "ping 192.168.1.1",
+              hint: "ping 192.168.1.1",
+            },
+            {
+              machineId: "router",
+              instruction: "Switch to Router1. Enter privileged exec mode.",
+              expectedCommand: "enable",
+              hint: "enable",
+            },
+            {
+              machineId: "router",
+              instruction: "On Router1: display the IP routing table to verify routes are present.",
+              expectedCommand: "show ip route",
+              hint: "show ip route",
+            },
+            {
+              machineId: "router",
+              instruction: "On Router1: check the ARP cache — confirm DESK-102 and web-srv-01 entries are there.",
+              expectedCommand: "show arp",
+              hint: "show arp",
+            },
+            {
+              machineId: "server",
+              instruction: "Switch to web-srv-01. Check that nginx is active and running.",
+              expectedCommand: "systemctl status nginx",
+              hint: "systemctl status nginx",
+            },
+            {
+              machineId: "server",
+              instruction: "On web-srv-01: confirm port 80 is listening.",
+              expectedCommand: "ss -tuln",
+              hint: "ss -tuln",
+            },
+            {
+              machineId: "desk",
+              instruction: "Back on DESK-102: ping the web server (192.168.1.20) to confirm full end-to-end path.",
+              expectedCommand: "ping 192.168.1.20",
+              hint: "ping 192.168.1.20",
             },
           ],
         },
