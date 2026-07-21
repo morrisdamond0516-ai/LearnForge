@@ -840,6 +840,9 @@ export function TerminalLabEngine({
   const [timedOut, setTimedOut] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [elapsedSec, setElapsedSec] = useState(0);
+  const [revealAvailable, setRevealAvailable] = useState(false);
+  const [cmdRevealed, setCmdRevealed] = useState(false);
+  const revealAvailableRef = useRef(false);
   const reward = useGameReward(gameId, done, 100);
   const flow = useLabModuleFlow();
 
@@ -966,6 +969,8 @@ export function TerminalLabEngine({
                   setCurrentStep(next);
                   setCompletedSteps((prev) => new Set([...prev, stepIdx]));
                   setShowHint(false);
+                  setRevealAvailable(false);
+                  setCmdRevealed(false);
                   if (next >= data.steps.length) {
                     term.writeln(
                       "\x1b[32;1m\r\n╔══════════════════════════════════╗\r\n║   Lab complete! All steps done.  ║\r\n╚══════════════════════════════════╝\x1b[0m",
@@ -994,6 +999,9 @@ export function TerminalLabEngine({
                   if (tries === 2 && !showHintRef.current) {
                     setShowHint(true);
                     setHintsUsed((h) => h + 1);
+                  }
+                  if (tries >= 3 && showHintRef.current && !revealAvailableRef.current) {
+                    setRevealAvailable(true);
                   }
                 }
               } else {
@@ -1037,19 +1045,45 @@ export function TerminalLabEngine({
             s.currentLine = next;
           }
         } else if (domEvent.keyCode === 9) {
-          // Tab completion
+          // Tab completion — domain commands first, then filesystem paths
           domEvent.preventDefault();
-          const partial = s.currentLine.split(/\s+/).at(-1) ?? "";
-          if (partial) {
-            const curDir = getNode(s.fs.root, s.fs.cwd, os) as FSDir | null;
-            if (curDir?.type === "dir") {
-              const matches = Object.keys(curDir.children).filter((n) =>
-                n.toLowerCase().startsWith(partial.toLowerCase()),
-              );
-              if (matches.length === 1) {
-                const completion = matches[0]!.slice(partial.length);
-                s.currentLine += completion;
-                term.write(completion);
+          const line = s.currentLine;
+          const lower = line.toLowerCase();
+          if (lower) {
+            const knownCmds = [
+              ...Object.keys(data.commandOutputs ?? {}),
+              ...data.steps.map((st) => st.expectedCommand),
+            ];
+            const cmdMatches = [
+              ...new Set(
+                knownCmds.filter(
+                  (c) => c.toLowerCase().startsWith(lower) && c.toLowerCase() !== lower,
+                ),
+              ),
+            ];
+            if (cmdMatches.length === 1) {
+              const fill = cmdMatches[0]!.slice(line.length);
+              s.currentLine += fill;
+              term.write(fill);
+            } else if (cmdMatches.length > 1) {
+              term.writeln("");
+              term.writeln(cmdMatches.map((c) => c.split(" ")[0]).filter(Boolean).join("  "));
+              term.write(buildPromptString(machine, s.fs) + s.currentLine);
+            } else {
+              // Fall back: filesystem path completion on the last word
+              const partial = s.currentLine.split(/\s+/).at(-1) ?? "";
+              if (partial) {
+                const curDir = getNode(s.fs.root, s.fs.cwd, os) as FSDir | null;
+                if (curDir?.type === "dir") {
+                  const matches = Object.keys(curDir.children).filter((n) =>
+                    n.toLowerCase().startsWith(partial.toLowerCase()),
+                  );
+                  if (matches.length === 1) {
+                    const completion = matches[0]!.slice(partial.length);
+                    s.currentLine += completion;
+                    term.write(completion);
+                  }
+                }
               }
             }
           }
@@ -1098,8 +1132,9 @@ export function TerminalLabEngine({
     return () => window.removeEventListener("resize", onResize);
   }, [activeMachineId]);
 
-  // Keep showHintRef in sync so the onKey closure can read current value
+  // Keep showHintRef and revealAvailableRef in sync so onKey closures read current values
   useEffect(() => { showHintRef.current = showHint; }, [showHint]);
+  useEffect(() => { revealAvailableRef.current = revealAvailable; }, [revealAvailable]);
 
   // Save lab attempt when the lab completes
   useEffect(() => {
@@ -1140,6 +1175,8 @@ export function TerminalLabEngine({
     setDone(false);
     setTimedOut(false);
     setShowHint(false);
+    setRevealAvailable(false);
+    setCmdRevealed(false);
     setHintsUsed(0);
     setElapsedSec(0);
     setTimeLeft(data.timeLimitMinutes != null ? data.timeLimitMinutes * 60 : null);
@@ -1535,6 +1572,21 @@ export function TerminalLabEngine({
               {showHint && (
                 <p className="text-xs text-muted-foreground bg-muted/50 rounded p-2 font-mono">
                   {currentStepData.hint ?? currentStepData.expectedCommand}
+                </p>
+              )}
+              {revealAvailable && !cmdRevealed && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full text-xs h-7 border-yellow-500/40 text-yellow-600 hover:bg-yellow-500/10"
+                  onClick={() => { setCmdRevealed(true); setHintsUsed((h) => h + 1); }}
+                >
+                  Reveal exact command
+                </Button>
+              )}
+              {cmdRevealed && (
+                <p className="text-xs bg-yellow-500/10 border border-yellow-500/30 rounded p-2 font-mono text-yellow-300 break-all select-all">
+                  {currentStepData.expectedCommand}
                 </p>
               )}
             </div>
