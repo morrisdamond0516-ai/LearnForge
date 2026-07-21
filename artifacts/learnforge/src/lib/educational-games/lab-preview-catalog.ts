@@ -49,6 +49,8 @@ export type LabPreviewEntry = {
   /** Deep link into the live lab */
   href: string;
   content?: SkillGameContent;
+  /** Cover image path, e.g. /lab-images/its-network-triage.png */
+  image?: string;
 };
 
 const CAREER_CLUSTER: Record<CareerSkillSlug, LabPreviewCluster> = {
@@ -140,6 +142,7 @@ export function buildLabPreviewCatalog(): LabPreviewEntry[] {
         labCount: track.length,
         href: careerHref(career.slug, mod.id),
         content: mod.content,
+        image: mod.image,
       });
     });
   }
