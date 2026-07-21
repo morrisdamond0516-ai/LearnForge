@@ -9,7 +9,7 @@ const repoRoot = path.resolve(import.meta.dirname, "../..");
 export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, repoRoot, "");
 
-  const rawPort = env.WEB_PORT ?? env.VITE_PORT ?? "5173";
+  const rawPort = env.PORT ?? env.WEB_PORT ?? env.VITE_PORT ?? "5173";
   const port = Number(rawPort);
 
   if (Number.isNaN(port) || port <= 0) {
@@ -17,7 +17,7 @@ export default defineConfig(async ({ mode }) => {
   }
 
   const basePath = env.BASE_PATH ?? "/";
-  const apiPort = env.PORT ?? "5000";
+  const apiPort = env.API_PORT ?? "5000";
 
   const noCacheInDev =
     env.NODE_ENV !== "production"

@@ -3,7 +3,6 @@ import {
   useGenerateCurriculum,
   useListSubjects,
   getListCurriculaQueryKey,
-  ApiError,
 } from "@workspace/api-client-react";
 import {
   Card,
@@ -126,16 +125,15 @@ export default function Curriculum() {
         },
         onError: (error) => {
           let description = "Something went wrong. Please try again.";
-          if (error instanceof ApiError) {
-            if (error.status === 401) {
-              description =
-                "Your session expired. Sign out, sign back in, then try again.";
-            } else if (error.status === 500) {
-              description =
-                "The AI service may be unavailable — check that AI_INTEGRATIONS_OPENAI_API_KEY is set in .env.";
-            } else if (typeof error.data === "object" && error.data && "error" in error.data) {
-              description = String((error.data as { error: unknown }).error);
-            }
+          const apiErr = error as { status?: number; data?: unknown };
+          if (apiErr.status === 401) {
+            description =
+              "Your session expired. Sign out, sign back in, then try again.";
+          } else if (apiErr.status === 500) {
+            description =
+              "The AI service may be unavailable — check that AI_INTEGRATIONS_OPENAI_API_KEY is set in .env.";
+          } else if (typeof apiErr.data === "object" && apiErr.data && "error" in apiErr.data) {
+            description = String((apiErr.data as { error: unknown }).error);
           }
           toast({
             title: "Failed to generate curriculum",

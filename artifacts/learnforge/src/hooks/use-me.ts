@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAuthHeaders } from "@workspace/api-client-react";
 
 export type Entitlement = {
   pro: boolean;
@@ -31,7 +30,6 @@ export function useMe() {
     queryFn: async () => {
       const res = await fetch("/api/me", {
         credentials: "include",
-        headers: await getAuthHeaders(),
       });
       if (!res.ok) throw new Error("Failed to load account");
       return (await res.json()) as Me;
