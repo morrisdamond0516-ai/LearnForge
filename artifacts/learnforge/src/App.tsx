@@ -310,6 +310,8 @@ function ClerkProviderWithRoutes() {
             <Route path="/privacy" component={Privacy} />
             <Route path="/refund" component={Refund} />
             <Route path="/contact" component={Contact} />
+            <Route path="/games" component={Games} />
+            <Route path="/help" component={Help} />
             <Route component={ProtectedGate} />
           </Switch>
           <Toaster />
