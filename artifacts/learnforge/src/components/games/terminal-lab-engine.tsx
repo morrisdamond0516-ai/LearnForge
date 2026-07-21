@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { saveLabAttempt, getBestLabAttempt } from "@/lib/lab-history";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
@@ -771,6 +772,24 @@ type MachineState = {
   histIdx: number;
 };
 
+// ─── Wrong-command nudge helper ───────────────────────────────────────────────
+function wrongCommandNudge(typed: string, expected: string, tries: number): string {
+  const t = typed.toLowerCase().trim();
+  const e = expected.toLowerCase().trim();
+  const eBase = e.split(/\s/)[0];
+  const tBase = t.split(/\s/)[0];
+  if (tries === 1) {
+    if (tBase === eBase) return "Right command — double-check the flags or arguments.";
+    if (eBase === "ipconfig" && tBase === "ifconfig") return "Windows uses ipconfig, not ifconfig.";
+    if (eBase === "ifconfig" && tBase === "ipconfig") return "Linux uses ifconfig or 'ip addr', not ipconfig.";
+    if (eBase === "systemctl" && (t.startsWith("service ") || t.startsWith("sudo service "))) return "Try systemctl on this system.";
+    if (eBase === "ping" && !t.startsWith("ping ")) return "Specify a host: ping <address>";
+    return "Not the expected command for this step — check the instruction.";
+  }
+  if (tries === 2) return "Auto-hint revealed in the sidebar →";
+  return "Check the hint in the sidebar and try again.";
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 export function TerminalLabEngine({
   gameId,
@@ -813,7 +832,8 @@ export function TerminalLabEngine({
   const machineStatesRef = useRef<Map<string, MachineState>>(new Map());
 
   const [labStarted, setLabStarted] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const wrongAttemptsRef = useRef<Map<number, number>>(new Map());
+  const showHintRef = useRef(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(
     data.timeLimitMinutes != null ? data.timeLimitMinutes * 60 : null,
   );
@@ -940,6 +960,7 @@ export function TerminalLabEngine({
                   term.writeln(`\r\n\x1b[32m✓ Step ${stepIdx + 1} complete\x1b[0m`);
                   const next = stepIdx + 1;
                   currentStepRef.current = next;
+                  wrongAttemptsRef.current.delete(stepIdx);
                   setCurrentStep(next);
                   setCompletedSteps((prev) => new Set([...prev, stepIdx]));
                   setShowHint(false);
@@ -961,6 +982,16 @@ export function TerminalLabEngine({
                         `\x1b[33m→ Switch to machine: ${targetMachine.label}\x1b[0m`,
                       );
                     }
+                  }
+                } else {
+                  // Wrong command on correct machine — red feedback + auto-hint
+                  const tries = (wrongAttemptsRef.current.get(stepIdx) ?? 0) + 1;
+                  wrongAttemptsRef.current.set(stepIdx, tries);
+                  const nudge = wrongCommandNudge(cmd, stepData.expectedCommand, tries);
+                  term.writeln(`\r\n\x1b[31m✗\x1b[0m  ${nudge}`);
+                  if (tries === 2 && !showHintRef.current) {
+                    setShowHint(true);
+                    setHintsUsed((h) => h + 1);
                   }
                 }
               } else {
@@ -1065,11 +1096,24 @@ export function TerminalLabEngine({
     return () => window.removeEventListener("resize", onResize);
   }, [activeMachineId]);
 
+  // Keep showHintRef in sync so the onKey closure can read current value
+  useEffect(() => { showHintRef.current = showHint; }, [showHint]);
+
+  // Save lab attempt when the lab completes
+  useEffect(() => {
+    if (!done) return;
+    const mins = Math.floor(elapsedSec / 60);
+    const secs = elapsedSec % 60;
+    const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    const score = Math.max(0, Math.round(100 - (hintsUsed / data.steps.length) * 30));
+    saveLabAttempt(gameId, { score, timeStr, hintsUsed, completedAt: new Date().toISOString() });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done]);
+
   // Countdown timer — starts when the lab starts
   useEffect(() => {
     if (!labStarted || done || timedOut) return;
     const start = Date.now();
-    setStartTime(start);
     const tick = setInterval(() => {
       const secs = Math.floor((Date.now() - start) / 1000);
       setElapsedSec(secs);
@@ -1096,7 +1140,6 @@ export function TerminalLabEngine({
     setShowHint(false);
     setHintsUsed(0);
     setElapsedSec(0);
-    setStartTime(null);
     setTimeLeft(data.timeLimitMinutes != null ? data.timeLimitMinutes * 60 : null);
     setActiveMachineId(allMachines[0]?.id ?? "primary");
     setLabStarted(false);
@@ -1254,6 +1297,8 @@ export function TerminalLabEngine({
       0,
       Math.round(100 - (hintsUsed / data.steps.length) * 30),
     );
+    const best = getBestLabAttempt(gameId);
+    const isNewBest = !best || score > best.score;
     return (
       <div className="rounded-xl border border-emerald-500/30 bg-card overflow-hidden">
         <div className="bg-zinc-900 px-3 py-2 flex items-center gap-2 text-zinc-300 text-xs font-mono">
@@ -1269,6 +1314,12 @@ export function TerminalLabEngine({
             <p className="text-sm text-muted-foreground mt-1">
               All {data.steps.length} steps completed successfully.
             </p>
+            {isNewBest && best && (
+              <p className="text-xs text-emerald-500 font-medium mt-1">🏆 New personal best!</p>
+            )}
+            {!isNewBest && best && (
+              <p className="text-xs text-muted-foreground mt-1">Previous best: {best.score}% · {best.timeStr}</p>
+            )}
           </div>
           {/* Score card */}
           <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">

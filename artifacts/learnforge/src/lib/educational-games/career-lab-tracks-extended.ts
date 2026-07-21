@@ -895,6 +895,59 @@ console.log(user.name.toUpperCase())`,
         ],
       },
     },
+
+    {
+      id: "hvac-diagnostic-cli",
+      title: "🖥️ HVAC Diagnostic CLI — No-Cool Call",
+      description:
+        "Use the building management system CLI to diagnose a no-cooling complaint: check unit status, inspect fault codes, cycle the contactor, and verify return to normal operation.",
+      gameType: "terminal-workspace",
+      duration: "10–15 min",
+      domain: "HVAC diagnostics",
+      content: {
+        terminal: {
+          title: "BMS Terminal — AHU-2 No-Cool",
+          brief:
+            "Dispatch received a no-cooling report from Office Suite B. Unit AHU-2 is your assignment. Use the building management system CLI to pull status, read fault codes, reset the contactor, and confirm the unit is back in service.",
+          hostname: "BMS-SERVER",
+          prompt: "bms@hvac-ctrl:~$",
+          initialOutput:
+            "Building Management System v3.4\nConnected to AHU-2 controller.\nTicket #7821: Suite B — no cooling since 08:00.",
+          steps: [
+            {
+              instruction: "List all active HVAC units and their current status.",
+              expectedCommand: "show units",
+              hint: "show units",
+            },
+            {
+              instruction: "Display the fault log for unit AHU-2.",
+              expectedCommand: "show faults AHU-2",
+              hint: "show faults AHU-2",
+            },
+            {
+              instruction: "Check the current supply-air and return-air temperatures for AHU-2.",
+              expectedCommand: "show temps AHU-2",
+              hint: "show temps AHU-2",
+            },
+            {
+              instruction: "Reset the high-pressure lockout fault on AHU-2.",
+              expectedCommand: "reset fault AHU-2 HPL",
+              hint: "reset fault AHU-2 HPL",
+            },
+            {
+              instruction: "Enable cooling mode on AHU-2.",
+              expectedCommand: "set mode AHU-2 cooling",
+              hint: "set mode AHU-2 cooling",
+            },
+            {
+              instruction: "Verify AHU-2 is running and the fault is cleared.",
+              expectedCommand: "show status AHU-2",
+              hint: "show status AHU-2",
+            },
+          ],
+        },
+      },
+    },
   ],
 
   cna: [
@@ -1212,6 +1265,59 @@ console.log(user.name.toUpperCase())`,
         },
       },
     },
+    {
+      id: "pharma-sys-cli",
+      title: "🖥️ PharmaSYS CLI — Rx Entry & Verification",
+      description:
+        "Use the pharmacy management system CLI to look up a patient, enter a new prescription, run a drug-utilization review, and print the label — tasks a PTCB tech performs daily.",
+      gameType: "terminal-workspace",
+      duration: "10–14 min",
+      domain: "Dispensing workflow",
+      content: {
+        terminal: {
+          title: "PharmaSYS — Retail Rx Workstation",
+          brief:
+            "A new paper Rx arrived for Kim Lee: Amoxicillin 500 mg, 1 cap TID × 7 days, written by Dr. Park NPI 9988776655. Work through the PharmaSYS CLI to process it from intake to label print.",
+          hostname: "RX-WS-01",
+          prompt: "pharma@rx-ws-01:~$",
+          initialOutput:
+            "PharmaSYS v8.2 — Retail Edition\nLogged in as: tech_student\nNew paper Rx received at window 2.",
+          steps: [
+            {
+              instruction: "Look up patient Kim Lee in the system.",
+              expectedCommand: "patient lookup Lee Kim",
+              hint: "patient lookup Lee Kim",
+            },
+            {
+              instruction: "Verify the prescriber NPI on file matches the Rx.",
+              expectedCommand: "prescriber verify 9988776655",
+              hint: "prescriber verify 9988776655",
+            },
+            {
+              instruction: "Enter the new prescription: drug amoxicillin, strength 500mg, qty 21, days 7.",
+              expectedCommand: "rx new amoxicillin 500mg qty 21 days 7",
+              hint: "rx new amoxicillin 500mg qty 21 days 7",
+            },
+            {
+              instruction: "Run a drug-utilization review (DUR) for allergy and interaction flags.",
+              expectedCommand: "rx dur",
+              hint: "rx dur",
+            },
+            {
+              instruction: "Apply the patient's primary insurance and adjudicate the claim.",
+              expectedCommand: "rx adjudicate primary",
+              hint: "rx adjudicate primary",
+            },
+            {
+              instruction: "Print the dispensing label for pharmacist final check.",
+              expectedCommand: "rx print label",
+              hint: "rx print label",
+            },
+          ],
+        },
+      },
+    },
+
     {
       id: "rx-safety",
       title: "Dispense Safety Choices",
@@ -1536,6 +1642,64 @@ console.log(user.name.toUpperCase())`,
             ],
           },
         ],
+      },
+    },
+
+    {
+      id: "billing-pro-cli",
+      title: "🖥️ BillingPRO CLI — Claim Submission Workflow",
+      description:
+        "Use the practice management system CLI to pull a patient encounter, assign CPT and ICD-10 codes, verify the clean-claim checklist, and submit to the payer — a core CPC/CBCS daily workflow.",
+      gameType: "terminal-workspace",
+      duration: "12–16 min",
+      domain: "Revenue cycle",
+      content: {
+        terminal: {
+          title: "BillingPRO — Claim Submission Workstation",
+          brief:
+            "Today's work queue has Encounter #E-4421 for patient Nguyen, Linh — an established office visit with a simple laceration repair. Walk the claim through BillingPRO to produce a clean submission.",
+          hostname: "BILLING-WS-01",
+          prompt: "coder@billing-ws-01:~$",
+          initialOutput:
+            "BillingPRO Practice Management v12.1\nLogged in as: coder_student\nWork queue: 1 encounter pending coding — E-4421.",
+          steps: [
+            {
+              instruction: "Open encounter E-4421 to review the provider's documentation.",
+              expectedCommand: "encounter open E-4421",
+              hint: "encounter open E-4421",
+            },
+            {
+              instruction: "Assign the E/M procedure code for an established patient low-complexity visit.",
+              expectedCommand: "code add cpt 99213",
+              hint: "code add cpt 99213",
+            },
+            {
+              instruction: "Add the procedure code for a simple laceration repair (2.5 cm scalp).",
+              expectedCommand: "code add cpt 12001",
+              hint: "code add cpt 12001",
+            },
+            {
+              instruction: "Append modifier 25 to 99213 — separate E/M same day as procedure.",
+              expectedCommand: "code modifier 99213 25",
+              hint: "code modifier 99213 25",
+            },
+            {
+              instruction: "Assign the primary ICD-10-CM diagnosis: scalp laceration, initial encounter.",
+              expectedCommand: "code add icd S01.01XA",
+              hint: "code add icd S01.01XA",
+            },
+            {
+              instruction: "Run the clean-claim validator to catch errors before submission.",
+              expectedCommand: "claim validate E-4421",
+              hint: "claim validate E-4421",
+            },
+            {
+              instruction: "Submit the clean claim to the primary payer.",
+              expectedCommand: "claim submit E-4421 primary",
+              hint: "claim submit E-4421 primary",
+            },
+          ],
+        },
       },
     },
   ],
