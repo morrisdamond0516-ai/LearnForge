@@ -31,8 +31,12 @@ import {
   CheckCircle2,
   Trophy,
   Dumbbell,
+  Table2,
+  Gamepad2,
+  FlaskConical,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { resolveCurriculumSim, resolveCurriculumLabTrack, labForCurriculumModule } from "@/lib/educational-games/curriculum-sim-link";
 
 function iconForType(type: string): LucideIcon {
   const t = type.toLowerCase();
@@ -42,6 +46,10 @@ function iconForType(type: string): LucideIcon {
   if (t.includes("worksheet") || t.includes("practice")) return PenLine;
   if (t.includes("tool")) return Wrench;
   return FileText;
+}
+
+function stripSimSuffix(objective: string): string {
+  return objective.replace(/\s*\(Sim:\s*[^)]+\)\s*$/i, "").trim();
 }
 
 export default function CurriculumDetail() {
@@ -69,6 +77,9 @@ export default function CurriculumDetail() {
   });
 
   const practice = usePracticeCurriculumModule();
+  const sim = plan ? resolveCurriculumSim(plan.subject) : null;
+  const labTrack = plan ? resolveCurriculumLabTrack(plan.subject) : [];
+  const hasMultiLabTrack = labTrack.length > 1;
 
   const startPractice = (index: number) => {
     practice.mutate(
@@ -140,12 +151,87 @@ export default function CurriculumDetail() {
         <p className="text-xl text-muted-foreground leading-relaxed border-l-4 border-primary pl-6 py-2">
           {plan.summary}
         </p>
+
+        {hasMultiLabTrack ? (
+          <Card className="border-2 border-primary/30 bg-primary/5 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold text-primary">
+                <Gamepad2 className="h-4 w-4" />
+                Hands-on labs ({labTrack.length}) — open each from this plan
+              </CardTitle>
+              <p className="text-sm text-muted-foreground font-normal">
+                {sim?.emoji} {plan.subject} includes a full lab track. Use these
+                links to jump into every lab (not just one).
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-0">
+              {labTrack.map((lab, i) => (
+                <div
+                  key={lab.id}
+                  className="flex flex-col gap-3 rounded-lg border bg-background/80 p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0 space-y-0.5">
+                    <p className="text-sm font-medium text-foreground">
+                      {i + 1}. {lab.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {lab.isWorkspace ? "Hands-on workspace" : "Scenario drill"} ·{" "}
+                      {lab.formatLabel} · {lab.domain} · {lab.duration}
+                    </p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {lab.description}
+                    </p>
+                  </div>
+                  <Button asChild size="sm" className="shrink-0">
+                    <Link href={lab.href}>Open lab</Link>
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ) : (
+          sim && (
+            <Card className="border-2 border-primary/30 bg-primary/5 shadow-sm">
+              <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+                    {sim.gameType === "spreadsheet-workspace" ? (
+                      <Table2 className="h-4 w-4" />
+                    ) : sim.gameType === "lab-bench-workspace" ||
+                      sim.gameType === "sim-canvas-workspace" ? (
+                      <FlaskConical className="h-4 w-4" />
+                    ) : (
+                      <Gamepad2 className="h-4 w-4" />
+                    )}
+                    Hands-on lab (do this first)
+                  </p>
+                  <p className="text-base font-medium text-foreground">
+                    {sim.emoji} {sim.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {sim.formatLabel} — {sim.description}
+                  </p>
+                </div>
+                <Button asChild size="lg" className="shrink-0">
+                  <Link href={sim.href}>{sim.cta}</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )
+        )}
       </div>
 
       <div className="space-y-8">
         <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3">
           <BookOpen className="h-6 w-6 text-primary" /> Your Learning Path
         </h2>
+        <p className="text-sm text-muted-foreground -mt-4">
+          {hasMultiLabTrack
+            ? "Each module: open its matched lab, then take the quiz until you score 80%+."
+            : sim
+              ? "Each module: practice in the lab above, then take the quiz until you score 80%+."
+              : "Practice each module with the quiz until you score 80%+."}
+        </p>
         <div className="space-y-6">
           {plan.modules.map((mod, idx) => {
             const skills = mod.skills ?? [];
@@ -153,6 +239,16 @@ export default function CurriculumDetail() {
             const hasAttempts = (prog?.attempts ?? 0) > 0;
             const mastered = prog?.mastered ?? false;
             const isPending = pendingIndex === idx;
+            const objective = stripSimSuffix(mod.objective ?? "");
+            const moduleLab =
+              labForCurriculumModule(plan.subject, idx) ??
+              (sim
+                ? {
+                    href: sim.href,
+                    title: sim.title,
+                    formatLabel: sim.formatLabel,
+                  }
+                : null);
             return (
               <Card
                 key={idx}
@@ -186,9 +282,9 @@ export default function CurriculumDetail() {
                           </span>
                         )}
                       </div>
-                      {mod.objective && (
+                      {objective && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          {mod.objective}
+                          {objective}
                         </p>
                       )}
                     </div>
@@ -215,10 +311,28 @@ export default function CurriculumDetail() {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-4 pt-1">
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
+                    {moduleLab && (
+                      <Button variant="secondary" asChild>
+                        <Link href={moduleLab.href}>
+                          {sim?.gameType === "spreadsheet-workspace" ? (
+                            <Table2 className="mr-2 h-4 w-4" />
+                          ) : sim?.gameType === "lab-bench-workspace" ||
+                            sim?.gameType === "sim-canvas-workspace" ? (
+                            <FlaskConical className="mr-2 h-4 w-4" />
+                          ) : (
+                            <Gamepad2 className="mr-2 h-4 w-4" />
+                          )}
+                          {hasMultiLabTrack
+                            ? `Lab: ${moduleLab.title}`
+                            : "Lab"}
+                        </Link>
+                      </Button>
+                    )}
                     <Button
                       onClick={() => startPractice(idx)}
                       disabled={practice.isPending}
+                      variant={moduleLab ? "outline" : "default"}
                     >
                       {isPending ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -228,8 +342,8 @@ export default function CurriculumDetail() {
                       {isPending
                         ? "Building your test..."
                         : hasAttempts
-                          ? "Practice again"
-                          : "Practice this module"}
+                          ? "Practice quiz again"
+                          : "Practice quiz"}
                     </Button>
                     {hasAttempts && (
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">

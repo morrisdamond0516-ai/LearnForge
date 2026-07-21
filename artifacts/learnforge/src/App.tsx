@@ -4,6 +4,7 @@ import {
   SignIn,
   SignUp,
   Show,
+  ClerkLoaded,
   useClerk,
 } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
@@ -19,6 +20,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
+import { ApiAuthBridge } from "@/components/api-auth-bridge";
 import NotFound from "@/pages/not-found";
 import { Layout } from "@/components/layout";
 import Landing from "@/pages/landing";
@@ -66,12 +68,14 @@ const queryClient = new QueryClient({
 });
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
-// same build serves multiple Clerk custom domains. On localhost, use the env key
-// directly — publishableKeyFromHost maps to clerk.localhost, which only works on Replit.
-const isLocalHost =
+// same build serves multiple Clerk custom domains. In Vite dev (including LAN IPs
+// like 192.168.x.x), use the env key — publishableKeyFromHost only works on Replit.
+const isLocalDev =
+  import.meta.env.DEV ||
   window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
-const clerkPubKey = isLocalHost
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname === "[::1]";
+const clerkPubKey = isLocalDev
   ? import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
   : publishableKeyFromHost(
       window.location.hostname,
@@ -79,7 +83,7 @@ const clerkPubKey = isLocalHost
     );
 
 // REQUIRED — copy verbatim. Empty in dev, auto-set in prod.
-const clerkProxyUrl = isLocalHost
+const clerkProxyUrl = isLocalDev
   ? undefined
   : import.meta.env.VITE_CLERK_PROXY_URL || undefined;
 
@@ -223,7 +227,10 @@ function ProtectedGate() {
   return (
     <>
       <Show when="signed-in">
-        <AppShell />
+        <ClerkLoaded>
+          <ApiAuthBridge />
+          <AppShell />
+        </ClerkLoaded>
       </Show>
       <Show when="signed-out">
         <Redirect to="/" />

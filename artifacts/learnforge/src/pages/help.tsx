@@ -21,6 +21,7 @@ import {
   Target,
   Wand2,
   TrendingUp,
+  Gamepad2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -84,6 +85,18 @@ const FEATURES: Feature[] = [
     how: [
       "Pick a subject and your current level (take a Placement test first if you're unsure).",
       "The AI builds an ordered plan of materials to work through.",
+      "Each module links to a hands-on lab when one exists — do the lab before the quiz for that module.",
+    ],
+  },
+  {
+    icon: Gamepad2,
+    title: "Hands-on labs (Games)",
+    href: "/games",
+    what: "Career Skills Lab, School Skills Lab, and Subject Simulations are job and classroom practice in real workspaces — intake forms, terminals, spreadsheets, lab benches, and simulators. Each module is warm-up → hands-on practice → recall, so you always know where you are.",
+    how: [
+      "Open Games and pick Career Skills Lab, School Skills Lab, or Subject Simulations.",
+      "Choose your career, grade, or subject, then pick a lab module.",
+      "Complete all three steps before taking the Curriculum quiz on the same topic.",
     ],
   },
   {
@@ -113,17 +126,22 @@ const STEPS = [
   {
     icon: Target,
     title: "1. Pick what to learn",
-    body: "Choose a subject, type a topic, upload a document, or set a career goal.",
+    body: "Choose a subject, career, or grade level — or build a Curriculum plan.",
+  },
+  {
+    icon: Gamepad2,
+    title: "2. Practice in a hands-on lab",
+    body: "Games → Career or School Skills Lab. Each module: warm-up, real workspace practice, then recall.",
   },
   {
     icon: Wand2,
-    title: "2. Let the AI build it",
-    body: "Generate a practice test, a study guide, or a full learning plan in seconds.",
+    title: "3. Test with AI quizzes",
+    body: "Generate practice tests or use Curriculum quizzes after you have practiced the skill.",
   },
   {
     icon: TrendingUp,
-    title: "3. Learn and improve",
-    body: "Practice with fresh questions, read explanations, and track your progress.",
+    title: "4. Learn and improve",
+    body: "Read explanations, retry labs, and track progress toward certs and career goals.",
   },
 ];
 

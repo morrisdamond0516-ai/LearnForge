@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Code2, Keyboard, RotateCcw, Wrench } from "lucide-react";
+import { Check, Code2, Keyboard, RotateCcw, Wrench, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -24,9 +24,22 @@ import type {
 } from "@/lib/educational-games/skill-game-types";
 import {
   getSkillGameFormatSummary,
+  isWorkspaceLab,
   SKILL_GAME_TYPE_INSTRUCTIONS,
   SKILL_GAME_TYPE_LABELS,
 } from "@/lib/educational-games/skill-game-types";
+import { useLabModuleFlow } from "@/components/games/lab-module-flow-context";
+import {
+  IntakeFormWorkspacePlayer,
+  JobsiteWorkspacePlayer,
+  LabBenchWorkspacePlayer,
+  ManipulativeBoardPlayer,
+  PatientChartWorkspacePlayer,
+  SimCanvasWorkspacePlayer,
+  SpreadsheetWorkspacePlayer,
+  TerminalWorkspacePlayer,
+  HelpdeskTicketQueuePlayer,
+} from "@/components/games/simulation-workspace-engines";
 
 function normalizeTyping(s: string) {
   return s.replace(/\s+/g, " ").trim().toLowerCase();
@@ -38,22 +51,26 @@ export function SkillGameRenderer({
   content,
   title,
   description,
+  hideIntro = false,
 }: {
   gameId: string;
   gameType: SkillGameType;
   content: SkillGameContent;
   title: string;
   description?: string;
+  hideIntro?: boolean;
 }) {
   const formatSummary = getSkillGameFormatSummary(gameType, content);
 
   return (
     <div className="space-y-4">
-      <SkillGameIntro
-        gameType={gameType}
-        description={description}
-        formatSummary={formatSummary}
-      />
+      {!hideIntro ? (
+        <SkillGameIntro
+          gameType={gameType}
+          description={description}
+          formatSummary={formatSummary}
+        />
+      ) : null}
       {gameType === "script-choice" && content.script ? (
         <ScriptChoicePlayer gameId={gameId} scenarios={content.script} />
       ) : gameType === "math-scenario" && content.math ? (
@@ -74,7 +91,35 @@ export function SkillGameRenderer({
           buildSubtitle={content.buildPhaseSubtitle}
           finishTitle={content.finishTitle}
         />
-      ) : null}
+      ) : gameType === "spreadsheet-workspace" && content.spreadsheet ? (
+        <SpreadsheetWorkspacePlayer gameId={gameId} data={content.spreadsheet} />
+      ) : gameType === "terminal-workspace" && content.terminal ? (
+        <TerminalWorkspacePlayer gameId={gameId} data={content.terminal} />
+      ) : gameType === "patient-chart-workspace" && content.patientChart ? (
+        <PatientChartWorkspacePlayer gameId={gameId} data={content.patientChart} />
+      ) : gameType === "jobsite-workspace" && content.jobsite ? (
+        <JobsiteWorkspacePlayer gameId={gameId} data={content.jobsite} />
+      ) : gameType === "sim-canvas-workspace" && content.simCanvas ? (
+        <SimCanvasWorkspacePlayer gameId={gameId} data={content.simCanvas} />
+      ) : gameType === "lab-bench-workspace" && content.labBench ? (
+        <LabBenchWorkspacePlayer gameId={gameId} data={content.labBench} />
+      ) : gameType === "manipulative-board" && content.manipulative ? (
+        <ManipulativeBoardPlayer gameId={gameId} data={content.manipulative} />
+      ) : gameType === "intake-form-workspace" && content.intakeForm ? (
+        <IntakeFormWorkspacePlayer gameId={gameId} data={content.intakeForm} />
+      ) : gameType === "helpdesk-ticket-queue" && content.helpdeskQueue ? (
+        <HelpdeskTicketQueuePlayer gameId={gameId} data={content.helpdeskQueue} />
+      ) : (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardHeader>
+            <CardTitle className="text-base">Lab content unavailable</CardTitle>
+            <CardDescription>
+              This lab could not load its practice content. Go back and pick another
+              lab, or refresh the page.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
     </div>
   );
 }
@@ -92,9 +137,21 @@ function SkillGameIntro({
     <Card className="border-muted bg-muted/30">
       <CardContent className="space-y-2 p-4 text-sm">
         <div className="flex flex-wrap items-center gap-2">
+          {isWorkspaceLab(gameType) ? (
+            <Badge className="bg-primary/90">Hands-on lab workspace</Badge>
+          ) : (
+            <Badge variant="outline">Scenario drill (quiz-style)</Badge>
+          )}
           <Badge variant="secondary">{SKILL_GAME_TYPE_LABELS[gameType]}</Badge>
           <span className="text-xs text-muted-foreground">{formatSummary}</span>
         </div>
+        {!isWorkspaceLab(gameType) ? (
+          <p className="text-xs text-amber-700 dark:text-amber-400">
+            This module uses multiple-choice scenarios. For full job practice, complete
+            the hands-on workspace labs in this track first; save quizzes for Curriculum
+            practice after the lab.
+          </p>
+        ) : null}
         {description ? (
           <p className="font-medium text-foreground">{description}</p>
         ) : null}
@@ -680,6 +737,33 @@ function FinishCard({
   title: string;
   onRetry: () => void;
 }) {
+  const flow = useLabModuleFlow();
+
+  if (flow?.inFlow) {
+    return (
+      <Card className="border-primary/30">
+        <CardContent className="space-y-4 p-8 text-center">
+          <Check className="mx-auto h-10 w-10 text-emerald-600" />
+          <p className="text-xl font-semibold">{title}</p>
+          <p className="text-sm text-muted-foreground">
+            Practice step complete — you&apos;re still in this lab module.
+          </p>
+          <GameRewardBanner reward={reward} />
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Button onClick={flow.onPracticeComplete}>
+              {flow.practiceCompleteLabel}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={onRetry}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Practice again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardContent className="space-y-4 p-8 text-center">

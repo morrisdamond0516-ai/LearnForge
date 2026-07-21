@@ -3,6 +3,7 @@ import {
   useGenerateCurriculum,
   useListSubjects,
   getListCurriculaQueryKey,
+  ApiError,
 } from "@workspace/api-client-react";
 import {
   Card,
@@ -21,19 +22,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { GraduationCap, Sparkles, Loader2, Library } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useMemo, useState } from "react";
+import { Check, ChevronsUpDown, Sparkles, Loader2, Library } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useLocation } from "wouter";
+import { curriculumPresetGroups } from "@/lib/curriculum-subject-presets";
+import { cn } from "@/lib/utils";
 
 const CUSTOM = "__custom__";
+const PRESET_PREFIX = "preset:";
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
 export default function Curriculum() {
   const { data: curricula, isLoading } = useListCurricula();
-  const { data: subjects } = useListSubjects();
+  const { data: subjects, isError: subjectsError } = useListSubjects();
   const generate = useGenerateCurriculum();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -42,12 +55,54 @@ export default function Curriculum() {
   const [subjectChoice, setSubjectChoice] = useState(CUSTOM);
   const [customSubject, setCustomSubject] = useState("");
   const [level, setLevel] = useState("Beginner");
+  const [subjectOpen, setSubjectOpen] = useState(false);
+
+  const savedSubjects = subjects ?? [];
+  const savedNames = useMemo(
+    () => new Set(savedSubjects.map((s) => s.name.toLowerCase())),
+    [savedSubjects],
+  );
+  const presetGroups = useMemo(
+    () => curriculumPresetGroups(savedNames),
+    [savedNames],
+  );
+
+  function renderPresetItem(name: string) {
+    const value = `${PRESET_PREFIX}${name}`;
+    return (
+      <CommandItem
+        key={name}
+        value={name}
+        onSelect={() => {
+          setSubjectChoice(value);
+          setSubjectOpen(false);
+        }}
+      >
+        <Check
+          className={cn(
+            "mr-2 h-4 w-4 shrink-0",
+            subjectChoice === value ? "opacity-100" : "opacity-0",
+          )}
+        />
+        {name}
+      </CommandItem>
+    );
+  }
 
   const selectedSubject =
-    subjectChoice !== CUSTOM
-      ? subjects?.find((s) => String(s.id) === subjectChoice)
+    subjectChoice !== CUSTOM && !subjectChoice.startsWith(PRESET_PREFIX)
+      ? savedSubjects.find((s) => String(s.id) === subjectChoice)
       : undefined;
-  const subjectName = selectedSubject ? selectedSubject.name : customSubject;
+  const subjectName = selectedSubject
+    ? selectedSubject.name
+    : subjectChoice.startsWith(PRESET_PREFIX)
+      ? subjectChoice.slice(PRESET_PREFIX.length)
+      : customSubject;
+
+  const subjectLabel =
+    subjectChoice === CUSTOM
+      ? "Other / type my own"
+      : subjectName || "Choose a subject…";
 
   const handleSubmit = () => {
     const subject = subjectName.trim();
@@ -69,9 +124,22 @@ export default function Curriculum() {
           });
           setLocation(`/curriculum/${plan.id}`);
         },
-        onError: () => {
+        onError: (error) => {
+          let description = "Something went wrong. Please try again.";
+          if (error instanceof ApiError) {
+            if (error.status === 401) {
+              description =
+                "Your session expired. Sign out, sign back in, then try again.";
+            } else if (error.status === 500) {
+              description =
+                "The AI service may be unavailable — check that AI_INTEGRATIONS_OPENAI_API_KEY is set in .env.";
+            } else if (typeof error.data === "object" && error.data && "error" in error.data) {
+              description = String((error.data as { error: unknown }).error);
+            }
+          }
           toast({
             title: "Failed to generate curriculum",
+            description,
             variant: "destructive",
           });
         },
@@ -93,19 +161,118 @@ export default function Curriculum() {
           <CardContent className="p-6 space-y-5">
             <div className="space-y-2">
               <Label>Subject</Label>
-              <Select value={subjectChoice} onValueChange={setSubjectChoice}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects?.map((s) => (
-                    <SelectItem key={s.id} value={String(s.id)}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value={CUSTOM}>Other / type my own</SelectItem>
-                </SelectContent>
-              </Select>
+              <Popover open={subjectOpen} onOpenChange={setSubjectOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={subjectOpen}
+                    className="w-full justify-between font-normal h-auto min-h-9 py-2"
+                  >
+                    <span
+                      className={cn(
+                        "truncate text-left",
+                        !subjectName.trim() &&
+                          subjectChoice === CUSTOM &&
+                          "text-muted-foreground",
+                      )}
+                    >
+                      {subjectLabel}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[--radix-popover-trigger-width] p-0"
+                  align="start"
+                >
+                  <Command>
+                    <CommandInput placeholder="Search careers (Data Analyst, IT)…" />
+                    <CommandList className="max-h-[min(360px,50vh)]">
+                      <CommandEmpty>
+                        No match. Pick “Other / type my own” below.
+                      </CommandEmpty>
+                      {savedSubjects.length > 0 ? (
+                        <CommandGroup heading="Your subjects">
+                          {savedSubjects.map((s) => (
+                            <CommandItem
+                              key={s.id}
+                              value={s.name}
+                              onSelect={() => {
+                                setSubjectChoice(String(s.id));
+                                setSubjectOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4 shrink-0",
+                                  subjectChoice === String(s.id)
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              {s.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      ) : null}
+                      {presetGroups.featured.length > 0 ? (
+                        <CommandGroup heading="Featured — Tech & data careers">
+                          {presetGroups.featured.map(renderPresetItem)}
+                        </CommandGroup>
+                      ) : null}
+                      {presetGroups.otherCareers.length > 0 ? (
+                        <CommandGroup heading="All careers">
+                          {presetGroups.otherCareers.map(renderPresetItem)}
+                        </CommandGroup>
+                      ) : null}
+                      {presetGroups.school.length > 0 ? (
+                        <CommandGroup heading="School grades">
+                          {presetGroups.school.map(renderPresetItem)}
+                        </CommandGroup>
+                      ) : null}
+                      {presetGroups.stem.length > 0 ? (
+                        <CommandGroup heading="Science & math sims">
+                          {presetGroups.stem.map(renderPresetItem)}
+                        </CommandGroup>
+                      ) : null}
+                      {presetGroups.general.length > 0 ? (
+                        <CommandGroup heading="General subjects">
+                          {presetGroups.general.map(renderPresetItem)}
+                        </CommandGroup>
+                      ) : null}
+                      <CommandGroup>
+                        <CommandItem
+                          value="Other type my own custom subject"
+                          onSelect={() => {
+                            setSubjectChoice(CUSTOM);
+                            setSubjectOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4 shrink-0",
+                              subjectChoice === CUSTOM
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                          Other / type my own
+                        </CommandItem>
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <p className="text-xs text-muted-foreground">
+                Careers are listed first — search “Data Analyst” or “Information Technology”, or pick Other for any topic.
+              </p>
+              {subjectsError ? (
+                <p className="text-xs text-muted-foreground">
+                  Could not load your saved subjects — showing built-in careers
+                  and school topics. Sign in again if this persists.
+                </p>
+              ) : null}
             </div>
 
             {subjectChoice === CUSTOM && (

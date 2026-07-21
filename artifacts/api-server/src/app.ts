@@ -2,11 +2,10 @@ import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
-import { publishableKeyFromHost } from "@clerk/shared/keys";
 import {
   CLERK_PROXY_PATH,
+  buildClerkMiddlewareConfig,
   clerkProxyMiddleware,
-  getClerkProxyHost,
 } from "./middlewares/clerkProxyMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -51,12 +50,31 @@ for (const domain of (process.env.REPLIT_DOMAINS ?? "")
   allowedOrigins.add(`https://${domain}`);
 }
 
+if (process.env.NODE_ENV === "development") {
+  allowedOrigins.add("http://localhost:5173");
+  allowedOrigins.add("http://127.0.0.1:5173");
+}
+
+function isPrivateDevOrigin(origin: string): boolean {
+  if (process.env.NODE_ENV !== "development") return false;
+  try {
+    const { hostname } = new URL(origin);
+    if (hostname === "localhost" || hostname === "127.0.0.1") return true;
+    if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+    if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+    if (/^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 app.use(
   cors({
     credentials: true,
     origin(origin, callback) {
       // No Origin header => same-origin or non-browser request; allow it.
-      if (!origin || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin) || isPrivateDevOrigin(origin)) {
         callback(null, true);
         return;
       }
@@ -96,14 +114,12 @@ app.use(express.urlencoded({ extended: true }));
 // Resolve the publishable key from the incoming request host so the same
 // server can serve multiple Clerk custom domains. Falls back to
 // CLERK_PUBLISHABLE_KEY when the host doesn't map to a custom domain.
-app.use(
-  clerkMiddleware((req) => ({
-    publishableKey: publishableKeyFromHost(
-      getClerkProxyHost(req) ?? "",
-      process.env.CLERK_PUBLISHABLE_KEY,
-    ),
-  })),
-);
+// Clerk must trust localhost origins (azp claim) for session tokens from Vite dev.
+if (process.env.NODE_ENV === "development") {
+  app.use(clerkMiddleware(buildClerkMiddlewareConfig()));
+} else {
+  app.use(clerkMiddleware((req) => buildClerkMiddlewareConfig(req)));
+}
 
 app.use("/api", router);
 

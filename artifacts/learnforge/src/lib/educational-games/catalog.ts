@@ -14,6 +14,18 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     hook: "K–12 + college + trade",
   },
   {
+    id: "subject-simulations-lab",
+    title: "Subject Simulations",
+    description:
+      "PhET-style interactive labs for physics, aerospace, biology, chemistry, algebra, and earth science — manipulate variables and run real procedures.",
+    subjects: ["science", "math"],
+    ages: ["teens", "adults", "all"],
+    duration: "5–12 min each",
+    skills: ["Inquiry science", "STEM simulation", "Concept mastery"],
+    depth: "featured",
+    hook: "Physics · Aerospace · Bio · Chem",
+  },
+  {
     id: "career-skills-lab",
     title: "Career Skills Lab",
     description:
@@ -23,7 +35,7 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     duration: "3–12 min each",
     skills: ["Job-ready skills", "Career practice", "Certification prep"],
     depth: "featured",
-    hook: "19 careers · real skills",
+    hook: "21 careers · real skills",
   },
   {
     id: "career-match-party",

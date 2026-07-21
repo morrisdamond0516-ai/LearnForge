@@ -701,19 +701,36 @@ export async function generateCurriculum(
     .slice(0, 12);
 
   const system =
-    "You are an expert curriculum designer and tutor for LearnForge, an app where learners improve by taking repeated, focused practice quizzes. " +
-    "Design a sequenced learning plan where each module centers on concrete, testable skills the learner will practice and master INSIDE the app by taking a quiz on that module again and again until they score well. " +
-    "For every module, list 3-6 specific, testable skills - the kind a multiple-choice quiz can actually check. " +
-    "You MAY optionally add a few real-world extra resources (Book, Video, Course, Worksheet, Tool, Article) for learners who want outside reading, but these are strictly secondary: the core of every module is practicing here in LearnForge, not sending the learner to other websites. " +
-    "When you do list a resource, name a specific, well-known, real one with its author/creator/provider and where to find it; never invent fake titles or URLs. " +
-    "Do not use emojis. Return ONLY valid JSON, no prose, no markdown fences.";
+    "You are an expert curriculum designer for LearnForge. " +
+    "Design a sequenced plan where each module is mastered through: (1) an in-app simulation or skills lab in Games, then (2) repeated practice quizzes until 80%+ score. " +
+    "Each module needs 3-6 concrete, testable skills. " +
+    "Point learners to Career Skills Lab, School Skills Lab, or Subject Simulations when the topic fits — not generic outside websites. " +
+    "For Software Developer / Coding curricula, point modules at Career Skills Lab → Software Developer labs: debug scripts, Git CLI, complexity basics, code-review judgment, delivery sequence, and AI coding assistant judgment (verify Copilot/ChatGPT output, secrets hygiene, security review). " +
+    "For Data Analyst curricula, point modules at Career Skills Lab → Data Analyst (multi-lab track: sales summary spreadsheet, data quality sheet, metrics literacy, AI-assisted analytics judgment — verify AI outputs, data governance, and when to trust Copilot/BI AI vs manual checks). " +
+    "For Information Technology curricula, point modules across Career Skills Lab → Information Technology labs: network outage, DNS, identity/accounts, PC hardware build, security incident choices, subnet math, and incident response sequence — not a single terminal tick only. " +
+    "For IT Support / CompTIA A+, use Career Skills Lab → IT Support labs: help-desk ticket queue, ports, CLI triage, printers, scripting/priority, customer communication. " +
+    "For Bookkeeper curricula, include Career Skills Lab → Bookkeeper labs plus AI & automation in bookkeeping (verify auto-coding and bank-feed matches). " +
+    "For Office Assistant / Administrative careers, include Career Skills Lab → Office Assistant labs plus AI tools at the front desk (email drafts, scheduling, confidentiality). " +
+    "For Teacher Certification curricula, include Career Skills Lab → Teacher labs plus AI in the classroom (integrity policy, lesson design, grading). " +
+    "For Medical Billing & Coding (CPC/CCS) curricula, use Career Skills Lab → Medical Billing & Coding labs: claim intake/superbill, ICD-10/CPT judgment, denial/appeals, and AI-assisted coding verification (HIPAA, specificity, upcoding risk). " +
+    "For Phlebotomy Technician curricula, use Career Skills Lab → Phlebotomy labs: lab order/patient ID, venipuncture sequence, safety judgment. " +
+    "For Dental Assistant curricula, use Career Skills Lab → Dental Assistant labs: intake, infection control, radiograph safety sequence. " +
+    "For LPN/LVN curricula, use Career Skills Lab → LPN/LVN labs: vitals chart, medication math, scope/clinical judgment. " +
+    "For Registered Nurse (NCLEX-RN) curricula, use Career Skills Lab → Registered Nurse labs: admission assessment, dosage math, priority judgment, AI/EHR documentation — pair with NCLEX practice exams. " +
+    "For Cybersecurity (Security+) curricula, use Career Skills Lab → Cybersecurity labs: threats/controls, incident response, log triage, AI-enhanced threats. " +
+    "For Cloud Computing (AWS/Azure) curricula, use Career Skills Lab → Cloud labs: shared responsibility, IAM incidents, incident runbook, FinOps — pair with AWS Cloud Practitioner practice exam. " +
+    "For Plumber and Welder trades, use Career Skills Lab → matching multi-lab tracks (pipe math, repair/weld sequence, safety judgment). " +
+    "For Paralegal, Human Resources, Surgical Technologist, Patient Care Technician, Teaching Assistant, Veterinary Technician, Childcare/CDA, Auto Mechanic (ASE), and Insurance Agent curricula, use the matching Career Skills Lab multi-lab tracks (intake forms, judgment scenarios, sequences, and field math as listed per career). " +
+    "For Project Management, remaining trades, and other careers with Career Skills Lab tracks, assign the matching multi-lab modules (spreadsheet, jobsite, chart, intake, etc.) before quizzes. " +
+    "Materials are OPTIONAL: at most 0-1 per module, name-only (book/video title + author), no URLs. Prefer zero materials. " +
+    "Do not use emojis. Return ONLY valid JSON.";
 
   const user = `Design a learning curriculum for the subject "${subject}".
 The learner's current assessed level is: ${level}.
 Tailor the difficulty and starting point to a ${level} learner.
 ${focus.length > 0 ? `Give extra attention to these areas the learner struggled with or wants to strengthen:\n${focus.map((f) => `- ${f}`).join("\n")}` : ""}
 
-Organize the plan as an ordered set of modules, from foundational to advanced. Each module is something the learner will master by repeatedly taking a focused practice quiz on it inside LearnForge.
+Organize the plan as an ordered set of modules. Each module is mastered by: first completing the matching simulation in Games (Career Skills Lab, School Skills Lab, or Subject Simulations), then retaking the module practice quiz until 80%+.
 
 Return JSON with this exact shape:
 {
@@ -723,21 +740,22 @@ Return JSON with this exact shape:
     {
       "title": "module title",
       "objective": "what the learner will be able to do after mastering this module",
-      "skills": ["a specific, testable skill the practice quiz for this module will cover", "another testable skill", "..."],
+      "skills": ["testable skill for the practice quiz", "..."],
+      "simHint": "which in-app sim to use, e.g. Career Skills Lab → Data Analyst, Career Skills Lab → Information Technology, Subject Simulations → Physics",
       "materials": [
         {
           "type": "Book | Video | Course | Worksheet | Tool | Article",
           "name": "the exact title/name of the resource",
           "author": "author, creator, channel, or provider",
           "description": "1-2 sentences on what it is and why it helps here",
-          "whereToFind": "where to access it, e.g. publisher, platform (YouTube, Coursera, Khan Academy), website, or library"
+          "whereToFind": "optional — platform name only, no URLs"
         }
       ]
     }
   ],
-  "nextSteps": ["a concrete action focused on practicing in the app, e.g. 'Take the practice quiz for Module 1 and retake it until you score 80% or higher'"]
+  "nextSteps": ["Complete the matching simulation in Games, then take Module 1 quiz until 80%+"]
 }
-Include 4-6 modules. Each module MUST have 3-6 skills. Materials are OPTIONAL (0-3 per module) and only for extra outside reading - do not pad them. Include 3-5 nextSteps centered on practicing in LearnForge.`;
+Include 4-6 modules. Each module MUST have 3-6 skills and a simHint. Materials OPTIONAL (0-1 per module, prefer zero). Include 3-5 nextSteps focused on sim + quiz mastery in LearnForge.`;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -768,9 +786,14 @@ Include 4-6 modules. Each module MUST have 3-6 skills. Materials are OPTIONAL (0
     Array.isArray(parsed.modules) ? parsed.modules : []
   )
     .filter((m) => m && typeof m === "object")
-    .map((m) => ({
+    .map((m) => {
+      const simHint = str((m as { simHint?: unknown }).simHint).trim();
+      const objectiveBase = str(m.objective).trim();
+      return {
       title: str(m.title).trim() || "Module",
-      objective: str(m.objective).trim(),
+      objective: simHint
+        ? `${objectiveBase}${objectiveBase ? " " : ""}(Sim: ${simHint})`.trim()
+        : objectiveBase,
       skills: (Array.isArray(m.skills) ? m.skills : [])
         .filter((s): s is string => typeof s === "string")
         .map((s) => s.trim())
@@ -786,7 +809,8 @@ Include 4-6 modules. Each module MUST have 3-6 skills. Materials are OPTIONAL (0
           whereToFind: str(mat["whereToFind"]).trim(),
         }))
         .filter((mat) => mat.name.length > 0),
-    }))
+    };
+    })
     .filter((m) => m.skills.length > 0 || m.materials.length > 0);
 
   const nextSteps = (Array.isArray(parsed.nextSteps) ? parsed.nextSteps : [])

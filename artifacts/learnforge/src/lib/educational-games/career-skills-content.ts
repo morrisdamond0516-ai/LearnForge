@@ -140,6 +140,20 @@ export const CAREER_SKILL_CONTENT: Record<CareerSkillSlug, CareerSkillContent> =
       },
     ],
   },
+  "medical-billing-coding": {},
+  "phlebotomy-tech": {},
+  "dental-assistant": {},
+  "lpn-lvn": {},
+  "registered-nurse": {},
+  "surgical-tech": {},
+  "vet-tech": {},
+  "patient-care-tech": {},
+  "paralegal": {},
+  "human-resources": {},
+  "insurance-agent": {},
+  "auto-mechanic": {},
+  "teaching-assistant": {},
+  "childcare-cda": {},
   "police-officer": {
     script: [
       {
@@ -282,6 +296,13 @@ export const CAREER_SKILL_CONTENT: Record<CareerSkillSlug, CareerSkillContent> =
       "Complete log entry and report defects before rolling",
     ],
   },
+  "data-analyst": {},
+  "software-developer": {},
+  "information-technology": {},
+  "cybersecurity": {},
+  "cloud-computing": {},
+  "plumber": {},
+  "welder": {},
   "it-support": {
     code: [
       {

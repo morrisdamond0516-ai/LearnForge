@@ -299,12 +299,17 @@ router.post("/quizzes/:id/refresh", async (req, res): Promise<void> => {
     }
   }
 
-  for (const freeText of [quiz.career, quiz.topic]) {
-    if (freeText && freeText.trim().length > 0) {
-      const check = await validateLearningInput(freeText);
-      if (!check.valid) {
-        res.status(400).json({ error: check.reason });
-        return;
+  // Curriculum module topics are server-built (title + objective + skills) and
+  // routinely exceed the short free-text limit meant for user-typed careers.
+  // Only re-moderate user-entered career/topic on non-curriculum quizzes.
+  if (quiz.curriculumId == null) {
+    for (const freeText of [quiz.career, quiz.topic]) {
+      if (freeText && freeText.trim().length > 0) {
+        const check = await validateLearningInput(freeText);
+        if (!check.valid) {
+          res.status(400).json({ error: check.reason });
+          return;
+        }
       }
     }
   }

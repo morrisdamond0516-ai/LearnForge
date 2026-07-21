@@ -122,9 +122,16 @@ export default function QuizTake() {
   }, [quizId, quiz, answers, currentQuestionIdx]);
 
   if (!quizId || refreshQuiz.isError) {
+    const detail =
+      refreshQuiz.error instanceof Error && refreshQuiz.error.message
+        ? refreshQuiz.error.message
+        : null;
     return (
-      <div className="p-8 text-center text-destructive">
-        Failed to load quiz. Please go back and try again.
+      <div className="p-8 text-center text-destructive space-y-2">
+        <p>Failed to load quiz. Please go back and try again.</p>
+        {detail ? (
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">{detail}</p>
+        ) : null}
       </div>
     );
   }

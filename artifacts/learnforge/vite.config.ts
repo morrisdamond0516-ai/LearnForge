@@ -77,7 +77,8 @@ export default defineConfig(async ({ mode }) => {
       proxy: {
         "/api": {
           target: `http://localhost:${apiPort}`,
-          changeOrigin: true,
+          changeOrigin: false,
+          secure: false,
         },
       },
       fs: {

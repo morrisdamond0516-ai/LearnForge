@@ -22,6 +22,7 @@
 import { createProxyMiddleware } from "http-proxy-middleware";
 import type { RequestHandler } from "express";
 import type { IncomingHttpHeaders } from "http";
+import { publishableKeyFromHost } from "@clerk/shared/keys";
 
 const CLERK_FAPI = "https://frontend-api.clerk.dev";
 export const CLERK_PROXY_PATH = "/api/__clerk";
@@ -50,6 +51,83 @@ export function getClerkProxyHost(req: {
   const raw = Array.isArray(forwarded) ? forwarded[0] : forwarded;
   const firstHop = raw?.split(",")[0]?.trim();
   return firstHop || req.headers.host?.trim() || undefined;
+}
+
+/** Match frontend App.tsx — localhost must use env key, not publishableKeyFromHost. */
+export function resolveClerkPublishableKey(
+  req: { headers: IncomingHttpHeaders },
+  fallback?: string,
+): string {
+  const host = getClerkProxyHost(req) ?? "";
+  const isLocalHost =
+    !host ||
+    host.startsWith("localhost") ||
+    host.startsWith("127.0.0.1") ||
+    host.startsWith("[::1]");
+
+  if (isLocalHost || process.env.NODE_ENV === "development") {
+    const key = process.env.CLERK_PUBLISHABLE_KEY ?? fallback;
+    if (!key) {
+      throw new Error("CLERK_PUBLISHABLE_KEY is required for local development");
+    }
+    return key;
+  }
+
+  return publishableKeyFromHost(host, fallback);
+}
+
+/** Origins allowed in session token `azp` — required for local dev bearer auth. */
+export function buildAuthorizedParties(): string[] | undefined {
+  // Local dev: skip azp allowlist so LAN IPs (192.168.x.x) and localhost all work.
+  if (process.env.NODE_ENV === "development") {
+    return undefined;
+  }
+
+  const parties = new Set<string>();
+  if (process.env.REPLIT_DEV_DOMAIN) {
+    parties.add(`https://${process.env.REPLIT_DEV_DOMAIN}`);
+  }
+  for (const domain of (process.env.REPLIT_DOMAINS ?? "")
+    .split(",")
+    .map((d) => d.trim())
+    .filter(Boolean)) {
+    parties.add(`https://${domain}`);
+  }
+
+  return parties.size > 0 ? [...parties] : undefined;
+}
+
+export type ClerkMiddlewareConfig = {
+  publishableKey: string;
+  secretKey?: string;
+  authorizedParties?: string[];
+  clockSkewInMs?: number;
+};
+
+export function buildClerkMiddlewareConfig(req?: {
+  headers: IncomingHttpHeaders;
+}): ClerkMiddlewareConfig {
+  const authorizedParties = buildAuthorizedParties();
+  const secretKey = process.env.CLERK_SECRET_KEY;
+  const isDev = process.env.NODE_ENV === "development";
+
+  const publishableKey = isDev
+    ? (process.env.CLERK_PUBLISHABLE_KEY ?? "")
+    : resolveClerkPublishableKey(
+        req ?? { headers: {} },
+        process.env.CLERK_PUBLISHABLE_KEY,
+      );
+
+  if (!publishableKey) {
+    throw new Error("CLERK_PUBLISHABLE_KEY is required");
+  }
+
+  return {
+    publishableKey,
+    secretKey,
+    authorizedParties,
+    clockSkewInMs: isDev ? 60_000 : 5_000,
+  };
 }
 
 export function clerkProxyMiddleware(): RequestHandler {

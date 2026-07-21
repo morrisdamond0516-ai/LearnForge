@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useSearch } from "wouter";
 import {
   Gamepad2,
   Clock,
@@ -9,6 +9,7 @@ import {
   Star,
   Briefcase,
   GraduationCap,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { BUILT_IN_GAMES, getGameById } from "@/lib/educational-games/catalog";
 import { BuiltInGamePlayer } from "@/components/games/built-in-games";
 import { NewsletterSignup } from "@/components/newsletter-signup";
+import { parseGamesDeepLink } from "@/lib/educational-games/curriculum-sim-link";
 import type { AgeBand, BuiltInGameId, GameSubject } from "@/lib/educational-games/types";
 
 const AGE_LABELS: Record<AgeBand, string> = {
@@ -42,13 +44,50 @@ const SUBJECT_LABELS: Record<GameSubject, string> = {
 };
 
 export default function GamesPage() {
-  const [activeGame, setActiveGame] = useState<BuiltInGameId | null>(null);
+  const search = useSearch();
+  const deepLink = parseGamesDeepLink(search);
+  const linkedGame =
+    deepLink.game && getGameById(deepLink.game) ? deepLink.game : null;
+  const [activeGame, setActiveGame] = useState<BuiltInGameId | null>(linkedGame);
+  const [careerSlug, setCareerSlug] = useState<string | null>(deepLink.career);
+  const [subjectSlug, setSubjectSlug] = useState<string | null>(deepLink.subject);
+  const [levelSlug, setLevelSlug] = useState<string | null>(deepLink.level);
+  const [moduleId, setModuleId] = useState<string | null>(deepLink.module);
+  const [fromCurriculum, setFromCurriculum] = useState<string | null>(deepLink.from);
   const [ageFilter, setAgeFilter] = useState<AgeBand | "any">("any");
   const [subjectFilter, setSubjectFilter] = useState<GameSubject | "any">("any");
 
+  useEffect(() => {
+    const next = parseGamesDeepLink(search);
+    if (next.game && getGameById(next.game)) {
+      setActiveGame(next.game);
+      setCareerSlug(next.career);
+      setSubjectSlug(next.subject);
+      setLevelSlug(next.level);
+      setModuleId(next.module);
+      setFromCurriculum(next.from);
+    }
+  }, [search]);
+
   if (activeGame && getGameById(activeGame)) {
     return (
-      <BuiltInGamePlayer gameId={activeGame} onBack={() => setActiveGame(null)} />
+      <BuiltInGamePlayer
+        gameId={activeGame}
+        careerSlug={careerSlug}
+        subjectSlug={subjectSlug}
+        levelSlug={levelSlug}
+        moduleId={moduleId}
+        fromCurriculum={fromCurriculum}
+        onBack={() => {
+          setActiveGame(null);
+          setCareerSlug(null);
+          setSubjectSlug(null);
+          setLevelSlug(null);
+          setModuleId(null);
+          setFromCurriculum(null);
+          window.history.replaceState(null, "", "/games");
+        }}
+      />
     );
   }
 
@@ -91,17 +130,37 @@ export default function GamesPage() {
             Educational Games
           </h1>
           <p className="max-w-2xl text-muted-foreground">
-            Start with <strong className="font-medium text-foreground">Quiz Show</strong>,{" "}
-            <strong className="font-medium text-foreground">Survival Run</strong>, or{" "}
-            <strong className="font-medium text-foreground">Career Cash</strong> for fast quiz-game energy — or dive into{" "}
-            <strong className="font-medium text-foreground">School Skills Lab</strong> (K–12, college & trade) and{" "}
-            <strong className="font-medium text-foreground">Career Skills Lab</strong>. Boss battles, job sims, and quick drills too. Everything plays here; finish a game to earn XP.
+            <strong className="font-medium text-foreground">Best path:</strong> Curriculum plan → hands-on lab
+            (warm-up, workspace, recall) → quiz. Career & school labs use real tools — forms, terminals,
+            spreadsheets, simulators — not quiz-only screens. Arcade games (Quiz Show, Survival Run) are
+            optional fun after you practice.
           </p>
         </div>
         <Button variant="outline" asChild>
-          <Link href="/quizzes">Take a full quiz</Link>
+          <Link href="/curriculum">Start with Curriculum</Link>
         </Button>
       </div>
+
+      <Card className="border-primary/25 bg-primary/5">
+        <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="flex items-center gap-2 text-sm font-semibold text-primary">
+              <Layers className="h-4 w-4" />
+              Recommended for learners
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Every lab module has 3 steps so you never wonder if you left the activity:{" "}
+              <strong className="text-foreground">warm-up</strong> →{" "}
+              <strong className="text-foreground">hands-on workspace</strong> →{" "}
+              <strong className="text-foreground">recall check</strong>. Judgment questions from older
+              drill screens now live in warm-up/recall — the middle step is always real practice.
+            </p>
+          </div>
+          <Button asChild className="shrink-0">
+            <Link href="/games?game=career-skills-lab">Open Career Skills Lab</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="pb-3">
@@ -179,7 +238,8 @@ export default function GamesPage() {
             <h2 className="text-xl font-semibold">Career & future games</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            Pick your career — practice the actual skills: type addresses like a postal worker, fix code like IT support, match wires like an electrician, calculate doses like pharmacy tech, and more.
+            Pick your career — each track is hands-on workspace labs with a 3-step module flow. Practice
+            intake forms, ticket queues, terminals, charts, and jobsite math like on the job.
           </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {careerFeatured.map((game) => (

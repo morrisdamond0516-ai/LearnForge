@@ -42,6 +42,19 @@ import {
 } from "@/components/games/career-games";
 import { CareerSkillsLab } from "@/components/games/career-skills-lab";
 import { EducationSkillsLab } from "@/components/games/education-skills-lab";
+import { SubjectSimulationsLab } from "@/components/games/subject-sims-lab";
+import {
+  getCareerSkillBySlug,
+  type CareerSkillSlug,
+} from "@/lib/educational-games/career-skills-catalog";
+import {
+  getEducationLevelBySlug,
+  type EducationLevelSlug,
+} from "@/lib/educational-games/education-levels-catalog";
+import {
+  getSubjectSimBySlug,
+  type SubjectSimSlug,
+} from "@/lib/educational-games/subject-sims-catalog";
 import {
   FactOrFictionGame,
   LightningQuizGame,
@@ -718,9 +731,24 @@ export function GeographyCapitalsGame({ onBack }: { onBack: () => void }) {
 export function BuiltInGamePlayer({
   gameId,
   onBack,
+  careerSlug,
+  subjectSlug,
+  levelSlug,
+  moduleId,
+  fromCurriculum,
 }: {
   gameId: BuiltInGameId;
   onBack: () => void;
+  /** When opening Career Skills Lab from a curriculum link. */
+  careerSlug?: string | null;
+  /** When opening Subject Simulations from a curriculum link. */
+  subjectSlug?: string | null;
+  /** When opening School Skills Lab from a curriculum link. */
+  levelSlug?: string | null;
+  /** Specific lab module within a multi-lab career track. */
+  moduleId?: string | null;
+  /** Subject name from the curriculum plan that opened this lab, if any. */
+  fromCurriculum?: string | null;
 }) {
   switch (gameId) {
     case "math-sprint":
@@ -764,9 +792,40 @@ export function BuiltInGamePlayer({
     case "career-cash":
       return <CareerCashGame onBack={onBack} />;
     case "career-skills-lab":
-      return <CareerSkillsLab onBack={onBack} />;
+      return (
+        <CareerSkillsLab
+          onBack={onBack}
+          initialSlug={
+            careerSlug && getCareerSkillBySlug(careerSlug)
+              ? (careerSlug as CareerSkillSlug)
+              : null
+          }
+          initialModuleId={moduleId}
+          fromCurriculum={fromCurriculum}
+        />
+      );
     case "education-skills-lab":
-      return <EducationSkillsLab onBack={onBack} />;
+      return (
+        <EducationSkillsLab
+          onBack={onBack}
+          initialSlug={
+            levelSlug && getEducationLevelBySlug(levelSlug)
+              ? (levelSlug as EducationLevelSlug)
+              : null
+          }
+        />
+      );
+    case "subject-simulations-lab":
+      return (
+        <SubjectSimulationsLab
+          onBack={onBack}
+          initialSlug={
+            subjectSlug && getSubjectSimBySlug(subjectSlug)
+              ? (subjectSlug as SubjectSimSlug)
+              : null
+          }
+        />
+      );
     default:
       return null;
   }

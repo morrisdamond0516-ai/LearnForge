@@ -31,7 +31,8 @@ export type BuiltInGameId =
   | "survival-run"
   | "career-cash"
   | "career-skills-lab"
-  | "education-skills-lab";
+  | "education-skills-lab"
+  | "subject-simulations-lab";
 
 export type GameDepth = "quick" | "featured";
 

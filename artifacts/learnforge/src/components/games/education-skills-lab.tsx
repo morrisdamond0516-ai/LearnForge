@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { GameShell } from "@/components/games/game-shell";
-import { SkillGameRenderer } from "@/components/games/skill-game-engines";
+import { LabModuleFlowHost } from "@/components/games/lab-module-flow";
+import { educationScopeKey } from "@/lib/educational-games/lab-phase-resolver";
 import {
   EDUCATION_BAND_LABELS,
   EDUCATION_LEVEL_GAMES,
@@ -20,6 +21,7 @@ import {
   type EducationLevelSlug,
 } from "@/lib/educational-games/education-levels-catalog";
 import { EDUCATION_LEVEL_CONTENT } from "@/lib/educational-games/education-levels-content";
+import { mergeEducationSkillContent } from "@/lib/educational-games/education-workspace-content";
 import {
   getSkillGameFormatSummary,
   SKILL_GAME_TYPE_LABELS,
@@ -33,8 +35,16 @@ const BAND_ORDER: EducationBand[] = [
   "post",
 ];
 
-export function EducationSkillsLab({ onBack }: { onBack: () => void }) {
-  const [selected, setSelected] = useState<EducationLevelSlug | null>(null);
+export function EducationSkillsLab({
+  onBack,
+  initialSlug,
+}: {
+  onBack: () => void;
+  initialSlug?: EducationLevelSlug | null;
+}) {
+  const [selected, setSelected] = useState<EducationLevelSlug | null>(
+    initialSlug && getEducationLevelBySlug(initialSlug) ? initialSlug : null,
+  );
   const [bandFilter, setBandFilter] = useState<EducationBand | "all">("all");
 
   const grouped = useMemo(() => {
@@ -51,7 +61,7 @@ export function EducationSkillsLab({ onBack }: { onBack: () => void }) {
 
   if (selected) {
     const entry = getEducationLevelBySlug(selected)!;
-    const content = EDUCATION_LEVEL_CONTENT[selected];
+    const content = mergeEducationSkillContent(selected, EDUCATION_LEVEL_CONTENT[selected]);
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
@@ -70,12 +80,15 @@ export function EducationSkillsLab({ onBack }: { onBack: () => void }) {
             <p className="text-sm text-muted-foreground">{entry.label}</p>
           </div>
         </div>
-        <SkillGameRenderer
+        <LabModuleFlowHost
+          scopeKey={educationScopeKey(selected)}
           gameId={eduSkillGameId(selected)}
+          moduleTitle={entry.skillTitle}
+          careerName={entry.label}
           gameType={entry.gameType}
           content={content}
-          title={entry.skillTitle}
           description={entry.skillDescription}
+          onBackToTrack={() => setSelected(null)}
         />
       </div>
     );
@@ -141,6 +154,7 @@ export function EducationSkillsLab({ onBack }: { onBack: () => void }) {
                       {level.skillDescription}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
+                      <Badge className="bg-primary/90">3-step module</Badge>
                       <Badge variant="secondary">{SKILL_GAME_TYPE_LABELS[level.gameType]}</Badge>
                       <Badge variant="outline">
                         {getSkillGameFormatSummary(level.gameType, EDUCATION_LEVEL_CONTENT[level.slug])}

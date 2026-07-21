@@ -17,6 +17,7 @@ import {
   Compass,
   FileText,
   Sparkles,
+  Gamepad2,
   ArrowLeft,
   ArrowRight,
   type LucideIcon,
@@ -74,6 +75,11 @@ const STEPS: Step[] = [
     icon: BookMarked,
     title: "Curriculum",
     body: "Pick a subject and your level, and the AI builds a step-by-step learning plan with the best real books, videos, and courses to work through in order.",
+  },
+  {
+    icon: Gamepad2,
+    title: "Hands-on labs (Games)",
+    body: "Career Skills Lab, School Skills Lab, and Subject Simulations are real practice — not just quizzes. Each lab module is warm-up → hands-on workspace (forms, terminals, spreadsheets, simulators) → recall check. Do the lab before your Curriculum quiz so you practice the job, then test what you learned.",
   },
   {
     icon: Compass,

@@ -44,6 +44,16 @@ export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
 }
 
+/** Bearer token headers for raw fetch calls (e.g. useMe). */
+export async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {};
+  if (_authTokenGetter) {
+    const token = await _authTokenGetter();
+    if (token) headers.authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 function isRequest(input: RequestInfo | URL): input is Request {
   return typeof Request !== "undefined" && input instanceof Request;
 }
@@ -360,7 +370,7 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  const response = await fetch(input, { credentials: "include", ...init, method, headers });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);
