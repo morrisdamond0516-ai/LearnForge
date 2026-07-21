@@ -613,6 +613,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "SOC basics",
+      image: "/lab-images/cyber-log-triage.png",
       content: {
         terminal: {
           title: "ALERT-4421 — Failed Logins",

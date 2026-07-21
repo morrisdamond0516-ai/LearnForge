@@ -90,6 +90,60 @@ uri = "file://artifacts/learnforge/public/lab-images/cloud-iam-terminal.png"
 type = "image"
 title = "AWS IAM security CLI lab"
 
+[[generated]]
+id = "6s3D08Ydg4dR7QN7_DgMo"
+uri = "file://artifacts/learnforge/public/lab-images/dev-git-cli.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "BqKStpimsKgOlhAZS_uB7"
+uri = "file://artifacts/learnforge/public/lab-images/dev-ci-terminal.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Uj4-J_fRNP70dZtbvjh-L"
+uri = "file://artifacts/learnforge/public/lab-images/ma-ehr-terminal.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "p2k31hPeogcXWk7rtyx5E"
+uri = "file://artifacts/learnforge/public/lab-images/it-network-outage.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "8LnSiY8pL1ZLkIUBAW7AA"
+uri = "file://artifacts/learnforge/public/lab-images/it-dns-resolution.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "GKwM0lVaLG3Wp_yu-kyzN"
+uri = "file://artifacts/learnforge/public/lab-images/it-identity-accounts.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "vpcXhf_XKu8VIxcYMGHr3"
+uri = "file://artifacts/learnforge/public/lab-images/helpdesk-no-internet.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "SP62xBkD777zfDkluAzss"
+uri = "file://artifacts/learnforge/public/lab-images/helpdesk-printer.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "a7S98FSR6fdRcAk0uqhx1"
+uri = "file://artifacts/learnforge/public/lab-images/cyber-log-triage.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "12h8NihN8XIukVeFBTaN_"
 uri = "file://exports/learnforge-brand-kit.zip"

@@ -127,6 +127,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "Version control",
+      image: "/lab-images/dev-git-cli.png",
       content: {
         terminal: {
           title: "Feature branch — save your work",
@@ -167,6 +168,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "DevOps basics",
+      image: "/lab-images/dev-ci-terminal.png",
       content: {
         terminal: {
           title: "Pre-push checks — feature/login-fix",
@@ -1204,6 +1206,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "Clinical documentation",
+      image: "/lab-images/ma-ehr-terminal.png",
       content: {
         terminal: {
           title: "EHR Workstation — Clinic Session",

@@ -27,6 +27,7 @@ export const CAREER_LAB_TRACKS: Partial<
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "Networking",
+      image: "/lab-images/it-network-outage.png",
       content: {
         terminal: {
           title: "INC-9102 — Building B Offline",
@@ -69,6 +70,7 @@ export const CAREER_LAB_TRACKS: Partial<
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "Networking / DNS",
+      image: "/lab-images/it-dns-resolution.png",
       content: {
         terminal: {
           title: "INC-9220 — Sites Fail by Name",
@@ -111,6 +113,7 @@ export const CAREER_LAB_TRACKS: Partial<
       gameType: "terminal-workspace",
       duration: "6–10 min",
       domain: "OS / Identity",
+      image: "/lab-images/it-identity-accounts.png",
       content: {
         terminal: {
           title: "LAB — Local Account Hygiene",
@@ -590,6 +593,7 @@ motherboard_needs = ???`,
       gameType: "terminal-workspace",
       duration: "6–10 min",
       domain: "Help desk",
+      image: "/lab-images/helpdesk-no-internet.png",
       content: {
         terminal: {
           title: "INC-3847 — No Internet",
@@ -624,6 +628,7 @@ motherboard_needs = ???`,
       gameType: "terminal-workspace",
       duration: "6–10 min",
       domain: "Peripherals",
+      image: "/lab-images/helpdesk-printer.png",
       content: {
         terminal: {
           title: "INC-4011 — Printer Offline",
