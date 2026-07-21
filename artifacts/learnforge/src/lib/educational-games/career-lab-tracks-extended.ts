@@ -52,6 +52,7 @@ export const CAREER_LAB_TRACKS_EXTENDED: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Agile / triage",
+      image: "/lab-images/dev-ticket-intake.png",
       content: {
         intakeForm: {
           title: "JIRA — Login crash on mobile",
@@ -402,6 +403,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Bookkeeping",
+      image: "/lab-images/bk-ledger.png",
       content: {
         spreadsheet: {
           title: "Monthly Ledger — Riverside Consulting",
@@ -444,6 +446,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Reconciliation",
+      image: "/lab-images/bk-reconcile.png",
       content: {
         spreadsheet: {
           title: "Bank Reconciliation",
@@ -583,6 +586,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Risk management",
+      image: "/lab-images/pm-risk-intake.png",
       content: {
         intakeForm: {
           title: "Risk Register — Website Redesign",
@@ -605,6 +609,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Reporting",
+      image: "/lab-images/pm-status-report.png",
       content: {
         spreadsheet: {
           title: "Project Status — Sprint 6",
@@ -630,6 +635,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Cost",
+      image: "/lab-images/pm-budget.png",
       content: {
         spreadsheet: {
           title: "Sprint Budget Tracker",
@@ -713,6 +719,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Code compliance",
+      image: "/lab-images/elec-panel-intake.png",
       content: {
         intakeForm: {
           title: "200A Residential Panel Schedule",
@@ -735,6 +742,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Field documentation",
+      image: "/lab-images/elec-service-ticket.png",
       content: {
         intakeForm: {
           title: "Work Order — No Power to Outlet",
@@ -756,6 +764,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "Field math",
+      image: "/lab-images/elec-jobsite.png",
       content: {
         jobsite: {
           title: "Conduit & Load Lab",
@@ -821,6 +830,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Field documentation",
+      image: "/lab-images/hvac-service-ticket.png",
       content: {
         intakeForm: {
           title: "Work Order — No Cooling",
@@ -843,6 +853,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "EPA compliance",
+      image: "/lab-images/hvac-refrigerant-log.png",
       content: {
         intakeForm: {
           title: "Refrigerant Log — R-410A",
@@ -864,6 +875,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "Field math",
+      image: "/lab-images/hvac-load.png",
       content: {
         jobsite: {
           title: "Residential Service Call",
@@ -912,7 +924,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "10–15 min",
       domain: "HVAC diagnostics",
-      image: "/lab-images/hvac-diagnostic-cli.png",
+      image: "/lab-images/hvac-diagnostic-cli.jpg",
       content: {
         terminal: {
           title: "BMS Terminal — AHU-2 No-Cool",
@@ -1018,6 +1030,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "patient-chart-workspace",
       duration: "6–10 min",
       domain: "Clinical",
+      image: "/lab-images/cna-vitals.jpg",
       content: {
         patientChart: {
           title: "Morning Vitals — Room 12",
@@ -1040,6 +1053,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "ADLs",
+      image: "/lab-images/cna-adl-intake.jpg",
       content: {
         intakeForm: {
           title: "Morning Care — Room 12",
@@ -1062,6 +1076,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "patient-chart-workspace",
       duration: "6–10 min",
       domain: "Clinical monitoring",
+      image: "/lab-images/cna-io-chart.jpg",
       content: {
         patientChart: {
           title: "I&O Shift Record — Room 12",
@@ -1124,6 +1139,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Front office",
+      image: "/lab-images/ma-referral-intake.jpg",
       content: {
         intakeForm: {
           title: "Specialist Referral — Cardiology",
@@ -1146,6 +1162,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Clinical safety",
+      image: "/lab-images/ma-medication-log.jpg",
       content: {
         intakeForm: {
           title: "Med Rec — Pre-Visit Update",
@@ -1167,6 +1184,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "patient-chart-workspace",
       duration: "6–10 min",
       domain: "Clinical",
+      image: "/lab-images/ma-chart.jpg",
       content: {
         patientChart: {
           title: "Pre-Provider Vitals",
@@ -1262,6 +1280,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Dispensing accuracy",
+      image: "/lab-images/rx-label-intake.jpg",
       content: {
         intakeForm: {
           title: "Label QA — Rx #48291",
@@ -1284,6 +1303,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Inventory / DEA",
+      image: "/lab-images/rx-inventory-intake.jpg",
       content: {
         intakeForm: {
           title: "C-II Count — Oxycodone 5 mg",
@@ -1305,6 +1325,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "Pharmacy math",
+      image: "/lab-images/rx-math.jpg",
       content: {
         jobsite: {
           title: "Retail Pharmacy — Fill Prescription",
@@ -1334,7 +1355,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "10–14 min",
       domain: "Dispensing workflow",
-      image: "/lab-images/pharma-sys-cli.png",
+      image: "/lab-images/pharma-sys-cli.jpg",
       content: {
         terminal: {
           title: "PharmaSYS — Retail Rx Workstation",
@@ -1466,6 +1487,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Billing workflow",
+      image: "/lab-images/mbc-claim-intake.png",
       content: {
         intakeForm: {
           title: "CMS-1500 / Professional Claim Intake",
@@ -1513,6 +1535,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Revenue cycle",
+      image: "/lab-images/mbc-era-spreadsheet.png",
       content: {
         spreadsheet: {
           title: "ERA — Claim #88421",
@@ -1550,6 +1573,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Appeals",
+      image: "/lab-images/mbc-denial-appeal-intake.png",
       content: {
         intakeForm: {
           title: "Appeal — CO-4 Modifier Mismatch",
@@ -1770,7 +1794,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "terminal-workspace",
       duration: "12–16 min",
       domain: "Revenue cycle",
-      image: "/lab-images/billing-pro-cli.png",
+      image: "/lab-images/billing-pro-cli.jpg",
       content: {
         terminal: {
           title: "BillingPRO — Claim Submission Workstation",
@@ -1889,6 +1913,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Admin",
+      image: "/lab-images/office-intake.png",
       content: {
         intakeForm: {
           title: "Visitor Log",
@@ -1916,6 +1941,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "6–10 min",
       domain: "Office math",
+      image: "/lab-images/office-schedule.png",
       content: {
         spreadsheet: {
           title: "Offsite Supply Budget",
@@ -2040,6 +2066,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Assessment",
+      image: "/lab-images/teach-grade-sheet.png",
       content: {
         spreadsheet: {
           title: "Grade 6 Math — Unit 3 Scores",
@@ -2068,6 +2095,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Planning",
+      image: "/lab-images/teach-sub-plan.png",
       content: {
         intakeForm: {
           title: "Sub Plan — Mrs. Johnson, Room 204",
@@ -2089,6 +2117,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Planning",
+      image: "/lab-images/teach-plan.png",
       content: {
         intakeForm: {
           title: "Lesson Plan Form",
@@ -2236,6 +2265,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Evidence",
+      image: "/lab-images/leo-evidence-log.png",
       content: {
         intakeForm: {
           title: "Evidence Intake — Case #2026-1847",
@@ -2258,6 +2288,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Accountability",
+      image: "/lab-images/leo-use-of-force-report.png",
       content: {
         intakeForm: {
           title: "UOF Report — Incident #2026-1848",
@@ -2279,6 +2310,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Documentation",
+      image: "/lab-images/leo-report.png",
       content: {
         intakeForm: {
           title: "Traffic Stop Report",
@@ -2329,6 +2361,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Documentation",
+      image: "/lab-images/emt-pcr-intake.png",
       content: {
         intakeForm: {
           title: "PCR — Medical Aid",
@@ -2351,6 +2384,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Readiness",
+      image: "/lab-images/emt-equipment-check.png",
       content: {
         intakeForm: {
           title: "Engine 7 — Morning Check",
@@ -2372,6 +2406,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "jobsite-workspace",
       duration: "8–12 min",
       domain: "EMS math",
+      image: "/lab-images/emt-math.png",
       content: {
         jobsite: {
           title: "EMS Field Calculations",
@@ -2415,6 +2450,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Transactions",
+      image: "/lab-images/re-closing-sheet.png",
       content: {
         spreadsheet: {
           title: "Buyer Closing Costs — $425,000 Purchase",
@@ -2445,6 +2481,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Listing management",
+      image: "/lab-images/re-showing-checklist.png",
       content: {
         intakeForm: {
           title: "Open House Prep — 123 Oak Dr",
@@ -2466,6 +2503,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Transactions",
+      image: "/lab-images/re-listing.png",
       content: {
         intakeForm: {
           title: "Seller Listing Intake",
@@ -2516,6 +2554,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Client care",
+      image: "/lab-images/cosmo-client-intake.png",
       content: {
         intakeForm: {
           title: "New Client Consultation — Color Service",
@@ -2538,6 +2577,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Technical documentation",
+      image: "/lab-images/cosmo-chemical-log.png",
       content: {
         intakeForm: {
           title: "Color Service Record — Client #847",
@@ -2559,6 +2599,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "lab-bench-workspace",
       duration: "8–12 min",
       domain: "Sanitation",
+      image: "/lab-images/cosmo-sanitize.png",
       content: {
         labBench: {
           title: "Implement Disinfection",
@@ -2615,6 +2656,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Child welfare",
+      image: "/lab-images/fs-safety-assessment.jpg",
       content: {
         intakeForm: {
           title: "SDM Safety Assessment — Home Visit",
@@ -2637,6 +2679,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Case planning",
+      image: "/lab-images/fs-service-plan.jpg",
       content: {
         intakeForm: {
           title: "Family Service Plan — Morgan Household",
@@ -2658,6 +2701,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Casework",
+      image: "/lab-images/fs-intake.jpg",
       content: {
         intakeForm: {
           title: "Family Services Intake",
@@ -2714,6 +2758,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Resource navigation",
+      image: "/lab-images/sw-resource-referral.jpg",
       content: {
         intakeForm: {
           title: "Resource Referral — Housing Assistance",
@@ -2736,6 +2781,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Documentation",
+      image: "/lab-images/sw-case-note.jpg",
       content: {
         intakeForm: {
           title: "Session Note — Alex Kim",
@@ -2757,6 +2803,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Casework",
+      image: "/lab-images/sw-intake.jpg",
       content: {
         intakeForm: {
           title: "Crisis Intake",
@@ -2807,6 +2854,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "BSA compliance",
+      image: "/lab-images/teller-ctr-intake.png",
       content: {
         intakeForm: {
           title: "CTR — Cash Deposit $12,500",
@@ -2829,6 +2877,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Cash handling",
+      image: "/lab-images/teller-end-of-day.png",
       content: {
         spreadsheet: {
           title: "Teller Close — Station 3",
@@ -2857,6 +2906,7 @@ console.log(user.name.toUpperCase())`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Cash handling",
+      image: "/lab-images/teller-drawer.png",
       content: {
         spreadsheet: {
           title: "Teller Drawer Reconciliation",

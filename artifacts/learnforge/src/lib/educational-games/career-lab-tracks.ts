@@ -356,6 +356,7 @@ motherboard_needs = ???`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Asset management",
+      image: "/lab-images/helpdesk-asset-intake.png",
       content: {
         intakeForm: {
           title: "Loaner Device — INC-4102",
@@ -378,6 +379,7 @@ motherboard_needs = ???`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Security",
+      image: "/lab-images/helpdesk-security-intake.png",
       content: {
         intakeForm: {
           title: "Security Triage — Phishing Report",
@@ -400,6 +402,7 @@ motherboard_needs = ???`,
       gameType: "helpdesk-ticket-queue",
       duration: "12–18 min",
       domain: "A+ Ops / Ticketing",
+      image: "/lab-images/helpdesk-ticket-queue.png",
       content: {
         helpdeskQueue: {
           title: "Tier-1 Morning Queue",
@@ -771,6 +774,7 @@ priority = ???`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Stakeholder mgmt",
+      image: "/lab-images/da-stakeholder-intake.png",
       content: {
         intakeForm: {
           title: "Dashboard Request — Marketing Q2",
@@ -792,6 +796,7 @@ priority = ???`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Product analytics",
+      image: "/lab-images/da-cohort-spreadsheet.png",
       content: {
         spreadsheet: {
           title: "Monthly Cohort Retention",
@@ -840,6 +845,7 @@ priority = ???`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Spreadsheet / formulas",
+      image: "/lab-images/da-sales-summary.png",
       content: {
         spreadsheet: {
           title: "Q2 Regional Sales — Clean & Summarize",
@@ -883,6 +889,7 @@ priority = ???`,
       gameType: "spreadsheet-workspace",
       duration: "8–12 min",
       domain: "Data quality",
+      image: "/lab-images/da-data-quality.png",
       content: {
         spreadsheet: {
           title: "Weekly Leads — Quality Pass",
@@ -1114,6 +1121,7 @@ priority = ???`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Retail operations",
+      image: "/lab-images/postal-window-transaction.png",
       content: {
         intakeForm: {
           title: "Window Transaction — Insured Priority",
@@ -1136,6 +1144,7 @@ priority = ???`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Delivery operations",
+      image: "/lab-images/postal-route-intake.png",
       content: {
         intakeForm: {
           title: "Route 2847 — Morning Prep",
@@ -1157,6 +1166,7 @@ priority = ???`,
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Mail processing",
+      image: "/lab-images/postal-parcel-log.png",
       content: {
         intakeForm: {
           title: "Incoming Parcel Log — Window 3",

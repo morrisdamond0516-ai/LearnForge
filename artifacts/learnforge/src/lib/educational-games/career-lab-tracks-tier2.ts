@@ -370,6 +370,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "ER",
+      image: "/lab-images/hr-employee-relations.jpg",
       content: {
         script: [
           {
@@ -398,6 +399,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "match-pairs",
       duration: "5–8 min",
       domain: "Foundations",
+      image: "/lab-images/hr-terms-match.jpg",
       content: {
         pairs: [
           { term: "At-will employment", definition: "Either party may end employment with limited exceptions" },
@@ -503,6 +505,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "sequence-build",
       duration: "6–10 min",
       domain: "Sterile technique",
+      image: "/lab-images/cst-sterile-seq.jpg",
       content: {
         sequence: [
           "Perform surgical hand scrub and dry with sterile technique",
@@ -520,6 +523,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Patient safety",
+      image: "/lab-images/cst-or-safety.jpg",
       content: {
         script: [
           {
@@ -548,6 +552,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "match-pairs",
       duration: "5–8 min",
       domain: "Surgical technology",
+      image: "/lab-images/cst-instruments.jpg",
       content: {
         pairs: [
           { term: "Mayo stand", definition: "Sterile table for instruments near operative site" },
@@ -568,6 +573,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Communication",
+      image: "/lab-images/pct-shift-handoff.jpg",
       content: {
         intakeForm: {
           title: "Bedside Handoff — Room 418",
@@ -590,6 +596,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "patient-chart-workspace",
       duration: "6–10 min",
       domain: "Clinical monitoring",
+      image: "/lab-images/pct-io-chart.jpg",
       content: {
         patientChart: {
           title: "I&O Record — Med-Surg",
@@ -611,6 +618,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "patient-chart-workspace",
       duration: "8–12 min",
       domain: "Acute care",
+      image: "/lab-images/pct-vitals.jpg",
       content: {
         patientChart: {
           title: "ED Holding — PCT Assessment",
@@ -632,6 +640,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Delegation",
+      image: "/lab-images/pct-delegation.jpg",
       content: {
         script: [
           {
@@ -660,6 +669,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Direct care",
+      image: "/lab-images/pct-adl-seq.jpg",
       content: {
         sequence: [
           "Check orders and assess patient readiness",
@@ -748,6 +758,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Paraeducator practice",
+      image: "/lab-images/ta-classroom.jpg",
       content: {
         script: [
           {
@@ -776,6 +787,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Instructional support",
+      image: "/lab-images/ta-small-group-seq.jpg",
       content: {
         sequence: [
           "Confirm objective with lead teacher",
@@ -860,6 +872,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Safety",
+      image: "/lab-images/vet-safety.jpg",
       content: {
         script: [
           {
@@ -959,6 +972,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "CDA competency",
+      image: "/lab-images/cda-safety.jpg",
       content: {
         script: [
           {
@@ -987,6 +1001,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Routine",
+      image: "/lab-images/cda-daily-seq.jpg",
       content: {
         sequence: [
           "Greet children; verify attendance and health screen",
@@ -1051,6 +1066,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "sequence-build",
       duration: "6–10 min",
       domain: "ASE brakes",
+      image: "/lab-images/ase-brake-seq.jpg",
       content: {
         sequence: [
           "Test drive and document complaint (if safe)",
@@ -1087,6 +1103,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "Safety",
+      image: "/lab-images/ase-safety.jpg",
       content: {
         script: [
           {
@@ -1207,6 +1224,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Producer ethics",
+      image: "/lab-images/ins-needs-analysis.jpg",
       content: {
         script: [
           {
@@ -1235,6 +1253,7 @@ export const CAREER_LAB_TRACKS_TIER2: Partial<
       gameType: "math-scenario",
       duration: "6–10 min",
       domain: "Policy math",
+      image: "/lab-images/ins-premium-math.jpg",
       content: {
         math: [
           {

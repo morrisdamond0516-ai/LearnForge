@@ -14,6 +14,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Post-analytical",
+      image: "/lab-images/phleb-label-intake.jpg",
       content: {
         intakeForm: {
           title: "Specimen QC — Pre-Transport",
@@ -36,6 +37,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Clinical documentation",
+      image: "/lab-images/phleb-difficult-draw.jpg",
       content: {
         intakeForm: {
           title: "Difficult Draw Log",
@@ -57,6 +59,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Pre-analytical",
+      image: "/lab-images/phleb-order-intake.jpg",
       content: {
         intakeForm: {
           title: "Outpatient Lab Requisition",
@@ -78,6 +81,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Procedure",
+      image: "/lab-images/phleb-draw-sequence.jpg",
       content: {
         sequence: [
           "Perform hand hygiene and don gloves",
@@ -96,6 +100,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "Safety",
+      image: "/lab-images/phleb-safety.jpg",
       content: {
         script: [
           {
@@ -128,6 +133,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "patient-chart-workspace",
       duration: "6–10 min",
       domain: "Wound care",
+      image: "/lab-images/lpn-wound-chart.jpg",
       content: {
         patientChart: {
           title: "Wound Assessment — Room 8",
@@ -150,6 +156,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Medication administration",
+      image: "/lab-images/lpn-mar-intake.jpg",
       content: {
         intakeForm: {
           title: "MAR Entry — 0800 Med Pass",
@@ -171,6 +178,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "patient-chart-workspace",
       duration: "8–12 min",
       domain: "Assessment",
+      image: "/lab-images/lpn-vitals-chart.jpg",
       content: {
         patientChart: {
           title: "Afternoon Assessment — Room 8",
@@ -192,6 +200,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "math-scenario",
       duration: "8–12 min",
       domain: "Pharmacology math",
+      image: "/lab-images/lpn-medication-math.jpg",
       content: {
         math: [
           {
@@ -222,6 +231,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Nursing practice",
+      image: "/lab-images/lpn-scope-judgment.jpg",
       content: {
         script: [
           {
@@ -254,6 +264,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Medication safety",
+      image: "/lab-images/rn-mar-intake.jpg",
       content: {
         intakeForm: {
           title: "MAR Pre-Check — Room 214",
@@ -275,6 +286,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "patient-chart-workspace",
       duration: "8–12 min",
       domain: "NCLEX clinical",
+      image: "/lab-images/rn-assessment-chart.jpg",
       content: {
         patientChart: {
           title: "ED to Med-Surg Handoff",
@@ -297,6 +309,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "patient-chart-workspace",
       duration: "8–12 min",
       domain: "Surgical nursing",
+      image: "/lab-images/rn-post-op-chart.jpg",
       content: {
         patientChart: {
           title: "Post-Op Hour 4 — Hip Repair",
@@ -318,6 +331,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "math-scenario",
       duration: "10–14 min",
       domain: "Dosage calc",
+      image: "/lab-images/rn-dosage-math.jpg",
       content: {
         math: [
           {
@@ -353,6 +367,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "10–14 min",
       domain: "Clinical judgment",
+      image: "/lab-images/rn-priority-judgment.jpg",
       content: {
         script: [
           {
@@ -381,6 +396,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "AI + nursing",
+      image: "/lab-images/rn-ai-documentation.jpg",
       content: {
         script: [
           {
@@ -413,6 +429,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Clinical documentation",
+      image: "/lab-images/dental-treatment-log.jpg",
       content: {
         intakeForm: {
           title: "Post-Procedure Chart — Prophy & Exam",
@@ -435,6 +452,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Clinical setup",
+      image: "/lab-images/dental-tray-setup.jpg",
       content: {
         intakeForm: {
           title: "Tray Setup — Class II Composite",
@@ -456,6 +474,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Front office",
+      image: "/lab-images/dental-intake.jpg",
       content: {
         intakeForm: {
           title: "New Patient Intake",
@@ -477,6 +496,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "OSHA / CDC",
+      image: "/lab-images/dental-infection.jpg",
       content: {
         script: [
           {
@@ -505,6 +525,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Radiography",
+      image: "/lab-images/dental-radiograph-seq.jpg",
       content: {
         sequence: [
           "Confirm pregnancy/status and thyroid collar per policy",
@@ -526,6 +547,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "8–12 min",
       domain: "Incident response",
+      image: "/lab-images/cyber-incident-report.jpg",
       content: {
         intakeForm: {
           title: "IR Report — Phishing Compromise",
@@ -548,6 +570,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "intake-form-workspace",
       duration: "6–10 min",
       domain: "Vulnerability management",
+      image: "/lab-images/cyber-vuln-intake.jpg",
       content: {
         intakeForm: {
           title: "Vuln Triage — Monthly Scan",
@@ -569,6 +592,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "match-pairs",
       duration: "5–8 min",
       domain: "Security+ foundations",
+      image: "/lab-images/cyber-threat-match.jpg",
       content: {
         pairs: [
           { term: "Phishing", definition: "Social engineering via deceptive email/links" },
@@ -585,6 +609,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Incident response",
+      image: "/lab-images/cyber-incident.jpg",
       content: {
         script: [
           {
@@ -613,7 +638,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "terminal-workspace",
       duration: "8–12 min",
       domain: "SOC basics",
-      image: "/lab-images/cyber-log-triage.png",
+      image: "/lab-images/cyber-log-triage.jpg",
       content: {
         terminal: {
           title: "ALERT-4421 — Failed Logins",
@@ -636,6 +661,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "AI + security",
+      image: "/lab-images/cyber-ai-threats.jpg",
       content: {
         script: [
           {
@@ -849,6 +875,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "math-scenario",
       duration: "6–10 min",
       domain: "Cloud foundations",
+      image: "/lab-images/cloud-shared-responsibility.jpg",
       content: {
         math: [
           {
@@ -879,6 +906,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "8–12 min",
       domain: "Cloud security",
+      image: "/lab-images/cloud-iam-incidents.jpg",
       content: {
         script: [
           {
@@ -907,6 +935,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Operations",
+      image: "/lab-images/cloud-incident-seq.jpg",
       content: {
         sequence: [
           "Confirm alert and assign incident commander",
@@ -925,6 +954,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "FinOps",
+      image: "/lab-images/cloud-cost-governance.jpg",
       content: {
         script: [
           {
@@ -1013,6 +1043,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Service call",
+      image: "/lab-images/plumb-repair-seq.jpg",
       content: {
         sequence: [
           "Locate shutoff and verify water is off",
@@ -1031,6 +1062,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "Safety / code",
+      image: "/lab-images/plumb-safety.jpg",
       content: {
         script: [
           {
@@ -1108,6 +1140,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "sequence-build",
       duration: "5–8 min",
       domain: "Safety",
+      image: "/lab-images/weld-setup-seq.jpg",
       content: {
         sequence: [
           "Review work order and material spec (MIG/TIG/stick)",
@@ -1145,6 +1178,7 @@ export const CAREER_LAB_TRACKS_TIER1: Partial<
       gameType: "script-choice",
       duration: "6–10 min",
       domain: "Quality",
+      image: "/lab-images/weld-quality.jpg",
       content: {
         script: [
           {
