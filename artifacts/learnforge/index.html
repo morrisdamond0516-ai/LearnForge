@@ -28,17 +28,9 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     />
 
-    <!-- Instant loading screen — visible before any JS executes -->
+    <!-- Loading screen — ALL rules scoped to #app-loading so nothing conflicts
+         with Tailwind's @layer base or the app's designed background/gradients. -->
     <style>
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { height: 100%; }
-      body {
-        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-        background: #ffffff;
-      }
-      #root:empty + #app-loading {
-        display: flex;
-      }
       #app-loading {
         display: none;
         position: fixed;
@@ -46,16 +38,17 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: #ffffff;
+        background: hsl(220, 18%, 97%);
         z-index: 9999;
         gap: 20px;
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
       }
-      #app-loading .brand {
+      #app-loading .lf-brand {
         display: flex;
         align-items: center;
         gap: 10px;
       }
-      #app-loading .brand-icon {
+      #app-loading .lf-brand-icon {
         width: 36px;
         height: 36px;
         background: #1144D0;
@@ -64,29 +57,30 @@
         align-items: center;
         justify-content: center;
       }
-      #app-loading .brand-icon svg {
+      #app-loading .lf-brand-icon svg {
         width: 22px;
         height: 22px;
         fill: #ffffff;
+        stroke: none;
       }
-      #app-loading .brand-name {
+      #app-loading .lf-brand-name {
         font-size: 22px;
         font-weight: 700;
         color: #0f172a;
         letter-spacing: -0.3px;
       }
-      #app-loading .brand-name span {
+      #app-loading .lf-brand-name span {
         color: #f97316;
       }
-      #app-loading .spinner {
+      #app-loading .lf-spinner {
         width: 28px;
         height: 28px;
         border: 2.5px solid #e2e8f0;
         border-top-color: #1144D0;
         border-radius: 50%;
-        animation: spin 0.75s linear infinite;
+        animation: lf-spin 0.75s linear infinite;
       }
-      @keyframes spin {
+      @keyframes lf-spin {
         to { transform: rotate(360deg); }
       }
     </style>
@@ -94,21 +88,20 @@
   <body>
     <div id="root"></div>
 
-    <!-- Shown instantly while JS loads; hidden once React mounts (#root gains children) -->
+    <!-- Shown instantly while JS loads; hidden as soon as React mounts -->
     <div id="app-loading" aria-label="Loading LearnForge…" role="status">
-      <div class="brand">
-        <div class="brand-icon">
+      <div class="lf-brand">
+        <div class="lf-brand-icon">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3L2 8l10 5 10-5-10-5zM2 13l10 5 10-5M2 18l10 5 10-5"/>
           </svg>
         </div>
-        <span class="brand-name">Learn<span>Forge</span></span>
+        <span class="lf-brand-name">Learn<span>Forge</span></span>
       </div>
-      <div class="spinner"></div>
+      <div class="lf-spinner"></div>
     </div>
 
     <script>
-      // Hide the loading screen as soon as React populates #root
       (function () {
         var root = document.getElementById('root');
         var loader = document.getElementById('app-loading');
