@@ -68,30 +68,6 @@ export default defineConfig(async ({ mode }) => {
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
-              return "vendor-react";
-            }
-            if (id.includes("node_modules/@clerk")) {
-              return "vendor-clerk";
-            }
-            if (id.includes("node_modules/@tanstack")) {
-              return "vendor-query";
-            }
-            if (id.includes("node_modules/@radix-ui")) {
-              return "vendor-radix";
-            }
-            if (id.includes("educational-games")) {
-              return "games-content";
-            }
-            if (id.includes("src/components/games") || id.includes("src/pages/games") || id.includes("src/pages/lab-")) {
-              return "games-ui";
-            }
-          },
-        },
-      },
     },
     server: {
       port,
