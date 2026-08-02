@@ -19,7 +19,22 @@ export default defineConfig(async ({ mode }) => {
   const basePath = env.BASE_PATH ?? "/";
   const apiPort = env.API_PORT ?? "5000";
 
-  const noCacheInDev: never[] = [];
+  const noCacheInDev =
+    env.NODE_ENV !== "production"
+      ? [
+          {
+            name: "no-cache-in-dev",
+            configureServer(server: { middlewares: { use: (fn: (req: unknown, res: { setHeader: (k: string, v: string) => void }, next: () => void) => void) => void } }) {
+              server.middlewares.use((_req, res, next) => {
+                res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+                res.setHeader("Pragma", "no-cache");
+                res.setHeader("Expires", "0");
+                next();
+              });
+            },
+          },
+        ]
+      : [];
 
   return {
     envDir: repoRoot,
@@ -56,27 +71,21 @@ export default defineConfig(async ({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // Vendor chunk — core React ecosystem
             if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
               return "vendor-react";
             }
-            // Clerk auth
             if (id.includes("node_modules/@clerk")) {
               return "vendor-clerk";
             }
-            // TanStack Query
             if (id.includes("node_modules/@tanstack")) {
               return "vendor-query";
             }
-            // Radix UI components
             if (id.includes("node_modules/@radix-ui")) {
               return "vendor-radix";
             }
-            // Heavy educational games data — its own chunk
             if (id.includes("educational-games")) {
               return "games-content";
             }
-            // Games page components
             if (id.includes("src/components/games") || id.includes("src/pages/games") || id.includes("src/pages/lab-")) {
               return "games-ui";
             }

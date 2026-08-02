@@ -15,108 +15,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#1144D0" />
-
-    <!-- Preconnect to speed up Clerk auth JS download -->
-    <link rel="preconnect" href="https://clerk.learnforge.app" crossorigin />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    />
-
-    <!-- Loading screen — ALL rules scoped to #app-loading so nothing conflicts
-         with Tailwind's @layer base or the app's designed background/gradients. -->
-    <style>
-      #app-loading {
-        display: none;
-        position: fixed;
-        inset: 0;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: hsl(220, 18%, 97%);
-        z-index: 9999;
-        gap: 20px;
-        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-      }
-      #app-loading .lf-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      #app-loading .lf-brand-icon {
-        width: 36px;
-        height: 36px;
-        background: #1144D0;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      #app-loading .lf-brand-icon svg {
-        width: 22px;
-        height: 22px;
-        fill: #ffffff;
-        stroke: none;
-      }
-      #app-loading .lf-brand-name {
-        font-size: 22px;
-        font-weight: 700;
-        color: #0f172a;
-        letter-spacing: -0.3px;
-      }
-      #app-loading .lf-brand-name span {
-        color: #f97316;
-      }
-      #app-loading .lf-spinner {
-        width: 28px;
-        height: 28px;
-        border: 2.5px solid #e2e8f0;
-        border-top-color: #1144D0;
-        border-radius: 50%;
-        animation: lf-spin 0.75s linear infinite;
-      }
-      @keyframes lf-spin {
-        to { transform: rotate(360deg); }
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
-
-    <!-- Shown instantly while JS loads; hidden as soon as React mounts -->
-    <div id="app-loading" aria-label="Loading LearnForge…" role="status">
-      <div class="lf-brand">
-        <div class="lf-brand-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3L2 8l10 5 10-5-10-5zM2 13l10 5 10-5M2 18l10 5 10-5"/>
-          </svg>
-        </div>
-        <span class="lf-brand-name">Learn<span>Forge</span></span>
-      </div>
-      <div class="lf-spinner"></div>
-    </div>
-
-    <script>
-      (function () {
-        var root = document.getElementById('root');
-        var loader = document.getElementById('app-loading');
-        if (!root || !loader) return;
-        loader.style.display = 'flex';
-        var observer = new MutationObserver(function () {
-          if (root.firstChild) {
-            loader.style.display = 'none';
-            observer.disconnect();
-          }
-        });
-        observer.observe(root, { childList: true });
-      })();
-    </script>
-
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
