@@ -7,12 +7,15 @@ import {
   ClerkLoaded,
   useClerk,
 } from "@clerk/react";
+import { Logo } from "@/components/logo";
+import { Button } from "@/components/ui/button";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import {
   Switch,
   Route,
   Redirect,
+  Link,
   useLocation,
   Router as WouterRouter,
 } from "wouter";
@@ -191,6 +194,44 @@ function SignUpPage() {
   );
 }
 
+// Lightweight header + container for public pages that need layout (games, help)
+// but are accessible without signing in.
+function PublicPageLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-[100dvh] flex-col bg-background">
+      <header className="app-header sticky top-0 z-40 flex items-center justify-between px-4 py-3 shadow-lg sm:px-6 lg:px-8 lg:h-16 lg:py-0">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2 font-bold text-xl text-white tracking-tight"
+        >
+          <Logo className="h-8 w-auto text-white" />
+          <span>LearnForge</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <Show when="signed-in">
+            <Button asChild className="bg-white text-primary hover:bg-white/90">
+              <Link href="/">Dashboard</Link>
+            </Button>
+          </Show>
+          <Show when="signed-out">
+            <Button asChild variant="ghost" className="text-white hover:bg-white/15 hover:text-white">
+              <Link href="/sign-in">Sign in</Link>
+            </Button>
+            <Button asChild className="bg-white text-primary hover:bg-white/90">
+              <Link href="/sign-up">Get started</Link>
+            </Button>
+          </Show>
+        </div>
+      </header>
+      <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}
+
 function AppShell() {
   return (
     <Layout>
@@ -329,8 +370,12 @@ function ClerkProviderWithRoutes() {
               <Route path="/privacy" component={Privacy} />
               <Route path="/refund" component={Refund} />
               <Route path="/contact" component={Contact} />
-              <Route path="/games" component={Games} />
-              <Route path="/help" component={Help} />
+              <Route path="/games">
+                {() => <PublicPageLayout><Suspense fallback={<PageLoader />}><Games /></Suspense></PublicPageLayout>}
+              </Route>
+              <Route path="/help">
+                {() => <PublicPageLayout><Help /></PublicPageLayout>}
+              </Route>
               <Route component={ProtectedGate} />
             </Switch>
           </Suspense>
