@@ -90,7 +90,7 @@ const steps = [
 
 export default function Landing() {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background">
+    <div className="flex min-h-[100dvh] flex-col bg-background overflow-x-hidden">
       <header className="app-header sticky top-0 z-40 flex items-center justify-between px-4 py-3 shadow-lg sm:px-6 lg:px-8 lg:h-16 lg:py-0">
         <div className="flex shrink-0 items-center gap-2 font-bold text-xl tracking-tight">
           <Logo className="h-8 w-auto text-white" />
