@@ -128,7 +128,7 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-24">
+        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pt-10 lg:pb-20">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
