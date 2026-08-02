@@ -128,7 +128,13 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pt-10 lg:pb-20">
+        <section className="relative grid w-full items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pt-10 lg:pb-20">
+          {/* Owl sits in the top-right corner, just under the nav's Get started button */}
+          <img
+            src={mascot}
+            alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
+            className="pointer-events-none absolute top-0 right-4 z-10 h-28 w-28 drop-shadow-xl sm:right-6 sm:h-32 sm:w-32 lg:right-8"
+          />
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
@@ -190,11 +196,6 @@ export default function Landing() {
                 background:
                   "radial-gradient(60% 60% at 75% 15%, hsl(38 92% 50% / 0.20), transparent), radial-gradient(55% 55% at 15% 85%, hsl(152 55% 38% / 0.18), transparent), radial-gradient(40% 40% at 50% 50%, hsl(28 45% 22% / 0.10), transparent)",
               }}
-            />
-            <img
-              src={mascot}
-              alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
-              className="pointer-events-none absolute -top-24 -right-2 z-10 h-28 w-28 drop-shadow-xl sm:-top-28 sm:h-32 sm:w-32"
             />
             <div className="rounded-2xl border border-card-border bg-card p-5 shadow-lg sm:p-6">
               <div className="flex items-center justify-between">
