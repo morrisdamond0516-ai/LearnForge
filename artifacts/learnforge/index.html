@@ -20,21 +20,14 @@
     <link rel="preconnect" href="https://clerk.learnforge.app" crossorigin />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
-    <!-- Google Fonts — non-blocking (swap after load, no render delay) -->
+    <!-- Google Fonts — preconnect speeds up the load; optional display means
+         no layout-shift swap: font used if ready, fallback kept if not -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      media="print"
-      onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=optional"
     />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      />
-    </noscript>
 
     <!-- Instant loading screen — visible before any JS executes -->
     <style>
