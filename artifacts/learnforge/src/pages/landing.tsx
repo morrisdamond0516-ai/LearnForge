@@ -133,7 +133,7 @@ export default function Landing() {
           <img
             src={mascot}
             alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
-            className="pointer-events-none absolute top-0 right-4 z-10 h-28 w-28 drop-shadow-xl sm:right-6 sm:h-32 sm:w-32 lg:right-8"
+            className="pointer-events-none absolute top-1 right-4 z-10 h-20 w-20 drop-shadow-xl sm:right-6 sm:h-24 sm:w-24 lg:right-8"
           />
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
