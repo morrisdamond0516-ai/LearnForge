@@ -253,16 +253,18 @@ export default function Landing() {
 
         {/* Problem */}
         <section className="border-y border-border bg-card/40">
-          <div className="mx-auto max-w-5xl px-4 py-14 text-center sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-gold-green">
-              Studying shouldn't feel like guessing.
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-              Generic flashcards don't look like the test you're actually facing.
-              Real exams are long. Practice sets are short. And the night before,
-              you still don't know if you're ready.
-            </p>
-            <div className="mt-8 grid gap-4 text-left sm:grid-cols-3">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-gold-green">
+                Studying shouldn't feel like guessing.
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Generic flashcards don't look like the test you're actually facing.
+                Real exams are long. Practice sets are short. And the night before,
+                you still don't know if you're ready.
+              </p>
+            </div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {[
                 "Practice tests too short to reflect the real exam",
                 "No idea what level you're actually at",
@@ -281,18 +283,16 @@ export default function Landing() {
 
         {/* How it works */}
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-green-gold">
-              From "I should study" to ready — in minutes.
-            </h2>
-          </div>
+          <h2 className="max-w-xl text-2xl font-bold tracking-tight sm:text-3xl gradient-text-green-gold">
+            From "I should study" to ready — in minutes.
+          </h2>
           <div className="mt-12 grid gap-8 sm:grid-cols-3">
             {steps.map((step, i) => (
-              <div key={step.title} className="relative text-center">
-                <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl icon-bg-${step.color}`}>
+              <div key={step.title} className="relative">
+                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl icon-bg-${step.color}`}>
                   <step.icon className="h-7 w-7" />
                 </div>
-                <p className={`mt-2 text-xs font-bold uppercase tracking-wider ${step.color === "gold" ? "text-amber-600" : step.color === "green" ? "text-emerald-700" : "text-amber-900"}`}>
+                <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${step.color === "gold" ? "text-amber-600" : step.color === "green" ? "text-emerald-700" : "text-amber-900"}`}>
                   Step {i + 1}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-foreground">
@@ -358,7 +358,7 @@ export default function Landing() {
 
         {/* Feature grid */}
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="max-w-2xl">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-diagonal">
               Everything you need to prepare with confidence.
             </h2>
