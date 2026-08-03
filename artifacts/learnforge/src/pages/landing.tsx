@@ -128,7 +128,7 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-24">
+        <section className="mx-auto grid max-w-[1800px] items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-24">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
@@ -246,7 +246,7 @@ export default function Landing() {
 
         {/* Problem */}
         <section className="border-y border-border bg-card/40">
-          <div className="mx-auto max-w-5xl px-4 py-14 text-center sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-[1700px] px-4 py-14 text-center sm:px-6 lg:px-8">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-gold-green">
               Studying shouldn't feel like guessing.
             </h2>
@@ -273,7 +273,7 @@ export default function Landing() {
         </section>
 
         {/* How it works */}
-        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[1800px] px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-green-gold">
               From "I should study" to ready — in minutes.
@@ -301,7 +301,7 @@ export default function Landing() {
 
         {/* Differentiator band */}
         <section className="app-header">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <div className="mx-auto grid max-w-[1800px] items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-white">
                 Practice the real exam — not a watered-down version.
@@ -350,7 +350,7 @@ export default function Landing() {
         </section>
 
         {/* Feature grid */}
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[1800px] px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-diagonal">
               Everything you need to prepare with confidence.
@@ -381,7 +381,7 @@ export default function Landing() {
         </section>
 
         {/* Final CTA */}
-        <section className="mx-auto max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-[1700px] px-4 pb-24 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-card-border bg-card p-10 text-center shadow-lg sm:p-14">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl gradient-text-earth">
               Your next exam starts here.
