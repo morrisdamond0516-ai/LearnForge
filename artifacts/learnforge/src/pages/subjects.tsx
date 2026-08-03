@@ -111,7 +111,7 @@ export default function Subjects() {
               </Card>
             </Link>
           ))}
-          {subjects?.length === 0 && (
+          {!isLoading && (!subjects || subjects.length === 0) && (
             <div className="col-span-full py-12 text-center text-muted-foreground">
               <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-20" />
               <p>No subjects yet.</p>
