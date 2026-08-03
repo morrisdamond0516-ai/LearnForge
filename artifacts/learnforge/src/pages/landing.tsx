@@ -128,7 +128,7 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pt-10 lg:pb-20">
+        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-24">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
@@ -169,13 +169,6 @@ export default function Landing() {
                 <Link href="/sign-in">I already have an account</Link>
               </Button>
             </div>
-            <div className="mt-3">
-              <Link href="/lab-demo" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
-                <span>⚡</span>
-                Try a live lab first — no sign-up needed
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
             <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
               <ShieldCheck className="h-4 w-4 text-primary" />
               Free to start. No credit card required.
@@ -184,17 +177,17 @@ export default function Landing() {
 
           {/* Hero visual: mock exam result card */}
           <div className="relative">
-            <img
-              src={mascot}
-              alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
-              className="pointer-events-none absolute -top-24 -right-2 z-10 h-28 w-28 drop-shadow-xl sm:-top-28 sm:h-32 sm:w-32"
-            />
             <div
               className="absolute -inset-4 -z-10 rounded-3xl opacity-60 blur-2xl"
               style={{
                 background:
                   "radial-gradient(60% 60% at 75% 15%, hsl(38 92% 50% / 0.20), transparent), radial-gradient(55% 55% at 15% 85%, hsl(152 55% 38% / 0.18), transparent), radial-gradient(40% 40% at 50% 50%, hsl(28 45% 22% / 0.10), transparent)",
               }}
+            />
+            <img
+              src={mascot}
+              alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
+              className="pointer-events-none absolute -top-24 -right-2 z-10 h-28 w-28 drop-shadow-xl sm:-top-28 sm:h-32 sm:w-32"
             />
             <div className="rounded-2xl border border-card-border bg-card p-5 shadow-lg sm:p-6">
               <div className="flex items-center justify-between">
@@ -253,18 +246,16 @@ export default function Landing() {
 
         {/* Problem */}
         <section className="border-y border-border bg-card/40">
-          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-            <div className="max-w-2xl">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-gold-green">
-                Studying shouldn't feel like guessing.
-              </h2>
-              <p className="mt-3 text-muted-foreground">
-                Generic flashcards don't look like the test you're actually facing.
-                Real exams are long. Practice sets are short. And the night before,
-                you still don't know if you're ready.
-              </p>
-            </div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mx-auto max-w-5xl px-4 py-14 text-center sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-gold-green">
+              Studying shouldn't feel like guessing.
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+              Generic flashcards don't look like the test you're actually facing.
+              Real exams are long. Practice sets are short. And the night before,
+              you still don't know if you're ready.
+            </p>
+            <div className="mt-8 grid gap-4 text-left sm:grid-cols-3">
               {[
                 "Practice tests too short to reflect the real exam",
                 "No idea what level you're actually at",
@@ -283,16 +274,18 @@ export default function Landing() {
 
         {/* How it works */}
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="max-w-xl text-2xl font-bold tracking-tight sm:text-3xl gradient-text-green-gold">
-            From "I should study" to ready — in minutes.
-          </h2>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-green-gold">
+              From "I should study" to ready — in minutes.
+            </h2>
+          </div>
           <div className="mt-12 grid gap-8 sm:grid-cols-3">
             {steps.map((step, i) => (
-              <div key={step.title} className="relative">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-2xl icon-bg-${step.color}`}>
+              <div key={step.title} className="relative text-center">
+                <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl icon-bg-${step.color}`}>
                   <step.icon className="h-7 w-7" />
                 </div>
-                <p className={`mt-3 text-xs font-bold uppercase tracking-wider ${step.color === "gold" ? "text-amber-600" : step.color === "green" ? "text-emerald-700" : "text-amber-900"}`}>
+                <p className={`mt-2 text-xs font-bold uppercase tracking-wider ${step.color === "gold" ? "text-amber-600" : step.color === "green" ? "text-emerald-700" : "text-amber-900"}`}>
                   Step {i + 1}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-foreground">
@@ -358,7 +351,7 @@ export default function Landing() {
 
         {/* Feature grid */}
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
+          <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl gradient-text-diagonal">
               Everything you need to prepare with confidence.
             </h2>
