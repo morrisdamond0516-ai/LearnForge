@@ -90,7 +90,7 @@ const steps = [
 
 export default function Landing() {
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background overflow-x-hidden">
+    <div className="flex min-h-[100dvh] flex-col bg-background">
       <header className="app-header sticky top-0 z-40 flex items-center justify-between px-4 py-3 shadow-lg sm:px-6 lg:px-8 lg:h-16 lg:py-0">
         <div className="flex shrink-0 items-center gap-2 font-bold text-xl tracking-tight">
           <Logo className="h-8 w-auto text-white" />
@@ -128,13 +128,7 @@ export default function Landing() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative grid w-full items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pt-10 lg:pb-20">
-          {/* Owl sits in the top-right corner, just under the nav's Get started button */}
-          <img
-            src={mascot}
-            alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
-            className="pointer-events-none absolute top-1 right-4 z-10 h-20 w-20 drop-shadow-xl sm:right-6 sm:h-24 sm:w-24 lg:right-8"
-          />
+        <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-8 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pt-10 lg:pb-20">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
@@ -190,6 +184,11 @@ export default function Landing() {
 
           {/* Hero visual: mock exam result card */}
           <div className="relative">
+            <img
+              src={mascot}
+              alt="LearnForge mascot, a friendly owl in a graduation cap reading a glowing book"
+              className="pointer-events-none absolute -top-24 -right-2 z-10 h-28 w-28 drop-shadow-xl sm:-top-28 sm:h-32 sm:w-32"
+            />
             <div
               className="absolute -inset-4 -z-10 rounded-3xl opacity-60 blur-2xl"
               style={{
