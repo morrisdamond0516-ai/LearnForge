@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import {
   ClerkProvider,
   SignIn,
@@ -25,46 +25,61 @@ import NotFound from "@/pages/not-found";
 import { Layout } from "@/components/layout";
 import Landing from "@/pages/landing";
 
+// Eagerly loaded — needed immediately after sign-in
 import Dashboard from "@/pages/dashboard";
-import Subjects from "@/pages/subjects";
-import Quizzes from "@/pages/quizzes";
-import QuizTake from "@/pages/quiz-take";
-import Learn from "@/pages/learn";
-import LearnSession from "@/pages/learn-session";
-import Interview from "@/pages/interview";
-import Help from "@/pages/help";
-import Pathways from "@/pages/pathways";
-import Pathway from "@/pages/pathway";
-import Curriculum from "@/pages/curriculum";
-import CurriculumDetail from "@/pages/curriculum-detail";
-import Documents from "@/pages/documents";
-import Attempt from "@/pages/attempt";
-import Pricing from "@/pages/pricing";
-import Terms from "@/pages/terms";
-import Privacy from "@/pages/privacy";
-import Refund from "@/pages/refund";
-import Contact from "@/pages/contact";
-import SchoolCodes from "@/pages/school-codes";
-import OwnerVerifications from "@/pages/owner-verifications";
-import OwnerStats from "@/pages/owner-stats";
-import OwnerOutreach from "@/pages/owner-outreach";
-import Exams from "@/pages/exams";
-import Certificates from "@/pages/certificates";
-import Certificate from "@/pages/certificate";
-import ProgressPage from "@/pages/progress";
-import Tutor from "@/pages/tutor";
-import Flashcards from "@/pages/flashcards";
-import Snap from "@/pages/snap";
-import Games from "@/pages/games";
-import LabPreview, { LabPreviewPage } from "@/pages/lab-preview";
-import LabDemoPage from "@/pages/lab-demo";
-import LabShotPage from "@/pages/lab-shot";
+
+// Lazy-loaded — only fetched when the user navigates there
+const Subjects = lazy(() => import("@/pages/subjects"));
+const Quizzes = lazy(() => import("@/pages/quizzes"));
+const QuizTake = lazy(() => import("@/pages/quiz-take"));
+const Learn = lazy(() => import("@/pages/learn"));
+const LearnSession = lazy(() => import("@/pages/learn-session"));
+const Interview = lazy(() => import("@/pages/interview"));
+const Help = lazy(() => import("@/pages/help"));
+const Pathways = lazy(() => import("@/pages/pathways"));
+const Pathway = lazy(() => import("@/pages/pathway"));
+const Curriculum = lazy(() => import("@/pages/curriculum"));
+const CurriculumDetail = lazy(() => import("@/pages/curriculum-detail"));
+const Documents = lazy(() => import("@/pages/documents"));
+const Attempt = lazy(() => import("@/pages/attempt"));
+const Pricing = lazy(() => import("@/pages/pricing"));
+const Terms = lazy(() => import("@/pages/terms"));
+const Privacy = lazy(() => import("@/pages/privacy"));
+const Refund = lazy(() => import("@/pages/refund"));
+const Contact = lazy(() => import("@/pages/contact"));
+const SchoolCodes = lazy(() => import("@/pages/school-codes"));
+const OwnerVerifications = lazy(() => import("@/pages/owner-verifications"));
+const OwnerStats = lazy(() => import("@/pages/owner-stats"));
+const OwnerOutreach = lazy(() => import("@/pages/owner-outreach"));
+const Exams = lazy(() => import("@/pages/exams"));
+const Certificates = lazy(() => import("@/pages/certificates"));
+const Certificate = lazy(() => import("@/pages/certificate"));
+const ProgressPage = lazy(() => import("@/pages/progress"));
+const Tutor = lazy(() => import("@/pages/tutor"));
+const Flashcards = lazy(() => import("@/pages/flashcards"));
+const Snap = lazy(() => import("@/pages/snap"));
+const Games = lazy(() => import("@/pages/games"));
+const LabPreview = lazy(() => import("@/pages/lab-preview"));
+const LabPreviewEmbedded = lazy(() =>
+  import("@/pages/lab-preview").then((m) => ({ default: m.LabPreviewPage }))
+);
+const LabDemoPage = lazy(() => import("@/pages/lab-demo"));
+const LabShotPage = lazy(() => import("@/pages/lab-shot"));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[40vh]">
+      <div className="h-8 w-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+    </div>
+  );
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,
-      gcTime: 0,
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      retry: 1,
       refetchOnWindowFocus: false,
     },
   },
@@ -178,6 +193,7 @@ function SignUpPage() {
 function AppShell() {
   return (
     <Layout>
+      <Suspense fallback={<PageLoader />}>
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/subjects" component={Subjects} />
@@ -198,7 +214,7 @@ function AppShell() {
         <Route path="/flashcards" component={Flashcards} />
         <Route path="/games" component={Games} />
         <Route path="/lab-preview">
-          {() => <LabPreviewPage embedded />}
+          {() => <LabPreviewEmbedded embedded />}
         </Route>
         <Route path="/snap" component={Snap} />
         <Route path="/documents" component={Documents} />
@@ -210,6 +226,7 @@ function AppShell() {
         <Route path="/attempts/:id" component={Attempt} />
         <Route component={NotFound} />
       </Switch>
+      </Suspense>
     </Layout>
   );
 }
@@ -298,22 +315,24 @@ function ClerkProviderWithRoutes() {
         <ClerkQueryClientCacheInvalidator />
         <AnalyticsTracker />
         <TooltipProvider>
-          <Switch>
-            <Route path="/sign-in/*?" component={SignInPage} />
-            <Route path="/sign-up/*?" component={SignUpPage} />
-            <Route path="/" component={RootGate} />
-            <Route path="/pricing" component={Pricing} />
-            <Route path="/lab-preview" component={LabPreview} />
-            <Route path="/lab-demo" component={LabDemoPage} />
-            <Route path="/lab-shot" component={LabShotPage} />
-            <Route path="/terms" component={Terms} />
-            <Route path="/privacy" component={Privacy} />
-            <Route path="/refund" component={Refund} />
-            <Route path="/contact" component={Contact} />
-            <Route path="/games" component={Games} />
-            <Route path="/help" component={Help} />
-            <Route component={ProtectedGate} />
-          </Switch>
+          <Suspense fallback={<PageLoader />}>
+            <Switch>
+              <Route path="/sign-in/*?" component={SignInPage} />
+              <Route path="/sign-up/*?" component={SignUpPage} />
+              <Route path="/" component={RootGate} />
+              <Route path="/pricing" component={Pricing} />
+              <Route path="/lab-preview" component={LabPreview} />
+              <Route path="/lab-demo" component={LabDemoPage} />
+              <Route path="/lab-shot" component={LabShotPage} />
+              <Route path="/terms" component={Terms} />
+              <Route path="/privacy" component={Privacy} />
+              <Route path="/refund" component={Refund} />
+              <Route path="/contact" component={Contact} />
+              <Route path="/games" component={Games} />
+              <Route path="/help" component={Help} />
+              <Route component={ProtectedGate} />
+            </Switch>
+          </Suspense>
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
