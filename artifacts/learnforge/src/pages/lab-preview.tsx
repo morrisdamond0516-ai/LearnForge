@@ -149,6 +149,37 @@ export function LabPreviewPage({ embedded = false }: LabPreviewPageProps) {
         ))}
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 rounded-xl border border-cyan-500/30 bg-cyan-50/50 p-4 dark:bg-cyan-950/20 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">
+              AI Career Path — jobs the market is hiring
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Foundations then Data, Applied AI, ML, MLOps, and Product tracks — practice
+              that matches 2026 hiring, not hype slides.
+            </p>
+          </div>
+          <Button asChild className="shrink-0 bg-cyan-800 hover:bg-cyan-900">
+            <Link href="/games?game=ai-job-path">Open AI Career Path</Link>
+          </Button>
+        </div>
+        <div className="flex flex-col gap-3 rounded-xl border border-teal-500/30 bg-teal-50/50 p-4 dark:bg-teal-950/20 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">
+              JavaScript That Sticks — understand end to end
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Mental models, worked examples, write-from-scratch practice, and explain-why
+              checks so JavaScript learning actually sticks.
+            </p>
+          </div>
+          <Button asChild className="shrink-0 bg-teal-700 hover:bg-teal-800">
+            <Link href="/games?game=js-job-path">Open JavaScript That Sticks</Link>
+          </Button>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="space-y-3">
         <div className="relative max-w-md">

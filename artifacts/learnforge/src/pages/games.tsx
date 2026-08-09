@@ -101,6 +101,8 @@ export default function GamesPage() {
 
   const featured = filtered.filter((g) => g.depth === "featured");
   const careerGameIds = new Set([
+    "ai-job-path",
+    "js-job-path",
     "career-skills-lab",
     "career-match-party",
     "skills-missions",
@@ -161,9 +163,17 @@ export default function GamesPage() {
               drill screens now live in warm-up/recall — the middle step is always real practice.
             </p>
           </div>
-          <Button asChild className="shrink-0">
-            <Link href="/games?game=career-skills-lab">Open Career Skills Lab</Link>
-          </Button>
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            <Button asChild>
+              <Link href="/games?game=ai-job-path">Open AI Career Path</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/games?game=js-job-path">JavaScript That Sticks</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/games?game=career-skills-lab">Career Skills Lab</Link>
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

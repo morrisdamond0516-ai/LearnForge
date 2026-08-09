@@ -43,6 +43,8 @@ import {
 import { CareerSkillsLab } from "@/components/games/career-skills-lab";
 import { EducationSkillsLab } from "@/components/games/education-skills-lab";
 import { SubjectSimulationsLab } from "@/components/games/subject-sims-lab";
+import { JsJobPathLab } from "@/components/games/js-job-path-lab";
+import { AiJobPathLab } from "@/components/games/ai-job-path-lab";
 import {
   getCareerSkillBySlug,
   type CareerSkillSlug,
@@ -791,6 +793,10 @@ export function BuiltInGamePlayer({
       return <SurvivalRunGame onBack={onBack} />;
     case "career-cash":
       return <CareerCashGame onBack={onBack} />;
+    case "js-job-path":
+      return <JsJobPathLab onBack={onBack} />;
+    case "ai-job-path":
+      return <AiJobPathLab onBack={onBack} />;
     case "career-skills-lab":
       return (
         <CareerSkillsLab

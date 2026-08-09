@@ -26,6 +26,41 @@ export const BUILT_IN_GAMES: BuiltInGame[] = [
     hook: "Physics · Aerospace · Bio · Chem",
   },
   {
+    id: "ai-job-path",
+    title: "AI Career Path",
+    description:
+      "Learn the AI stack employers hire for in 2026 — foundations (systems, data quality, prompting, evals, safety), then specialize into Data for AI, Applied AI Engineering, ML Engineering, MLOps, or AI Product judgment.",
+    subjects: ["careers", "logic"],
+    ages: ["teens", "adults", "all"],
+    duration: "25–55 min per module",
+    skills: [
+      "AI foundations",
+      "RAG & applied AI",
+      "ML & MLOps judgment",
+      "Evals & safety",
+    ],
+    depth: "featured",
+    hook: "Foundations → AI job tracks",
+  },
+  {
+    id: "js-job-path",
+    title: "JavaScript That Sticks",
+    description:
+      "Learn JavaScript from beginning to end so you actually understand it — values through functions, arrays, objects, async, then the DOM, events, and modules. Mental models, worked examples, write-from-scratch practice, explain-why checks, and spaced recall.",
+    subjects: ["careers", "logic"],
+    ages: ["teens", "adults", "all"],
+    duration: "25–50 min per module",
+    skills: [
+      "JavaScript fundamentals",
+      "DOM & events",
+      "ES modules",
+      "Mental models",
+      "Active recall",
+    ],
+    depth: "featured",
+    hook: "Understand JS — values to the browser",
+  },
+  {
     id: "career-skills-lab",
     title: "Career Skills Lab",
     description:

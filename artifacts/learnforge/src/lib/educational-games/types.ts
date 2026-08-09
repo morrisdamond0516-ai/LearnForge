@@ -32,7 +32,9 @@ export type BuiltInGameId =
   | "career-cash"
   | "career-skills-lab"
   | "education-skills-lab"
-  | "subject-simulations-lab";
+  | "subject-simulations-lab"
+  | "js-job-path"
+  | "ai-job-path";
 
 export type GameDepth = "quick" | "featured";
 
