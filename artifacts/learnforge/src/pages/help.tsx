@@ -41,7 +41,7 @@ const FEATURES: Feature[] = [
     what: "A Subject is a topic you want to study, like Algebra, Biology, or US History. Subjects keep your tests and study guides organized.",
     how: [
       "Open Subjects from the menu.",
-      "Browse the ready-made subjects, or click to create your own.",
+      "Start with featured learning paths (JavaScript, Artificial Intelligence), or create your own subject.",
       "Once you have a subject, you can generate tests and learning plans for it.",
     ],
   },
@@ -62,7 +62,8 @@ const FEATURES: Feature[] = [
     href: "/learn",
     what: "Type any topic and the AI researches it and writes a clear study guide with a summary, key points, and next steps.",
     how: [
-      "Open Study Guides and type a topic to research.",
+      "Open Study Guides and type a topic to research — or tap a popular JavaScript / AI topic chip.",
+      "For hands-on practice, open the JavaScript That Sticks or AI Career Path cards on the same page.",
       "Read your generated guide, saved for you to revisit any time.",
     ],
   },
@@ -81,7 +82,7 @@ const FEATURES: Feature[] = [
     icon: BookMarked,
     title: "Curriculum",
     href: "/curriculum",
-    what: "A step-by-step learning plan for a subject at your level, built from the best real books, videos, and courses.",
+    what: "A step-by-step learning plan for a subject at your level, built from the best real books, videos, and courses. Featured careers include AI Specialist and JavaScript Developer with links into the full hands-on learning paths.",
     how: [
       "Pick a subject and your current level (take a Placement test first if you're unsure).",
       "The AI builds an ordered plan of materials to work through.",

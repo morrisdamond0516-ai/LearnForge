@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { BookOpen, Plus, Loader2 } from "lucide-react";
+import { BookOpen, Plus, Loader2, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { LEARNING_PATHS } from "@/lib/educational-games/learning-paths-catalog";
 
 export default function Subjects() {
   const { data: subjects, isLoading } = useListSubjects();
@@ -51,7 +52,9 @@ export default function Subjects() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Subjects</h1>
-          <p className="text-muted-foreground mt-1">Browse topics or create your own custom subject.</p>
+          <p className="text-muted-foreground mt-1">
+            Browse topics, open built-in learning paths, or create your own custom subject.
+          </p>
         </div>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -84,6 +87,47 @@ export default function Subjects() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold tracking-tight">Featured learning paths</h2>
+        <p className="text-sm text-muted-foreground">
+          Structured curricula you can open now — also available under Curriculum, Career Skills Lab,
+          and Study Guides.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {LEARNING_PATHS.map((path) => (
+            <Card key={path.id} className="border-primary/25 bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <span aria-hidden>{path.emoji}</span>
+                  {path.shortTitle}
+                </CardTitle>
+                <CardDescription>{path.description}</CardDescription>
+              </CardHeader>
+              <CardFooter className="flex flex-wrap gap-2 pt-0">
+                <Button asChild>
+                  <Link href={path.href}>
+                    Open {path.title}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={`/curriculum?preset=${encodeURIComponent(path.careerName)}`}>
+                    Build curriculum
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={`/learn?topic=${encodeURIComponent(path.studyGuideTopics[0])}`}>
+                    Study guide
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <h2 className="text-lg font-semibold tracking-tight">Your subjects</h2>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

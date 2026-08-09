@@ -298,6 +298,8 @@ export const CAREER_SKILL_CONTENT: Record<CareerSkillSlug, CareerSkillContent> =
   },
   "data-analyst": {},
   "software-developer": {},
+  "javascript-developer": {},
+  "ai-specialist": {},
   "information-technology": {},
   "cybersecurity": {},
   "cloud-computing": {},

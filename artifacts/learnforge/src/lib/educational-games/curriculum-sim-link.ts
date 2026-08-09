@@ -22,6 +22,7 @@ import {
   type SkillGameType,
 } from "./skill-game-types";
 import type { BuiltInGameId } from "./types";
+import { resolveLearningPath } from "./learning-paths-catalog";
 
 /** Workspace engines that count as real hands-on labs (not quiz-style drills). */
 const LAB_ENGINE_TYPES = new Set<SkillGameType>([
@@ -194,14 +195,42 @@ function resolveSchoolLevel(subject: string): EducationLevelEntry | undefined {
 
 /**
  * Resolve a curriculum subject to a real in-app lab when one exists.
- * Priority: career workspace → math/science subject sim → school level lab.
- * Skips typing/flashcard-only careers.
+ * Priority: learning paths (JS/AI) → career workspace → subject sim → school.
  */
 export function resolveCurriculumSim(
   subject: string,
 ): CurriculumSimLink | null {
+  const learningPath = resolveLearningPath(subject);
+  if (learningPath) {
+    const career = getCareerSkillByCareerName(learningPath.careerName);
+    return {
+      kind: "career",
+      href: learningPath.href,
+      emoji: learningPath.emoji,
+      title: learningPath.title,
+      description: learningPath.description,
+      formatLabel: "Progressive learning path",
+      gameType: career?.gameType ?? "code-trace",
+      cta: `Open ${learningPath.shortTitle} path`,
+      careerSlug: learningPath.careerSlug,
+    };
+  }
+
   const career = getCareerSkillByCareerName(subject);
   if (career) {
+    if (career.learningPathGameId) {
+      return {
+        kind: "career",
+        href: `/games?game=${career.learningPathGameId}`,
+        emoji: career.emoji,
+        title: career.skillTitle,
+        description: career.skillDescription,
+        formatLabel: "Progressive learning path",
+        gameType: career.gameType,
+        cta: `Open ${career.skillTitle}`,
+        careerSlug: career.slug,
+      };
+    }
     const track = getCareerLabTrack(career.slug);
     if (track && track.length > 0) {
       return careerTrackLink(career, track[0]);

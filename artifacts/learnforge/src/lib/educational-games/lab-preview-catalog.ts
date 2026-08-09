@@ -2,6 +2,7 @@ import {
   CAREER_SKILL_GAMES,
   type CareerSkillSlug,
 } from "./career-skills-catalog";
+import { LEARNING_PATHS } from "./learning-paths-catalog";
 import { getCareerLabTrack } from "./career-lab-tracks";
 import {
   EDUCATION_LEVEL_GAMES,
@@ -83,6 +84,8 @@ const CAREER_CLUSTER: Record<CareerSkillSlug, LabPreviewCluster> = {
   "hvac-tech": "trades",
   "cdl-driver": "trades",
   "software-developer": "technology",
+  "javascript-developer": "technology",
+  "ai-specialist": "technology",
   "data-analyst": "technology",
   "information-technology": "technology",
   "it-support": "technology",
@@ -136,7 +139,28 @@ function subjectHref(slug: SubjectSimSlug): string {
 export function buildLabPreviewCatalog(): LabPreviewEntry[] {
   const entries: LabPreviewEntry[] = [];
 
+  // Full learning-path careers (JS / AI) — no workspace track modules
+  for (const path of LEARNING_PATHS) {
+    entries.push({
+      id: `learning-path:${path.id}`,
+      kind: "career",
+      cluster: "technology",
+      emoji: path.emoji,
+      trackName: path.careerName,
+      moduleTitle: path.title,
+      description: path.description,
+      domain: "Learning path",
+      duration: path.id === "ai" ? "3–8 hrs path" : "2–6 hrs path",
+      gameType: path.id === "javascript" ? "code-trace" : "script-choice",
+      formatLabel: "Progressive learning path",
+      labIndex: 1,
+      labCount: 1,
+      href: path.href,
+    });
+  }
+
   for (const career of CAREER_SKILL_GAMES) {
+    if (career.learningPathGameId) continue;
     const track = getCareerLabTrack(career.slug);
     if (!track || track.length === 0) continue;
     track.forEach((mod, idx) => {

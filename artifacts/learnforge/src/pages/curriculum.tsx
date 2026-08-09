@@ -35,13 +35,23 @@ import { Check, ChevronsUpDown, Sparkles, Loader2, Library } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { curriculumPresetGroups } from "@/lib/curriculum-subject-presets";
 import { cn } from "@/lib/utils";
+import { LEARNING_PATHS } from "@/lib/educational-games/learning-paths-catalog";
 
 const CUSTOM = "__custom__";
 const PRESET_PREFIX = "preset:";
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+
+function initialSubjectChoiceFromSearch(search: string): string {
+  const params = new URLSearchParams(
+    search.startsWith("?") ? search.slice(1) : search,
+  );
+  const preset = params.get("preset")?.trim();
+  if (!preset) return CUSTOM;
+  return `${PRESET_PREFIX}${preset}`;
+}
 
 export default function Curriculum() {
   const { data: curricula, isLoading } = useListCurricula();
@@ -50,8 +60,11 @@ export default function Curriculum() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+  const search = useSearch();
 
-  const [subjectChoice, setSubjectChoice] = useState(CUSTOM);
+  const [subjectChoice, setSubjectChoice] = useState(() =>
+    initialSubjectChoiceFromSearch(search),
+  );
   const [customSubject, setCustomSubject] = useState("");
   const [level, setLevel] = useState("Beginner");
   const [subjectOpen, setSubjectOpen] = useState(false);
@@ -263,8 +276,23 @@ export default function Curriculum() {
                 </PopoverContent>
               </Popover>
               <p className="text-xs text-muted-foreground">
-                Careers are listed first — search “Data Analyst” or “Information Technology”, or pick Other for any topic.
+                Careers are listed first — search “AI Specialist”, “JavaScript Developer”, or “Data Analyst”, or pick Other for any topic.
               </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {LEARNING_PATHS.map((path) => (
+                  <Button
+                    key={path.id}
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() =>
+                      setSubjectChoice(`${PRESET_PREFIX}${path.careerName}`)
+                    }
+                  >
+                    {path.emoji} {path.shortTitle}
+                  </Button>
+                ))}
+              </div>
               {subjectsError ? (
                 <p className="text-xs text-muted-foreground">
                   Could not load your saved subjects — showing built-in careers

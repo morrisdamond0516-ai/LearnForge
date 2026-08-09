@@ -28,6 +28,8 @@ export const CAREER_OPTIONS = [
   "HVAC Technician",
   "Commercial Driver (CDL)",
   "Software Developer / Coding",
+  "JavaScript Developer",
+  "AI Specialist / AI Engineer",
   "Data Analyst",
   "Information Technology",
   "IT Support / CompTIA A+",

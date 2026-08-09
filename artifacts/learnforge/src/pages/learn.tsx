@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useSearch } from "wouter";
+import { LEARNING_PATHS } from "@/lib/educational-games/learning-paths-catalog";
 
 export default function Learn() {
   const { data: sessions, isLoading } = useListLearnSessions();
@@ -48,7 +49,7 @@ export default function Learn() {
         <p className="text-muted-foreground mt-1 mb-8">Enter any topic and our AI will research it and build a structured study guide for you.</p>
         
         <Card className="border-2 border-primary/20 shadow-md">
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-4">
             <div className="flex gap-4">
               <Input 
                 value={topic} 
@@ -62,8 +63,53 @@ export default function Learn() {
                 Research
               </Button>
             </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs font-medium text-muted-foreground self-center">
+                Popular topics:
+              </span>
+              {LEARNING_PATHS.flatMap((p) => p.studyGuideTopics.slice(0, 2)).map((t) => (
+                <Button
+                  key={t}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setTopic(t)}
+                >
+                  {t}
+                </Button>
+              ))}
+            </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="text-xl font-bold tracking-tight">Hands-on learning paths</h2>
+        <p className="text-sm text-muted-foreground">
+          Prefer structured practice over a researched summary? Open these curricula directly.
+        </p>
+        <div className="grid gap-3 md:grid-cols-2">
+          {LEARNING_PATHS.map((path) => (
+            <Card key={path.id} className="border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">
+                  {path.emoji} {path.title}
+                </CardTitle>
+                <CardDescription>{path.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                <Button asChild size="sm">
+                  <Link href={path.href}>Start path</Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/curriculum?preset=${encodeURIComponent(path.careerName)}`}>
+                    Curriculum plan
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       <Link href="/learn/interview">

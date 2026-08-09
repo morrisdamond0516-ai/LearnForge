@@ -4,6 +4,8 @@ import { SUBJECT_SIMULATIONS } from "@/lib/educational-games/subject-sims-catalo
 
 /** Shown first in Curriculum — tech & data paths learners ask for most. */
 export const CURRICULUM_FEATURED_CAREERS: readonly string[] = [
+  "AI Specialist / AI Engineer",
+  "JavaScript Developer",
   "Software Developer / Coding",
   "Data Analyst",
   "Information Technology",
@@ -32,6 +34,9 @@ export const CURRICULUM_GENERAL_PRESETS: readonly string[] = [
   "History",
   "Geography",
   "Computer Science",
+  "JavaScript",
+  "Artificial Intelligence",
+  "Machine Learning",
   "Spanish",
   "French",
   "Study Skills",

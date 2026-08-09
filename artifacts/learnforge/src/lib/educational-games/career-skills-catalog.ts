@@ -1,5 +1,7 @@
 import { CAREER_OPTIONS } from "@/lib/careers";
+import type { BuiltInGameId } from "./types";
 import type { SkillGameType } from "./skill-game-types";
+import { resolveLearningPath } from "./learning-paths-catalog";
 
 export type CareerSkillSlug =
   | "family-services"
@@ -31,6 +33,8 @@ export type CareerSkillSlug =
   | "hvac-tech"
   | "cdl-driver"
   | "software-developer"
+  | "javascript-developer"
+  | "ai-specialist"
   | "data-analyst"
   | "information-technology"
   | "it-support"
@@ -51,6 +55,11 @@ export type CareerSkillEntry = {
   skillDescription: string;
   gameType: SkillGameType;
   duration: string;
+  /**
+   * When set, Career Skills Lab opens this learning-path hub instead of a
+   * ticket/spreadsheet workspace track.
+   */
+  learningPathGameId?: BuiltInGameId;
 };
 
 /** Maps each LearnForge career to a hands-on skill mini-game. */
@@ -331,9 +340,31 @@ export const CAREER_SKILL_GAMES: CareerSkillEntry[] = [
     emoji: "👨‍💻",
     skillTitle: "Software Developer Lab Track",
     skillDescription:
-      "Hands-on dev labs: ticket intake, CI terminal, Git/debug workspaces — code review drills merged into warm-up/recall.",
+      "Hands-on dev labs: ticket intake, CI terminal, Git/debug workspaces — code review drills merged into warm-up/recall. For deep JavaScript mastery, open JavaScript Developer.",
     gameType: "intake-form-workspace",
     duration: "50–70 min",
+  },
+  {
+    slug: "javascript-developer",
+    careerName: "JavaScript Developer",
+    emoji: "🟨",
+    skillTitle: "JavaScript That Sticks",
+    skillDescription:
+      "Full JavaScript learning path — values through DOM, events, and modules. Understand → write → explain → recall so the language sticks.",
+    gameType: "code-trace",
+    duration: "2–6 hrs path",
+    learningPathGameId: "js-job-path",
+  },
+  {
+    slug: "ai-specialist",
+    careerName: "AI Specialist / AI Engineer",
+    emoji: "🤖",
+    skillTitle: "AI Career Path",
+    skillDescription:
+      "Job-market AI path — foundations, then Data for AI, Applied AI, ML Engineering, MLOps, and AI Product judgment.",
+    gameType: "script-choice",
+    duration: "3–8 hrs path",
+    learningPathGameId: "ai-job-path",
   },
   {
     slug: "data-analyst",
@@ -454,6 +485,18 @@ export function getCareerSkillByCareerName(
 ): CareerSkillEntry | undefined {
   const needle = name.trim().toLowerCase();
   if (!needle) return undefined;
+
+  // Learning paths first — before generic "developer" / "coding" matches.
+  const learningPath = resolveLearningPath(name);
+  if (learningPath) {
+    return getCareerSkillBySlug(learningPath.careerSlug);
+  }
+
+  // Short aliases that would otherwise substring-match other careers (e.g. medical coding).
+  if (needle === "coding" || needle === "programming" || needle === "software") {
+    return getCareerSkillBySlug("software-developer");
+  }
+
   return CAREER_SKILL_GAMES.find((g) => {
     const career = g.careerName.toLowerCase();
     return (

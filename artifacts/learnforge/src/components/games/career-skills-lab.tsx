@@ -33,6 +33,8 @@ import {
 } from "@/lib/educational-games/skill-game-types";
 import { getBestLabAttempt } from "@/lib/lab-history";
 import type { LabDifficulty } from "@/lib/educational-games/career-lab-tracks-extended";
+import { JsJobPathLab } from "@/components/games/js-job-path-lab";
+import { AiJobPathLab } from "@/components/games/ai-job-path-lab";
 
 const DIFFICULTY_STYLES: Record<LabDifficulty, string> = {
   beginner: "bg-sky-500 text-white",
@@ -88,6 +90,29 @@ export function CareerSkillsLab({
 
   if (selected) {
     const entry = getCareerSkillBySlug(selected)!;
+
+    // Full learning-path careers (JS / AI) — not ticket-style workspace tracks
+    if (entry.learningPathGameId === "js-job-path") {
+      return (
+        <JsJobPathLab
+          onBack={() => {
+            setSelected(null);
+            setModuleId(null);
+          }}
+        />
+      );
+    }
+    if (entry.learningPathGameId === "ai-job-path") {
+      return (
+        <AiJobPathLab
+          onBack={() => {
+            setSelected(null);
+            setModuleId(null);
+          }}
+        />
+      );
+    }
+
     const track = getCareerLabTrack(selected);
     const activeModule: CareerLabModule | undefined =
       track?.find((m) => m.id === moduleId) ??
@@ -299,11 +324,11 @@ export function CareerSkillsLab({
     >
       <Card className="mb-6 border-primary/20 bg-primary/5">
         <CardContent className="p-4 text-sm text-muted-foreground">
-          <Briefcase className="mb-2 inline h-4 w-4 text-primary" /> Each game
-          teaches a real job skill — typing, coding, wiring, pharmacy math, PC
-          building, and more. IT and Data Analyst include multi-lab tracks (Data Analyst
-          covers spreadsheets, metrics, and AI-assisted analytics judgment).
-          Original LearnForge content; no extra cost to run.
+          <Briefcase className="mb-2 inline h-4 w-4 text-primary" /> Each career
+          opens real practice — forms, terminals, charts, and full learning paths.
+          Look for <strong className="text-foreground">JavaScript Developer</strong> and{" "}
+          <strong className="text-foreground">AI Specialist / AI Engineer</strong> for
+          deep progressive curricula (not quiz-only drills).
         </CardContent>
       </Card>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -334,13 +359,21 @@ export function CareerSkillsLab({
                   {career.skillDescription}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Badge variant="secondary">
-                    {SKILL_GAME_TYPE_LABELS[career.gameType]}
-                  </Badge>
+                  {career.learningPathGameId ? (
+                    <Badge className="bg-cyan-800 text-white hover:bg-cyan-800">
+                      Full learning path
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">
+                      {SKILL_GAME_TYPE_LABELS[career.gameType]}
+                    </Badge>
+                  )}
                   {track && track.length > 1 ? (
                     <Badge variant="default">{track.length} labs</Badge>
                   ) : null}
-                  <Badge className="bg-primary/90">3-step modules</Badge>
+                  {!career.learningPathGameId ? (
+                    <Badge className="bg-primary/90">3-step modules</Badge>
+                  ) : null}
                   <Badge variant="outline">{career.duration}</Badge>
                 </div>
               </CardContent>
